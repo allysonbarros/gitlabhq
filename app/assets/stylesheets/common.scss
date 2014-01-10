@@ -394,3 +394,38 @@ table {
     font-weight: bolder;
   }
 }
+
+
+// Notifications
+#header-notifications {
+  overflow: hidden;
+}
+
+.event-item.notification {
+  padding: 14px;
+  border-bottom: 1px solid #dfdfdf;
+
+  &.unread {
+    background: #f9f9f9;
+  }
+
+  &:first-child {
+    padding: 14px;
+  }
+
+  .event-title .event_label a {
+    text-decoration: underline;
+    color: #333;
+  }
+
+  span.notification_project_name a {
+    text-decoration: none !important;
+    color: #2fa0bb !important;
+  }
+}
+
+.notifications-counter {
+  // position: absolute;
+  // top: 3px;
+  // left: 18px;
+}

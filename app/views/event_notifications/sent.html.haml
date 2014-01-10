@@ -1,0 +1,11 @@
+%div#header-notifications
+	%h3.page-title.pull-left 
+		Sent (#{current_user.event_notifications_sent.size})
+
+	%span.pull-right
+		%p 
+			%strong
+				Showing X–Y of #{current_user.event_notifications_sent.size}
+
+%div.content_list
+	= render partial: "event_notification_sent", collection: @event_notifications_sent

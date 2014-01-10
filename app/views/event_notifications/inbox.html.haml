@@ -1,0 +1,11 @@
+%div#header-notifications
+	%h3.page-title.pull-left 
+		My Inbox (#{current_user.event_notifications.unread.size})
+
+	%span.pull-right
+		%p 
+			%strong
+				Showing X–Y of #{current_user.event_notifications.size}
+
+%div.content_list
+	= render @event_notifications

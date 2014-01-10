@@ -1,0 +1,22 @@
+.notification.event-item{class: "#{event_notification.read? ? "event-block read" : "event-block unread" }"}
+  %span.cgray.pull-right
+    #{time_ago_with_tooltip(event_notification.created_at)} ago
+
+  = cache event_notification do
+    = image_tag avatar_icon(event_notification.author_email, 48), class: "avatar s48", alt:''
+
+  .event-title
+    %span.author_name
+      = link_to_author event_notification
+    %span.event_label
+      = link_to event_notification.title, show_user_notification_path(event_notification)
+      at 
+      %span.notification_project_name
+        - if event_notification.project
+          #{link_to_project event_notification.project}
+        - else
+          #{event_notification.project_name}
+          
+  .event-body
+    .event-note
+      #{truncate(event_notification.message, length: 160)}

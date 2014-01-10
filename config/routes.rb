@@ -133,7 +133,12 @@ Gitlab::Application.routes.draw do
 
   match "/u/:username" => "users#show", as: :user, constraints: { username: /.*/ }, via: :get
 
-
+  #
+  # Event Notifications Area
+  #
+  match "/account/notifications/inbox" => "event_notifications#inbox", as: :inbox_user_notifications, via: :get
+  match "/account/notifications/sent" => "event_notifications#sent", as: :sent_user_notifications, via: :get
+  match "/account/notifications/:id/view" => "event_notifications#show", as: :show_user_notification, via: :get
 
   #
   # Dashboard Area

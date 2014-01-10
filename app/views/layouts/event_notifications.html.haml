@@ -1,0 +1,12 @@
+!!! 5
+%html{ lang: "en"}
+  = render "layouts/head", title: "My Notifications"
+  %body{class: "#{app_theme} application", :'data-page' => body_data_page }
+    = render "layouts/broadcast"
+    = render "layouts/head_panel", title: "My Notifications"
+    = render "layouts/flash"
+    %nav.main-nav
+      .container= render 'layouts/nav/event_notifications'
+
+    .container
+      .content= yield
