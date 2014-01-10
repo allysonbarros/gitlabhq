@@ -1,13 +1,13 @@
-.notification.event-item{class: "#{event_notification_sent.read? ? "event-block read" : "event-block unread" }"}
+.notification.event-item{class: "event-block"}
   %span.cgray.pull-right
     #{time_ago_with_tooltip(event_notification_sent.created_at)} ago
 
   = cache event_notification_sent do
-    = image_tag avatar_icon(event_notification_sent.author_email, 48), class: "avatar s48", alt:''
+    = image_tag avatar_icon(event_notification_sent.user_email, 48), class: "avatar s48", alt:''
 
   .event-title
     %span.author_name
-      = link_to_author event_notification_sent
+      = link_to_sender event_notification_sent
     %span.event_label
       = link_to event_notification_sent.title, show_user_notification_path(event_notification_sent)
       at 

@@ -5,7 +5,11 @@
 	%span.pull-right
 		%p 
 			%strong
-				Showing X–Y of #{current_user.event_notifications_sent.size}
+				= page_entries_info @event_notifications_sent, :entry_name => ''
+
+	%hr
 
 %div.content_list
 	= render partial: "event_notification_sent", collection: @event_notifications_sent
+
+	= paginate @event_notifications_sent, theme: 'gitlab'

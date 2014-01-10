@@ -1,11 +1,33 @@
 %div#header-notifications
-	%h3.page-title.pull-left 
-		My Inbox (#{current_user.event_notifications.unread.size})
+  %h3.page-title.pull-left 
+    My Inbox (#{current_user.event_notifications.unread.size})
 
-	%span.pull-right
-		%p 
-			%strong
-				Showing X–Y of #{current_user.event_notifications.size}
+  %span.pull-right
+    %p 
+      %strong
+        = page_entries_info @event_notifications, :entry_name => ''
 
-%div.content_list
-	= render @event_notifications
+  %hr
+
+.row
+  .span3
+    %ul.nav.nav-pills.nav-stacked
+      = nav_tab :scope, nil do
+        = link_to inbox_user_notifications_path do
+          All
+          %span.pull-right
+            = current_user.event_notifications.size
+      = nav_tab :scope, 'unread' do
+        = link_to inbox_user_notifications_path(scope: 'unread') do
+          Unread
+          %span.pull-right
+            = current_user.event_notifications.unread.size
+      = nav_tab :scope, 'read' do
+        = link_to inbox_user_notifications_path(scope: 'read') do
+          Read
+          %span.pull-right
+            = current_user.event_notifications.read.size
+
+  .span9.my-snippets
+    = render @event_notifications
+    = paginate @event_notifications, theme: 'gitlab'

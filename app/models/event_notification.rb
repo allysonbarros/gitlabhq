@@ -23,6 +23,7 @@ class EventNotification < ActiveRecord::Base
 	belongs_to :event
 
     delegate :name, :email, to: :author, prefix: true, allow_nil: true
+    delegate :name, :email, to: :user, prefix: true, allow_nil: true
 
     validates :title, :message, presence: true
     validates :author, presence: true

@@ -9,6 +9,16 @@ module EventsHelper
     end
   end
 
+  def link_to_sender(event)
+    user = event.user
+
+    if user
+      link_to user.name, user_path(user.username)
+    else
+      event.user_name
+    end
+  end
+
   def event_action_name(event)
     target = if event.target_type
                event.target_type.titleize.downcase
