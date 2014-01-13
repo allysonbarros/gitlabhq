@@ -23,7 +23,7 @@
           = link_to inbox_user_notifications_path, title: "Notifications", class: 'has_bottom_tooltip', 'data-original-title' => 'Notifications' do
             %i.icon-bell
 
-            - if current_user.event_notifications
+            - if current_user.event_notifications.unread.any?
               %span.notifications-counter.label.label-important 
                 =current_user.event_notifications.unread.size
         %li

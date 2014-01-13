@@ -22,11 +22,18 @@ class EventNotificationsController < ApplicationController
 		@event_notification.save!
 	end
 
+	def destroy
+		@event_notification = EventNotification.find(params[:id])
+		@event_notification.destroy
+
+    	redirect_to :inbox_user_notifications, notice: 'Notification was deleted.'
+	end
+
 	def mark_as_unread
 		@event_notification = EventNotification.find(params[:id])
 		@event_notification.read = false
 		@event_notification.save!
 
-		redirect_to :inbox_user_notifications	
+		redirect_to :inbox_user_notifications
 	end
 end

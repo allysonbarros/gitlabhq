@@ -4,7 +4,7 @@
 
   %span.pull-right
     .btn-group
-      = link_to "Delete", "#", :class => "btn"
+      = link_to "Delete", destroy_user_notification_path, :method => :delete, :class => "btn"
       = link_to "Mark as unread", user_notification_mark_as_unread_path(@event_notification, title: @event_notification.title.parameterize), :class => "btn"
   %hr
 
