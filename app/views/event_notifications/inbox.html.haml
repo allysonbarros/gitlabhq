@@ -1,6 +1,6 @@
 %div#header-notifications
   %h3.page-title.pull-left 
-    My Inbox (#{current_user.event_notifications.unread.size})
+    Notifications
 
   %span.pull-right
     %p 
@@ -29,5 +29,8 @@
             = current_user.event_notifications.read.size
 
   .span9.my-snippets
-    = render @event_notifications
-    = paginate @event_notifications, theme: 'gitlab'
+    - if @event_notifications.any?
+      = render @event_notifications
+      = paginate @event_notifications, theme: 'gitlab'
+    - else
+      %p.nothing_here_message No notifications to show

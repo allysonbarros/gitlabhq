@@ -9,7 +9,7 @@
     %span.author_name
       = link_to_author event_notification
     %span.event_label
-      = link_to event_notification.title, show_user_notification_path(event_notification)
+      = link_to event_notification.title, show_user_notification_path(event_notification, title: event_notification.title.parameterize)
       at 
       %span.notification_project_name
         - if event_notification.project

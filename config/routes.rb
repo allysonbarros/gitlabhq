@@ -138,7 +138,8 @@ Gitlab::Application.routes.draw do
   #
   match "/account/notifications/inbox" => "event_notifications#inbox", as: :inbox_user_notifications, via: :get
   match "/account/notifications/sent" => "event_notifications#sent", as: :sent_user_notifications, via: :get
-  match "/account/notifications/:id/view" => "event_notifications#show", as: :show_user_notification, via: :get
+  match "/account/notifications/:id/read/:title" => "event_notifications#show", as: :show_user_notification, via: :get
+  match "/account/notifications/:id/read/:title/mark-as-unread" => "event_notifications#mark_as_unread", as: :user_notification_mark_as_unread, via: :get
 
   #
   # Dashboard Area
