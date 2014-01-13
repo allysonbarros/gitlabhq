@@ -14,4 +14,4 @@
         = render partial: "event_notification_sent", collection: @event_notifications_sent
         = paginate @event_notifications_sent, theme: 'gitlab'
     - else
-        %p.nothing_here_message No sent notifications to show
+        %p.nothing_here_message No notifications to show
