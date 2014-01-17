@@ -13,7 +13,11 @@ class ActivityObserver < BaseObserver
     end
 
     if event_author_id
-      create_event(record, Event.determine_action(record))
+      event = create_event(record, Event.determine_action(record))
+      
+      if record.kind_of?(Note) and Event.determine_action(record) == Event::COMMENTED
+        create_event_notification(record, event)
+      end
     end
   end
 
@@ -28,12 +32,35 @@ class ActivityObserver < BaseObserver
   protected
 
   def create_event(record, status)
-    Event.create(
+    event = Event.create(
       project: record.project,
       target_id: record.id,
       target_type: record.class.name,
       action: status,
       author_id: current_user.id
     )
+
+    return event
+  end
+
+  # Method used to create a new EventNotification record based on Note created instance.
+  def create_event_notification(record, event)
+    author = record.author
+    project = record.project
+    message = record.note
+    mentioned_users = record.mentioned_users
+
+    # TODO: Ajustar o título padrão de acordo com o tipo do evento.
+    mentioned_users.each do |user|
+      EventNotification.create({
+        user: user,
+        author: author,
+        project: project,
+        title: "mentioned you",
+        message: message,
+        event: event,
+        read: false
+      })
+    end
   end
 end

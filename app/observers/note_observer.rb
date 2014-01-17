@@ -1,6 +1,8 @@
 class NoteObserver < BaseObserver
   def after_create(note)
+    # Disparando a notificação via email
     notification.new_note(note)
+
 
     unless note.system?
       # Create a cross-reference note if this Note contains GFM that names an

@@ -422,7 +422,7 @@ table {
     color: #333;
   }
 
-  span.notification_project_name a {
+  span.notification_project_name a, span.notification_event_title a {
     text-decoration: none !important;
     color: #2fa0bb !important;
   }

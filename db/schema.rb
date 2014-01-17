@@ -35,13 +35,13 @@ ActiveRecord::Schema.define(version: 20140108165603) do
   add_index "deploy_keys_projects", ["project_id"], name: "index_deploy_keys_projects_on_project_id", using: :btree
 
   create_table "event_notifications", force: true do |t|
-    t.text     "title"
-    t.text     "message"
+    t.text     "title",      null: false
+    t.text     "message",    null: false
     t.boolean  "read"
     t.integer  "user_id",    null: false
     t.integer  "author_id",  null: false
-    t.integer  "project_id", null: false
-    t.integer  "event_id",   null: false
+    t.integer  "project_id"
+    t.integer  "event_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

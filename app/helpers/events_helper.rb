@@ -128,6 +128,22 @@ module EventsHelper
     end
   end
 
+  def event_note_title(event)
+    if event.note_target
+      if event.note_commit?
+        "#{event.note_target_type} #{event.note_short_commit_id}"
+      elsif event.note_project_snippet?
+        "#{event.note_target_type} ##{truncate event.note_target_id}"
+      else
+        "#{event.note_target_type} ##{truncate event.note_target_iid}"
+      end
+    elsif event.wall_note?
+      "wall"
+    else
+      "(deleted)"
+    end
+  end
+
   def event_note(text)
     text = first_line(text)
     text = truncate(text, length: 150)

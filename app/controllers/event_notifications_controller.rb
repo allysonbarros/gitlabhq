@@ -20,6 +20,8 @@ class EventNotificationsController < ApplicationController
 		@event_notification = EventNotification.find(params[:id])
 		@event_notification.read = true
 		@event_notification.save!
+
+		redirect_to @event_notification.link_to_target
 	end
 
 	def destroy

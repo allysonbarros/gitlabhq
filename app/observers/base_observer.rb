@@ -1,5 +1,6 @@
 class BaseObserver < ActiveRecord::Observer
   def notification
+    # Instanciando o serviço de Notificações por Email
     NotificationService.new
   end
 

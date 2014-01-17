@@ -9,8 +9,15 @@
     %span.author_name
       = link_to_author event_notification
     %span.event_label
-      = link_to event_notification.title, show_user_notification_path(event_notification, title: event_notification.title.parameterize)
+      /= link_to , show_user_notification_path(event_notification, title: event_notification.title.parameterize)
+      #{event_notification.title}
+      on 
+      
+      %span.notification_event_title
+        / #{event_note_title_html(event_notification.event)}
+        = link_to event_note_title(event_notification.event), show_user_notification_path(event_notification)
       at 
+      
       %span.notification_project_name
         - if event_notification.project
           #{link_to_project event_notification.project}
@@ -19,4 +26,6 @@
           
   .event-body
     .event-note
-      #{truncate(event_notification.message, length: 160)}
+      .md
+        %i.icon-comment-alt.event-note-icon
+        = event_note(event_notification.event.target.note)
