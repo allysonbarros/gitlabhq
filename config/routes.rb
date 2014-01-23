@@ -134,7 +134,14 @@ Gitlab::Application.routes.draw do
 
   match "/u/:username" => "users#show", as: :user, constraints: { username: /.*/ }, via: :get
 
-
+  #
+  # Event Notifications Area
+  #
+  match "/account/notifications/inbox" => "event_notifications#inbox", as: :inbox_user_notifications, via: :get
+  match "/account/notifications/sent" => "event_notifications#sent", as: :sent_user_notifications, via: :get
+  match "/account/notifications/:id/read/" => "event_notifications#show", as: :show_user_notification, via: :get
+  match "/account/notifications/:id/read/mark-as-unread" => "event_notifications#mark_as_unread", as: :user_notification_mark_as_unread, via: :get
+  match "/account/notifications/:id/delete" => "event_notifications#destroy", as: :destroy_user_notification, via: :delete
 
   #
   # Dashboard Area
