@@ -1,0 +1,33 @@
+%div#header-notifications
+  %h3.page-title.pull-left 
+    Notifications
+
+  %span.pull-right
+    .btn-group
+      = link_to "Delete", destroy_user_notification_path, :method => :delete, :class => "btn"
+      = link_to "Mark as unread", user_notification_mark_as_unread_path(@event_notification, title: @event_notification.title.parameterize), :class => "btn"
+  %hr
+
+%div.content
+  %h4= @event_notification.title
+
+  %br
+
+  .notification.visualization
+    = cache @event_notification do
+      = image_tag avatar_icon(@event_notification.author_email, 48), class: "avatar s48", alt:''
+
+    .event-title
+      %span.author_name
+        = link_to_author @event_notification
+      %span.event_label
+        wrote on #{@event_notification.created_at.strftime("%d/%m/%Y")}
+        at 
+        %span.notification_project_name
+          - if @event_notification.project
+            #{link_to_project @event_notification.project}
+          - else
+            #{@event_notification.project_name}
+    
+    .event-body
+      #{@event_notification.message}
