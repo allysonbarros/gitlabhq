@@ -13,6 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20140116231608) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "broadcast_messages", force: true do |t|
     t.text     "message",    null: false
     t.datetime "starts_at"
@@ -32,6 +35,18 @@ ActiveRecord::Schema.define(version: 20140116231608) do
   end
 
   add_index "deploy_keys_projects", ["project_id"], name: "index_deploy_keys_projects_on_project_id", using: :btree
+
+  create_table "event_notifications", force: true do |t|
+    t.text     "title",      null: false
+    t.text     "message",    null: false
+    t.boolean  "read"
+    t.integer  "user_id",    null: false
+    t.integer  "author_id",  null: false
+    t.integer  "project_id"
+    t.integer  "event_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "events", force: true do |t|
     t.string   "target_type"
@@ -96,20 +111,20 @@ ActiveRecord::Schema.define(version: 20140116231608) do
   add_index "keys", ["user_id"], name: "index_keys_on_user_id", using: :btree
 
   create_table "merge_requests", force: true do |t|
-    t.string   "target_branch",                        null: false
-    t.string   "source_branch",                        null: false
-    t.integer  "source_project_id",                    null: false
+    t.string   "target_branch",     null: false
+    t.string   "source_branch",     null: false
+    t.integer  "source_project_id", null: false
     t.integer  "author_id"
     t.integer  "assignee_id"
     t.string   "title"
-    t.datetime "created_at",                           null: false
-    t.datetime "updated_at",                           null: false
-    t.text     "st_commits",        limit: 2147483647
-    t.text     "st_diffs",          limit: 2147483647
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.text     "st_commits"
+    t.text     "st_diffs"
     t.integer  "milestone_id"
     t.string   "state"
     t.string   "merge_status"
-    t.integer  "target_project_id",                    null: false
+    t.integer  "target_project_id", null: false
     t.integer  "iid"
     t.text     "description"
   end
@@ -228,14 +243,14 @@ ActiveRecord::Schema.define(version: 20140116231608) do
 
   create_table "snippets", force: true do |t|
     t.string   "title"
-    t.text     "content",    limit: 2147483647
-    t.integer  "author_id",                                    null: false
+    t.text     "content"
+    t.integer  "author_id",                 null: false
     t.integer  "project_id"
-    t.datetime "created_at",                                   null: false
-    t.datetime "updated_at",                                   null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.string   "file_name"
     t.datetime "expires_at"
-    t.boolean  "private",                       default: true, null: false
+    t.boolean  "private",    default: true, null: false
     t.string   "type"
   end
 
