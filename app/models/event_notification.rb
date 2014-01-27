@@ -40,18 +40,4 @@ class EventNotification < ActiveRecord::Base
       "(deleted project)"
     end
 	end
-
-  def link_to_target
-    if event.note_target
-      if event.note_commit?
-        project_commit_path(event.project, event.note_commit_id)
-      elsif event.note_project_snippet?
-        project_snippet_path(event.project, event.note_target)
-      else
-        event_note_target_path(event)
-      end
-    elsif event.wall_note?
-      project_wall_path(event.project)
-    end
-  end
 end

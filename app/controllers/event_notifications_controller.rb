@@ -21,7 +21,23 @@ class EventNotificationsController < ApplicationController
 		@event_notification.read = true
 		@event_notification.save!
 
-		redirect_to @event_notification.link_to_target
+		if @event_notification.event.note_target
+	      if @event_notification.event.note_commit?
+	        redirect_to project_commit_path(@event_notification.event.project, @event_notification.event.note_commit_id)
+	      elsif @event_notification.event.note_project_snippet?
+	        redirect_to project_snippet_path(@event_notification.event.project, @event_notification.event.note_target)
+	      else
+	        if @event_notification.event.note? && @event_notification.event.note_commit?
+		      redirect_to project_commit_path(@event_notification.event.project, @event_notification.event.note_target)
+		    else
+		      redirect_to polymorphic_path([@event_notification.event.project, @event_notification.event.note_target])
+		    end
+	      end
+	    elsif @event_notification.event.wall_note?
+	      redirect_to project_wall_path(@event_notification.event.project)
+	    else
+	      redirect_to projects_dashboard_path
+	    end
 	end
 
 	def destroy
@@ -37,5 +53,10 @@ class EventNotificationsController < ApplicationController
 		@event_notification.save!
 
 		redirect_to :inbox_user_notifications
+	end
+
+	private 
+	def method_name
+		
 	end
 end

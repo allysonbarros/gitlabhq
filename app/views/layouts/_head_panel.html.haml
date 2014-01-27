@@ -33,7 +33,7 @@
               %i.icon-bell
 
               - if current_user.event_notifications.unread.any?
-                %span.notifications-counter.label.label-important 
+                %span.notifications-counter.label.label-danger 
                   =current_user.event_notifications.unread.size
           %li
             %span.separator
