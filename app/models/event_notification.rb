@@ -31,7 +31,7 @@ class EventNotification < ActiveRecord::Base
   validates :author, presence: true
 
   scope :unread, -> { where.not(read: true) }
-  scope :read, -> { unscoped.where(read: true) }
+  scope :read, -> { where(read: true) }
 
 	def project_name
     if project
