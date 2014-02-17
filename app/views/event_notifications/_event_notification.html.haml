@@ -15,17 +15,24 @@
       
       %span.notification_event_title
         / #{event_note_title_html(event_notification.event)}
-        = link_to event_note_title(event_notification.event), show_user_notification_path(event_notification)
+        - if event_notification.event
+          = link_to event_note_title(event_notification.event), show_user_notification_path(event_notification)
+        - else
+          (deleted)
       at 
       
       %span.notification_project_name
         - if event_notification.project
-          #{link_to_project event_notification.project}
+          %strong #{link_to_project event_notification.project}
         - else
-          #{event_notification.project_name}
+          %strong #{event_notification.project_name}
           
   .event-body
     .event-note
       .md
-        %i.icon-comment-alt.event-note-icon
-        = event_note(event_notification.event.target.note)
+        - if event_notification.event
+          %i.icon-comment-alt.event-note-icon
+          = event_note(event_notification.event.target.note)
+        - else
+          %strong (deleted)
+          
