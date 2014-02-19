@@ -1,7 +1,7 @@
 %head
   %meta{charset: "utf-8"}
   %title
-    = "(#{current_user.event_notifications.unread.size})" if current_user
+    = "(#{current_user.event_notifications.unread.size})" if current_user and current_user.event_notifications.unread.any?
     = "#{title} | " if defined?(title)
     GitLab
   = favicon_link_tag 'favicon.ico'

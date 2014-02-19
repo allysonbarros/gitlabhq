@@ -117,7 +117,8 @@ class Ability
       project_guest_rules + [
         :download_code,
         :fork_project,
-        :write_project_snippet
+        :write_project_snippet,
+        :modify_issue,
       ]
     end
 
@@ -125,7 +126,7 @@ class Ability
       project_report_rules + [
         :write_merge_request,
         :write_wiki,
-        :push_code
+        :push_code,
       ]
     end
 
