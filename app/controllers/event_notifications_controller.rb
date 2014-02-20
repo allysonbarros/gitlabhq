@@ -55,8 +55,13 @@ class EventNotificationsController < ApplicationController
 		redirect_to :inbox_user_notifications
 	end
 
-	private 
-	def method_name
-		
+	def mark_all_as_read
+		@event_notifications = current_user.event_notifications.unread
+		@event_notifications.each do |en|
+			en.read = true
+			en.save
+		end
+
+		redirect_to :inbox_user_notifications
 	end
 end

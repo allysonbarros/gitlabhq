@@ -1,11 +1,14 @@
 %div#header-notifications
-  %h3.page-title.pull-left 
+  %h3.page-title
     Notifications
 
-  %span.pull-right
-    %p 
-      %strong
-        = page_entries_info @event_notifications, :entry_name => ''
+    %span.pull-right
+      - if current_user.event_notifications.unread.any?
+        = link_to "Mark all as read", :mark_all_as_read_user_notifications, class: "btn grouped pull-right button-mark-read"
+
+      %small 
+        %strong
+          = page_entries_info @event_notifications, :entry_name => ''
 
   %hr
 
