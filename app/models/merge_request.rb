@@ -230,7 +230,7 @@ class MergeRequest < ActiveRecord::Base
       "(noteable_type = 'MergeRequest' AND noteable_id = :mr_id) OR (noteable_type = 'Commit' AND commit_id IN (:commit_ids))",
       mr_id: id,
       commit_ids: commit_ids
-    )
+    ).order("created_at DESC")
   end
 
   # Returns the raw diff for this merge request
