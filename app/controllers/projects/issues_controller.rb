@@ -49,7 +49,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
   def show
     @note = @project.notes.new(noteable: @issue)
-    @notes = @issue.notes.inc_author.fresh
+    @notes = @issue.notes.order("created_at DESC").inc_author.fresh
     @noteable = @issue
 
     respond_with(@issue)
