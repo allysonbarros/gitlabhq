@@ -93,7 +93,7 @@ class Notes
     # or skip if rendered
     if @isNewNote(note)
       @note_ids.push(note.id)
-      $('ul.main-notes-list').append(note.html)
+      $('ul.main-notes-list').prepend(note.html)
 
 
   ###
