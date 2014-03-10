@@ -25,6 +25,8 @@ module MergeRequestsHelper
 
   def mr_css_classes mr
     classes = "merge-request"
+    classes << " today" if mr.upvotes > mr.downvotes
+    classes << " bgred" if mr.upvotes < mr.downvotes
     classes << " closed" if mr.closed?
     classes << " merged" if mr.merged?
     classes

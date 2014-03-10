@@ -118,7 +118,8 @@ class Ability
       project_guest_rules + [
         :download_code,
         :fork_project,
-        :write_project_snippet
+        :write_project_snippet,
+        :modify_issue,
       ]
     end
 

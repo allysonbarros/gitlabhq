@@ -1,0 +1,39 @@
+%div#header-notifications
+  %h3.page-title
+    Notifications
+
+    %span.pull-right
+      - if current_user.event_notifications.unread.any?
+        = link_to "Mark all as read", :mark_all_as_read_user_notifications, class: "btn grouped pull-right button-mark-read"
+
+      %small 
+        %strong
+          = page_entries_info @event_notifications, :entry_name => ''
+
+  %hr
+
+.row
+  .col-md-3
+    %ul.nav.nav-pills.nav-stacked
+      = nav_tab :scope, nil do
+        = link_to inbox_user_notifications_path do
+          All
+          %span.pull-right
+            = current_user.event_notifications.size
+      = nav_tab :scope, 'unread' do
+        = link_to inbox_user_notifications_path(scope: 'unread') do
+          Unread
+          %span.pull-right
+            = current_user.event_notifications.unread.size
+      = nav_tab :scope, 'read' do
+        = link_to inbox_user_notifications_path(scope: 'read') do
+          Read
+          %span.pull-right
+            = current_user.event_notifications.read.size
+
+  .col-md-9
+    - if @event_notifications.any?
+      = render @event_notifications
+      = paginate @event_notifications, theme: 'gitlab'
+    - else
+      %p.nothing_here_message No notifications to show

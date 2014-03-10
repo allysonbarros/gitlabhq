@@ -23,6 +23,20 @@
           %li.visible-sm.visible-xs
             = link_to search_path, title: "Search", class: 'has_bottom_tooltip', 'data-original-title' => 'Search area' do
               %i.icon-search
+
+          %li
+          %span.separator
+
+          %li
+            = link_to inbox_user_notifications_path, title: "Notifications", class: 'has_bottom_tooltip', 'data-original-title' => 'Notifications' do
+              %i.icon-bell
+
+              - if current_user.event_notifications.unread.any?
+                %span.notifications-counter.label.label-danger 
+                  =current_user.event_notifications.unread.size
+          %li
+            %span.separator
+
           %li
             = link_to public_root_path, title: "Public area", class: 'has_bottom_tooltip', 'data-original-title' => 'Public area' do
               %i.icon-globe

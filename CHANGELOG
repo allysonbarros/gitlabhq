@@ -1,3 +1,4 @@
+
 v 6.6.5
   - Added option to remove issue assignee on project issue page and issue edit page (Jason Blanchard)
   - Hide mr close button for comment form if merge request was closed or inline comment

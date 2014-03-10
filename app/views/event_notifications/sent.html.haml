@@ -1,0 +1,17 @@
+%div#header-notifications
+    %h3.page-title.pull-left 
+        Notifications
+
+    %span.pull-right
+        %p 
+            %strong
+                = page_entries_info @event_notifications_sent, :entry_name => ''
+
+    %hr
+
+%div.content_list
+    - if @event_notifications_sent.any?
+        = render partial: "event_notification_sent", collection: @event_notifications_sent
+        = paginate @event_notifications_sent, theme: 'gitlab'
+    - else
+        %p.nothing_here_message No notifications to show

@@ -498,3 +498,51 @@ table {
 @media (max-width: $screen-xs-max) {
   .container .content { margin-top: 20px; }
 }
+
+// Notifications
+#header-notifications {
+  overflow: hidden;
+
+  hr {
+    clear: both;
+  }
+}
+
+.event-item.notification {
+  padding: 14px;
+  border-bottom: 1px solid #dfdfdf;
+
+  &.unread {
+    background: #f9f9f9;
+  }
+
+  &:first-child {
+    padding: 14px;
+  }
+
+  .event-title .event_label a {
+    text-decoration: underline;
+    color: #333;
+  }
+
+  span.notification_project_name a, span.notification_event_title a {
+    text-decoration: none !important;
+    color: #2fa0bb !important;
+  }
+}
+
+.notification.visualization {
+  .event-body {
+    font-size:12px;
+  }
+}
+
+.notifications-counter {
+  // position: absolute;
+  // top: 3px;
+  // left: 18px;
+}
+
+.button-mark-read {
+  margin-left: 30px;
+}

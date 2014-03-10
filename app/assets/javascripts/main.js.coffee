@@ -56,6 +56,9 @@ document.addEventListener("page:fetch", unbindEvents)
 document.addEventListener("page:change", stopSpinner)
 
 $ ->
+  $("#top-of-the-page").on 'click', ->
+    $('html, body').animate({scrollTop:0}, 'slow')
+
   # Click a .one_click_select field, select the contents
   $(".one_click_select").on 'click', -> $(@).select()
 
