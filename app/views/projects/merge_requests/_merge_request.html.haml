@@ -22,7 +22,25 @@
     - if merge_request.author
       authored by #{link_to_member(merge_request.source_project, merge_request.author)}
     - if merge_request.votes_count > 0
-      = render 'votes/votes_inline', votable: merge_request
+      / = render 'votes/votes_inline', votable: merge_request
+      
+      - if merge_request.upvotes > 0
+        %span.vote.upvote.label.label-success.avatar-voters
+          %i.icon-thumbs-up
+          \+1
+
+          - merge_request.upvoters.each do |participant|
+            = link_to_member(@project, participant, name: false, size: 16)
+        
+
+      - if merge_request.downvotes > 0
+        %span.vote.downvote.label.label-danger.avatar-voters
+          %i.icon-thumbs-down
+          \-1
+
+          - merge_request.downvoters.each do |participant|
+            = link_to_member(@project, participant, name: false, size: 16)
+        
     - if merge_request.notes.any?
       %span
         %i.icon-comments
@@ -31,7 +49,6 @@
       %span
         %i.icon-time
         = merge_request.milestone.title
-
 
     .pull-right
       %small updated #{time_ago_with_tooltip(merge_request.updated_at, 'bottom', 'merge_request_updated_ago')}

@@ -28,7 +28,7 @@
           %span.separator
 
           %li
-            = link_to inbox_user_notifications_path, title: "Notifications", class: 'has_bottom_tooltip', 'data-original-title' => 'Notifications' do
+            = link_to inbox_user_notifications_path, title: "Notifications", alt: "Notifications", class: 'has_bottom_tooltip', 'data-original-title' => 'Notifications' do
               %i.icon-bell
 
               - if current_user.event_notifications.unread.any?
