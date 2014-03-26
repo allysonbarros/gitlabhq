@@ -11,7 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140209025651) do
+ActiveRecord::Schema.define(version: 20140313092127) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -109,13 +112,15 @@ ActiveRecord::Schema.define(version: 20140209025651) do
   add_index "keys", ["user_id"], name: "index_keys_on_user_id", using: :btree
 
   create_table "merge_request_diffs", force: true do |t|
-    t.string   "state",                               default: "collected", null: false
-    t.text     "st_commits",       limit: 2147483647
-    t.text     "st_diffs",         limit: 2147483647
-    t.integer  "merge_request_id",                                          null: false
+    t.string   "state",            default: "collected", null: false
+    t.text     "st_commits"
+    t.text     "st_diffs"
+    t.integer  "merge_request_id",                       null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "merge_request_diffs", ["merge_request_id"], name: "index_merge_request_diffs_on_merge_request_id", unique: true, using: :btree
 
   create_table "merge_requests", force: true do |t|
     t.string   "target_branch",     null: false
@@ -124,15 +129,8 @@ ActiveRecord::Schema.define(version: 20140209025651) do
     t.integer  "author_id"
     t.integer  "assignee_id"
     t.string   "title"
-<<<<<<< HEAD
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
-=======
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "st_commits"
-    t.text     "st_diffs"
->>>>>>> 676e124ece479fba90a6517c370c0bf2046f50b8
     t.integer  "milestone_id"
     t.string   "state"
     t.string   "merge_status"
@@ -219,10 +217,10 @@ ActiveRecord::Schema.define(version: 20140209025651) do
     t.string   "issues_tracker_id"
     t.boolean  "snippets_enabled",       default: true,     null: false
     t.datetime "last_activity_at"
-    t.boolean  "imported",               default: false,    null: false
     t.string   "import_url"
     t.integer  "visibility_level",       default: 0,        null: false
     t.boolean  "archived",               default: false,    null: false
+    t.string   "import_status"
   end
 
   add_index "projects", ["creator_id"], name: "index_projects_on_creator_id", using: :btree
@@ -250,6 +248,7 @@ ActiveRecord::Schema.define(version: 20140209025651) do
     t.string   "subdomain"
     t.string   "room"
     t.text     "recipients"
+    t.string   "api_key"
   end
 
   add_index "services", ["project_id"], name: "index_services_on_project_id", using: :btree
@@ -290,12 +289,12 @@ ActiveRecord::Schema.define(version: 20140209025651) do
   end
 
   create_table "users", force: true do |t|
-    t.string   "email",                  default: "",    null: false
-    t.string   "encrypted_password",     default: "",    null: false
+    t.string   "email",                    default: "",    null: false
+    t.string   "encrypted_password",       default: "",    null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0
+    t.integer  "sign_in_count",            default: 0
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
@@ -303,33 +302,34 @@ ActiveRecord::Schema.define(version: 20140209025651) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "name"
-    t.boolean  "admin",                  default: false, null: false
-    t.integer  "projects_limit",         default: 10
-    t.string   "skype",                  default: "",    null: false
-    t.string   "linkedin",               default: "",    null: false
-    t.string   "twitter",                default: "",    null: false
+    t.boolean  "admin",                    default: false, null: false
+    t.integer  "projects_limit",           default: 10
+    t.string   "skype",                    default: "",    null: false
+    t.string   "linkedin",                 default: "",    null: false
+    t.string   "twitter",                  default: "",    null: false
     t.string   "authentication_token"
-    t.integer  "theme_id",               default: 1,     null: false
+    t.integer  "theme_id",                 default: 1,     null: false
     t.string   "bio"
-    t.integer  "failed_attempts",        default: 0
+    t.integer  "failed_attempts",          default: 0
     t.datetime "locked_at"
     t.string   "extern_uid"
     t.string   "provider"
     t.string   "username"
-    t.boolean  "can_create_group",       default: true,  null: false
-    t.boolean  "can_create_team",        default: true,  null: false
+    t.boolean  "can_create_group",         default: true,  null: false
+    t.boolean  "can_create_team",          default: true,  null: false
     t.string   "state"
-    t.integer  "color_scheme_id",        default: 1,     null: false
-    t.integer  "notification_level",     default: 1,     null: false
+    t.integer  "color_scheme_id",          default: 1,     null: false
+    t.integer  "notification_level",       default: 1,     null: false
     t.datetime "password_expires_at"
     t.integer  "created_by_id"
+    t.datetime "last_credential_check_at"
     t.string   "avatar"
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
-    t.boolean  "hide_no_ssh_key",        default: false
-    t.string   "website_url",            default: "",    null: false
+    t.boolean  "hide_no_ssh_key",          default: false
+    t.string   "website_url",              default: "",    null: false
   end
 
   add_index "users", ["admin"], name: "index_users_on_admin", using: :btree
@@ -375,6 +375,7 @@ ActiveRecord::Schema.define(version: 20140209025651) do
     t.boolean  "push_events",           default: true,          null: false
     t.boolean  "issues_events",         default: false,         null: false
     t.boolean  "merge_requests_events", default: false,         null: false
+    t.boolean  "tag_push_events",       default: false
   end
 
   add_index "web_hooks", ["project_id"], name: "index_web_hooks_on_project_id", using: :btree
