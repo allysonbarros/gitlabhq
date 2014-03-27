@@ -22,8 +22,6 @@
     - if merge_request.author
       authored by #{link_to_member(merge_request.source_project, merge_request.author)}
    
-    %br
-
     - if merge_request.notes.any?
       %span
         %i.icon-comments
