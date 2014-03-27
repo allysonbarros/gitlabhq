@@ -16,6 +16,14 @@
       assigned to #{link_to_member(@project, issue.assignee)}
     - else
       unassigned
+
+    %br
+
+    - if issue.notes.any?
+      %span
+        %i.icon-comments
+        = issue.notes.count
+    
     - if issue.votes_count > 0
       / = render 'votes/votes_inline', votable: issue
 
@@ -38,10 +46,6 @@
           - issue.downvoters.each do |participant|
             = link_to_member(@project, participant, name: false, size: 16)
 
-    - if issue.notes.any?
-      %span
-        %i.icon-comments
-        = issue.notes.count
     - if issue.milestone
       %span
         %i.icon-time

@@ -2,6 +2,7 @@
   .issue {
     padding: 10px;
     position: relative;
+    overflow: hidden;
 
     .issue-title {
       margin-bottom: 5px;
@@ -10,6 +11,8 @@
 
     .issue-info {
       color: #999;
+      overflow: hidden;
+      line-height: 170%;
     }
 
     .issue-check {

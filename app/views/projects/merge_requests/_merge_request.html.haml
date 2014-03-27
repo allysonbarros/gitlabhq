@@ -21,6 +21,14 @@
   .merge-request-info
     - if merge_request.author
       authored by #{link_to_member(merge_request.source_project, merge_request.author)}
+   
+    %br
+
+    - if merge_request.notes.any?
+      %span
+        %i.icon-comments
+        = merge_request.mr_and_commit_notes.count
+
     - if merge_request.votes_count > 0
       / = render 'votes/votes_inline', votable: merge_request
       
@@ -42,11 +50,7 @@
 
           - merge_request.downvoters.each do |participant|
             = link_to_member(@project, participant, name: false, size: 16)
-        
-    - if merge_request.notes.any?
-      %span
-        %i.icon-comments
-        = merge_request.mr_and_commit_notes.count
+            
     - if merge_request.milestone_id?
       %span
         %i.icon-time
