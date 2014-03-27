@@ -27,7 +27,8 @@
       - if merge_request.upvotes > 0
         %span.vote.upvote.label.label-success.avatar-voters
           %i.icon-thumbs-up
-          \+1
+          \+
+          = merge_request.upvotes
 
           - merge_request.upvoters.each do |participant|
             = link_to_member(@project, participant, name: false, size: 16)
@@ -36,7 +37,8 @@
       - if merge_request.downvotes > 0
         %span.vote.downvote.label.label-danger.avatar-voters
           %i.icon-thumbs-down
-          \-1
+          \-
+          = merge_request.downvotes
 
           - merge_request.downvoters.each do |participant|
             = link_to_member(@project, participant, name: false, size: 16)
