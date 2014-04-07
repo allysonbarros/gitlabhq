@@ -141,6 +141,8 @@ class Ability
         :write_wiki,
         :modify_issue,
         :admin_issue,
+        :modify_milestone,
+        :admin_milestone,
         :push_code
       ]
     end
