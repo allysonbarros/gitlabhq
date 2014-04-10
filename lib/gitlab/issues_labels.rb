@@ -10,11 +10,11 @@ module Gitlab
       end
 
       def neutral_labels
-        %w(discussion suggestion implementando)
+        %w(discussion suggestion)
       end
 
       def positive_labels
-        %w(feature enhancement implementado)
+        %w(feature enhancement)
       end
 
       def generate(project)
