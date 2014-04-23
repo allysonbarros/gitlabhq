@@ -394,16 +394,13 @@ table {
   }
 }
 
-.notifications-counter {
-  // position: absolute;
-  // top: 3px;
-  // left: 18px;
-}
-
 .button-mark-read {
   margin-left: 30px;
 }
 
 .avatar-voters img {
   margin-right: -2px !important;
+
+.wiki .highlight, .note-body .highlight {
+  margin-bottom: 9px;
 }
