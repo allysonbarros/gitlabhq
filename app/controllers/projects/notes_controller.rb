@@ -39,8 +39,17 @@ class Projects::NotesController < Projects::ApplicationController
   end
 
   def destroy
+    event = Event.where(target_id: note.id, target_type: "Note").first
+    
     note.destroy
     note.reset_events_cache
+    
+    # Deletando todas as notificações.
+    if event.event_notifications
+      event.event_notifications.each do |notification|
+        notification.delete
+      end
+    end
 
     respond_to do |format|
       format.js { render nothing: true }
