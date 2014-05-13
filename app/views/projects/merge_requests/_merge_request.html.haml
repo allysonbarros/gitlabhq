@@ -50,8 +50,8 @@
             = link_to_member(@project, participant, name: false, size: 16)
 
     / Declarando as variáveis
-    - resultado_testes = @project.repository.resultado_testes(merge_request.source_branch)
-    - commit = @project.repository.commit(merge_request.source_branch)
+    - resultado_testes = @project.repository.resultado_testes(merge_request.source_branch) if not @project.nil?
+    - commit = @project.repository.commit(merge_request.source_branch) if not @project.nil?
     
     - if not resultado_testes.nil?
       - if resultado_testes.ultimo_commit[0..10] == commit.short_id && resultado_testes.resultado == 1
