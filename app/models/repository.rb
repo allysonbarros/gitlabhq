@@ -51,6 +51,10 @@ class Repository
     branches.find { |branch| branch.name == name }
   end
 
+  def resultado_testes(branch_name)
+    IfrnTestes.where(branch: branch_name).first
+  end
+
   def find_tag(name)
     tags.find { |tag| tag.name == name }
   end

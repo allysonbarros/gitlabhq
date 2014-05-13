@@ -8,6 +8,24 @@
       - if @project.protected_branch? branch.name
         %span.label.label-success
           %i.icon-lock
+
+      / Declarando a variável
+      - resultado_testes = @repository.resultado_testes(branch.name)
+
+      - if not resultado_testes.nil?
+        - if resultado_testes.ultimo_commit[0..10] == commit.short_id && resultado_testes.resultado == 1
+          %span.label.label-success 
+            Testes passaram
+        - elsif resultado_testes.ultimo_commit[0..10] == commit.short_id && resultado_testes.resultado == 2
+          %span.label.label-danger 
+            Testes falharam
+        - else
+          %span.label.label-inverse
+            Testes pendentes
+      - else
+        %span.label.label-inverse
+          Testes pendentes
+
     .pull-right
       - if can?(current_user, :download_code, @project)
         = render 'projects/repositories/download_archive', ref: branch.name, btn_class: 'btn-grouped btn-group-small'
