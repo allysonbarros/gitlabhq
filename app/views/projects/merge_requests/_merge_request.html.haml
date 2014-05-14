@@ -49,12 +49,11 @@
           - merge_request.downvoters.each do |participant|
             = link_to_member(@project, participant, name: false, size: 16)
 
-    - unless not merge_request.closed? or not merge_request.merged?
       / Declarando as variáveis
       - resultado_testes = @project.repository.resultado_testes(merge_request.source_branch) if not @project.nil?
       - commit = @project.repository.commit(merge_request.source_branch) if not @project.nil?
       
-      - if not resultado_testes.nil?
+      - if not resultado_testes.nil? and not commit.nil?
         - if resultado_testes.ultimo_commit[0..10] == commit.short_id && resultado_testes.resultado == 1
           %span.label.label-success 
             %i.icon-thumbs-up 
