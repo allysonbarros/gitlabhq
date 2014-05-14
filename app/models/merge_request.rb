@@ -307,4 +307,38 @@ class MergeRequest < ActiveRecord::Base
       source_project.repository.branch_names
     end
   end
+
+  def resultado_testes
+    project = self.project
+
+    if not project.nil?
+      resultado_testes = project.repository.resultado_testes(self.source_branch)
+    else
+      return nil
+    end
+  end
+
+  def ultimo_commit
+    project = self.project
+
+    if not project.nil?
+      commit = project.repository.commit(self.source_branch)
+    else
+      return nil
+    end
+  end
+
+  def classe_css
+    if (self.upvotes > self.downvotes and self.resultado_testes.resultado == 1) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 1) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1) 
+      " today"
+    elsif (self.upvotes > self.downvotes and self.resultado_testes.resultado == 2) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 2) || (self.upvotes < self.downvotes) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1)
+      " bgred"
+    elsif self.closed?
+      " closed"
+    elsif self.merged?
+      " merged"
+    else
+      ""
+    end
+  end
 end
