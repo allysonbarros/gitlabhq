@@ -329,10 +329,10 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def classe_css
-    if not self.resultado_testes.nil?
-      if (self.upvotes > self.downvotes and self.resultado_testes.resultado == 1) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 1) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1) 
+    if not (self.resultado_testes.nil? or self.ultimo_commit.nil?)
+       if ((self.upvotes > self.downvotes and self.resultado_testes.resultado == 1) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 1) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1)) and (self.resultado_testes.ultimo_commit[0..10] == self.ultimo_commit.short_id)
         " today"
-      elsif (self.upvotes > self.downvotes and self.resultado_testes.resultado == 2) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 2) || (self.upvotes < self.downvotes) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 2)
+      elsif ((self.upvotes > self.downvotes and self.resultado_testes.resultado == 2) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 2) || (self.upvotes < self.downvotes) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 2)) and (self.resultado_testes.ultimo_commit[0..10] == self.ultimo_commit.short_id)
         " bgred"
       elsif self.closed?
         " closed"

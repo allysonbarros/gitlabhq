@@ -49,11 +49,12 @@
           - merge_request.downvoters.each do |participant|
             = link_to_member(@project, participant, name: false, size: 16)
 
-      / Declarando as variáveis
-      - resultado_testes = @project.repository.resultado_testes(merge_request.source_branch) if not @project.nil?
-      - commit = @project.repository.commit(merge_request.source_branch) if not @project.nil?
-      
-      - if not resultado_testes.nil? and not commit.nil?
+    - if merge_request.open?
+      / Declarando as varáveis
+      - resultado_testes = merge_request.resultado_testes if not @project.nil?
+      - commit = merge_request.ultimo_commit if not @project.nil?
+
+      - if not (commit.nil? or resultado_testes.nil?)
         - if resultado_testes.ultimo_commit[0..10] == commit.short_id && resultado_testes.resultado == 1
           %span.label.label-success 
             %i.icon-thumbs-up 
@@ -70,11 +71,11 @@
         %span.label.label-inverse
           %i.icon-thumbs-down
           Testes pendentes
-              
-      - if merge_request.milestone_id?
-        %span
-          %i.icon-time
-          = merge_request.milestone.title
+            
+    - if merge_request.milestone_id?
+      %span
+        %i.icon-time
+        = merge_request.milestone.title
 
     .pull-right
       %small updated #{time_ago_with_tooltip(merge_request.updated_at, 'bottom', 'merge_request_updated_ago')}
