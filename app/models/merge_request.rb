@@ -329,16 +329,30 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def classe_css
-    if (self.upvotes > self.downvotes and self.resultado_testes.resultado == 1) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 1) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1) 
-      " today"
-    elsif (self.upvotes > self.downvotes and self.resultado_testes.resultado == 2) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 2) || (self.upvotes < self.downvotes) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1)
-      " bgred"
-    elsif self.closed?
-      " closed"
-    elsif self.merged?
-      " merged"
+    if not self.resultado_testes.nil?
+      if (self.upvotes > self.downvotes and self.resultado_testes.resultado == 1) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 1) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1) 
+        " today"
+      elsif (self.upvotes > self.downvotes and self.resultado_testes.resultado == 2) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 2) || (self.upvotes < self.downvotes) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1)
+        " bgred"
+      elsif self.closed?
+        " closed"
+      elsif self.merged?
+        " merged"
+      else
+        ""
+      end
     else
-      ""
+      if (self.upvotes > self.downvotes) 
+        " today"
+      elsif (self.upvotes > self.downvotes)
+        " bgred"
+      elsif self.closed?
+        " closed"
+      elsif self.merged?
+        " merged"
+      else
+        ""
+      end
     end
   end
 end
