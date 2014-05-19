@@ -30,7 +30,7 @@ module LabelsHelper
         when *klass.edu_labels
             'label-success'
         when *klass.default_labels 
-            'label-warning'
+            'label-inverse'
         else
             'label-default'
         end
