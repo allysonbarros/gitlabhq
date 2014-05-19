@@ -26,11 +26,11 @@ module Gitlab
             end
 
             def adm_labels
-                %w(adm ae almoxarifado chaves clipping compras contratos extensao frota patrimonio pdi planejamento projetos protocolo saude)
+                %w(adm)
             end
 
             def rh_labels
-                %w(rh arquivo ferias ponto remanejamento)
+                %w(rh)
             end
 
             def edu_labels
