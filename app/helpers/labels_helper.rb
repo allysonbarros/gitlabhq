@@ -29,6 +29,8 @@ module LabelsHelper
             'label-warning'
         when *klass.edu_labels
             'label-success'
+        when *klass.default_labels 
+            'label-warning'
         else
             'label-default'
         end
