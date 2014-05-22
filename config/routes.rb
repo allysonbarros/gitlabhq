@@ -195,7 +195,9 @@ Gitlab::Application.routes.draw do
       resources :blob,      only: [:show, :destroy], constraints: {id: /.+/}
       resources :raw,       only: [:show], constraints: {id: /.+/}
       resources :tree,      only: [:show], constraints: {id: /.+/, format: /(html|js)/ }
-      resources :edit_tree, only: [:show, :update], constraints: {id: /.+/}, path: 'edit'
+      resources :edit_tree, only: [:show, :update], constraints: { id: /.+/ }, path: 'edit' do
+        post :preview, on: :member
+      end
       resources :new_tree,  only: [:show, :update], constraints: {id: /.+/}, path: 'new'
       resources :commit,    only: [:show], constraints: {id: /[[:alnum:]]{6,40}/}
       resources :commits,   only: [:show], constraints: {id: /(?:[^.]|\.(?!atom$))+/, format: /atom/}
@@ -212,7 +214,7 @@ Gitlab::Application.routes.draw do
           end
         end
 
-      resources :wikis, only: [:show, :edit, :destroy, :create], constraints: {id: /[a-zA-Z.0-9_\-]+/} do
+      resources :wikis, only: [:show, :edit, :destroy, :create], constraints: {id: /[a-zA-Z.0-9_\-\/]+/} do
         collection do
           get :pages
           put ':id' => 'wikis#update'
@@ -279,7 +281,7 @@ Gitlab::Application.routes.draw do
       resources :merge_requests, constraints: {id: /\d+/}, except: [:destroy] do
         member do
           get :diffs
-          get :automerge
+          post :automerge
           get :automerge_check
           get :ci_status
         end
