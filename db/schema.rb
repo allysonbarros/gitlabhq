@@ -11,8 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 201401178165903) do
-
+ActiveRecord::Schema.define(version: 20140611135229) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -105,6 +104,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   add_index "issues", ["author_id"], name: "index_issues_on_author_id", using: :btree
   add_index "issues", ["created_at"], name: "index_issues_on_created_at", using: :btree
   add_index "issues", ["milestone_id"], name: "index_issues_on_milestone_id", using: :btree
+  add_index "issues", ["project_id", "iid"], name: "index_issues_on_project_id_and_iid", unique: true, using: :btree
   add_index "issues", ["project_id"], name: "index_issues_on_project_id", using: :btree
   add_index "issues", ["title"], name: "index_issues_on_title", using: :btree
 
@@ -132,9 +132,9 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   add_index "merge_request_diffs", ["merge_request_id"], name: "index_merge_request_diffs_on_merge_request_id", unique: true, using: :btree
 
   create_table "merge_requests", force: true do |t|
-    t.string   "target_branch",     null: false
-    t.string   "source_branch",     null: false
-    t.integer  "source_project_id", null: false
+    t.string   "target_branch",                 null: false
+    t.string   "source_branch",                 null: false
+    t.integer  "source_project_id",             null: false
     t.integer  "author_id"
     t.integer  "assignee_id"
     t.string   "title"
@@ -143,9 +143,10 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.integer  "milestone_id"
     t.string   "state"
     t.string   "merge_status"
-    t.integer  "target_project_id", null: false
+    t.integer  "target_project_id",             null: false
     t.integer  "iid"
     t.text     "description"
+    t.integer  "position",          default: 0
   end
 
   add_index "merge_requests", ["assignee_id"], name: "index_merge_requests_on_assignee_id", using: :btree
@@ -155,6 +156,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   add_index "merge_requests", ["source_branch"], name: "index_merge_requests_on_source_branch", using: :btree
   add_index "merge_requests", ["source_project_id"], name: "index_merge_requests_on_project_id", using: :btree
   add_index "merge_requests", ["target_branch"], name: "index_merge_requests_on_target_branch", using: :btree
+  add_index "merge_requests", ["target_project_id", "iid"], name: "index_merge_requests_on_target_project_id_and_iid", unique: true, using: :btree
   add_index "merge_requests", ["title"], name: "index_merge_requests_on_title", using: :btree
 
   create_table "milestones", force: true do |t|
@@ -169,6 +171,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   end
 
   add_index "milestones", ["due_date"], name: "index_milestones_on_due_date", using: :btree
+  add_index "milestones", ["project_id", "iid"], name: "index_milestones_on_project_id_and_iid", unique: true, using: :btree
   add_index "milestones", ["project_id"], name: "index_milestones_on_project_id", using: :btree
 
   create_table "namespaces", force: true do |t|
@@ -209,6 +212,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   add_index "notes", ["noteable_type"], name: "index_notes_on_noteable_type", using: :btree
   add_index "notes", ["project_id", "noteable_type"], name: "index_notes_on_project_id_and_noteable_type", using: :btree
   add_index "notes", ["project_id"], name: "index_notes_on_project_id", using: :btree
+  add_index "notes", ["updated_at"], name: "index_notes_on_updated_at", using: :btree
 
   create_table "projects", force: true do |t|
     t.string   "name"
@@ -230,6 +234,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.integer  "visibility_level",       default: 0,        null: false
     t.boolean  "archived",               default: false,    null: false
     t.string   "import_status"
+    t.float    "repository_size",        default: 0.0
   end
 
   add_index "projects", ["creator_id"], name: "index_projects_on_owner_id", using: :btree
@@ -344,6 +349,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   add_index "users", ["admin"], name: "index_users_on_admin", using: :btree
   add_index "users", ["authentication_token"], name: "index_users_on_authentication_token", unique: true, using: :btree
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
+  add_index "users", ["current_sign_in_at"], name: "index_users_on_current_sign_in_at", using: :btree
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["extern_uid", "provider"], name: "index_users_on_extern_uid_and_provider", unique: true, using: :btree
   add_index "users", ["name"], name: "index_users_on_name", using: :btree

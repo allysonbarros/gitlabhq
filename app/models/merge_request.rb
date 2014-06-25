@@ -36,13 +36,18 @@ class MergeRequest < ActiveRecord::Base
 
   delegate :commits, :diffs, :last_commit, :last_commit_short_sha, to: :merge_request_diff, prefix: nil
 
-  attr_accessible :title, :assignee_id, :source_project_id, :source_branch, :target_project_id, :target_branch, :milestone_id, :state_event, :description
+  attr_accessible :title, :assignee_id, :source_project_id, :source_branch,
+                  :target_project_id, :target_branch, :milestone_id,
+                  :state_event, :description, :label_list
 
   attr_accessor :should_remove_source_branch
 
   # When this attribute is true some MR validation is ignored
   # It allows us to close or modify broken merge requests
   attr_accessor :allow_broken
+
+  ActsAsTaggableOn.strict_case_match = true
+  acts_as_taggable_on :labels
 
   state_machine :state, initial: :opened do
     event :close do
@@ -108,6 +113,7 @@ class MergeRequest < ActiveRecord::Base
   # Closed scope for merge request should return
   # both merged and closed mr's
   scope :closed, -> { with_states(:closed, :merged) }
+  scope :declined, -> { with_states(:closed) }
 
   def validate_branches
     if target_project == source_project && target_branch == source_branch
@@ -207,10 +213,6 @@ class MergeRequest < ActiveRecord::Base
     target_project != source_project
   end
 
-  def disallow_source_branch_removal?
-    source_project.root_ref?(source_branch) || source_project.protected_branches.include?(source_branch)
-  end
-
   def project
     target_project
   end
@@ -218,7 +220,9 @@ class MergeRequest < ActiveRecord::Base
   # Return the set of issues that will be closed if this merge request is accepted.
   def closes_issues
     if target_branch == project.default_branch
-      commits.map { |c| c.closes_issues(project) }.flatten.uniq.sort_by(&:id)
+      issues = commits.flat_map { |c| c.closes_issues(project) }
+      issues += Gitlab::ClosingIssueExtractor.closed_by_message_in_project(description, project)
+      issues.uniq.sort_by(&:id)
     else
       []
     end
@@ -248,6 +252,14 @@ class MergeRequest < ActiveRecord::Base
   def source_project_namespace
     if source_project && source_project.namespace
       source_project.namespace.path
+    else
+      "(removed)"
+    end
+  end
+
+  def target_project_namespace
+    if target_project && target_project.namespace
+      target_project.namespace.path
     else
       "(removed)"
     end

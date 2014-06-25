@@ -161,6 +161,10 @@ describe Notify do
           it 'contains a link to the new issue' do
             should have_body_text /#{project_issue_path project, issue}/
           end
+
+          it 'has the correct message-id set' do
+            should have_header 'Message-ID', "<issue_#{issue.id}@#{Gitlab.config.gitlab.host}>"
+          end
         end
 
         describe 'that are new with a description' do
@@ -197,6 +201,10 @@ describe Notify do
           it 'contains a link to the issue' do
             should have_body_text /#{project_issue_path project, issue}/
           end
+
+          it 'has the correct reference set' do
+            should have_header 'References', "<issue_#{issue.id}@#{Gitlab.config.gitlab.host}>"
+          end
         end
 
         describe 'status changed' do
@@ -224,6 +232,10 @@ describe Notify do
           it 'contains a link to the issue' do
             should have_body_text /#{project_issue_path project, issue}/
           end
+
+          it 'has the correct reference set' do
+            should have_header 'References', "<issue_#{issue.id}@#{Gitlab.config.gitlab.host}>"
+          end
         end
 
       end
@@ -239,7 +251,7 @@ describe Notify do
           it_behaves_like 'an assignee email'
 
           it 'has the correct subject' do
-            should have_subject /#{merge_request.title} \(!#{merge_request.iid}\)/
+            should have_subject /#{merge_request.title} \(##{merge_request.iid}\)/
           end
 
           it 'contains a link to the new merge request' do
@@ -252,6 +264,10 @@ describe Notify do
 
           it 'contains the target branch for the merge request' do
             should have_body_text /#{merge_request.target_branch}/
+          end
+
+          it 'has the correct message-id set' do
+            should have_header 'Message-ID', "<merge_request_#{merge_request.id}@#{Gitlab.config.gitlab.host}>"
           end
         end
 
@@ -275,7 +291,7 @@ describe Notify do
           end
 
           it 'has the correct subject' do
-            should have_subject /#{merge_request.title} \(!#{merge_request.iid}\)/
+            should have_subject /#{merge_request.title} \(##{merge_request.iid}\)/
           end
 
           it 'contains the name of the previous assignee' do
@@ -303,7 +319,7 @@ describe Notify do
           end
 
           it 'has the correct subject' do
-            should have_subject /#{merge_request.title} \(!#{merge_request.iid}\)/
+            should have_subject /#{merge_request.title} \(##{merge_request.iid}\)/
           end
 
           it 'contains the new status' do
@@ -312,6 +328,10 @@ describe Notify do
 
           it 'contains a link to the merge request' do
             should have_body_text /#{project_merge_request_path project, merge_request}/
+          end
+
+          it 'has the correct reference set' do
+            should have_header 'References', "<merge_request_#{merge_request.id}@#{Gitlab.config.gitlab.host}>"
           end
         end
       end
@@ -382,22 +402,6 @@ describe Notify do
         end
       end
 
-      describe 'on a project wall' do
-        let(:note_on_the_wall_path) { project_wall_path(project, anchor: "note_#{note.id}") }
-
-        subject { Notify.note_wall_email(recipient.id, note.id) }
-
-        it_behaves_like 'a note email'
-
-        it 'has the correct subject' do
-          should have_subject /#{project.name}/
-        end
-
-        it 'contains a link to the wall note' do
-          should have_body_text /#{note_on_the_wall_path}/
-        end
-      end
-
       describe 'on a commit' do
         let(:commit) { project.repository.commit }
 
@@ -426,7 +430,7 @@ describe Notify do
         it_behaves_like 'a note email'
 
         it 'has the correct subject' do
-          should have_subject /#{merge_request.title} \(!#{merge_request.iid}\)/
+          should have_subject /#{merge_request.title} \(##{merge_request.iid}\)/
         end
 
         it 'contains a link to the merge request note' do
@@ -522,7 +526,7 @@ describe Notify do
     end
 
     it 'has the correct subject' do
-      should have_subject /New push to repository/
+      should have_subject /#{commits.length} new commits pushed to repository/
     end
 
     it 'includes commits list' do
@@ -558,7 +562,7 @@ describe Notify do
     end
 
     it 'has the correct subject' do
-      should have_subject /New push to repository/
+      should have_subject /#{commits.first.title}/
     end
 
     it 'includes commits list' do

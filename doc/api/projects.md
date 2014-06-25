@@ -1,4 +1,4 @@
-## Projects
+# Projects
 
 ### List projects
 
@@ -30,7 +30,6 @@ GET /projects
     "path_with_namespace": "diaspora/diaspora-client",
     "issues_enabled": true,
     "merge_requests_enabled": true,
-    "wall_enabled": false,
     "wiki_enabled": true,
     "snippets_enabled": false,
     "created_at": "2013-09-30T13: 46: 02Z",
@@ -43,7 +42,8 @@ GET /projects
       "owner_id": 1,
       "path": "diaspora",
       "updated_at": "2013-09-30T13: 46: 02Z"
-    }
+    },
+    "archived": false
   },
   {
     "id": 6,
@@ -65,7 +65,6 @@ GET /projects
     "path_with_namespace": "brightbox/puppet",
     "issues_enabled": true,
     "merge_requests_enabled": true,
-    "wall_enabled": false,
     "wiki_enabled": true,
     "snippets_enabled": false,
     "created_at": "2013-09-30T13:46:02Z",
@@ -78,7 +77,8 @@ GET /projects
       "owner_id": 1,
       "path": "brightbox",
       "updated_at": "2013-09-30T13:46:02Z"
-    }
+    },
+    "archived": false
   }
 ]
 ```
@@ -134,7 +134,6 @@ Parameters:
   "path_with_namespace": "diaspora/diaspora-project-site",
   "issues_enabled": true,
   "merge_requests_enabled": true,
-  "wall_enabled": false,
   "wiki_enabled": true,
   "snippets_enabled": false,
   "created_at": "2013-09-30T13: 46: 02Z",
@@ -157,7 +156,8 @@ Parameters:
       "access_level": 50,
       "notification_level": 3
     }
-  }
+  },
+  "archived": false
 }
 ```
 
@@ -249,7 +249,6 @@ Parameters:
 + `namespace_id` (optional) - namespace for the new project (defaults to user)
 + `description` (optional) - short project description
 + `issues_enabled` (optional)
-+ `wall_enabled` (optional)
 + `merge_requests_enabled` (optional)
 + `wiki_enabled` (optional) 
 + `snippets_enabled` (optional)
@@ -273,7 +272,6 @@ Parameters:
 + `description` (optional) - short project description
 + `default_branch` (optional) - 'master' by default
 + `issues_enabled` (optional)
-+ `wall_enabled` (optional)
 + `merge_requests_enabled` (optional)
 + `wiki_enabled` (optional) 
 + `snippets_enabled` (optional)
