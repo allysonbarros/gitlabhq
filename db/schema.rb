@@ -11,7 +11,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140611135229) do
+ActiveRecord::Schema.define(version: 201401178165903) do
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -85,6 +86,13 @@ ActiveRecord::Schema.define(version: 20140611135229) do
 
   add_index "forked_project_links", ["forked_to_project_id"], name: "index_forked_project_links_on_forked_to_project_id", unique: true, using: :btree
 
+  create_table "ifrn_testes", force: true do |t|
+    t.string   "branch",        limit: 100
+    t.string   "ultimo_commit", limit: 40
+    t.datetime "data_commit"
+    t.integer  "resultado",     limit: 2
+  end
+
   create_table "issues", force: true do |t|
     t.string   "title"
     t.integer  "assignee_id"
@@ -138,8 +146,8 @@ ActiveRecord::Schema.define(version: 20140611135229) do
     t.integer  "author_id"
     t.integer  "assignee_id"
     t.string   "title"
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
     t.integer  "milestone_id"
     t.string   "state"
     t.string   "merge_status"

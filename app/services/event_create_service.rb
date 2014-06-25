@@ -72,7 +72,6 @@ class EventCreateService
     message = record.note
     mentioned_users = record.mentioned_users
 
-    # TODO: Ajustar o título padrão de acordo com o tipo do evento.
     mentioned_users.each do |user|
       EventNotification.create({
         user: user,

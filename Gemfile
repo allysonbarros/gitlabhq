@@ -156,12 +156,9 @@ gem "rack-attack"
 # Ace editor
 gem 'ace-rails-ap'
 
-<<<<<<< HEAD
-=======
 # Semantic UI Sass for Sidebar
 gem 'semantic-ui-sass', '~> 0.16.1.0'
 
->>>>>>> de9bf7dac635538c9a1ed9e3f51e012e5ce127b6
 gem "sass-rails", '~> 4.0.2'
 gem "coffee-rails"
 gem "uglifier"
@@ -246,9 +243,5 @@ group :test do
 end
 
 group :production do
-<<<<<<< HEAD
-  gem "gitlab_meta", '6.0'
-=======
   gem "gitlab_meta", '7.0'
->>>>>>> de9bf7dac635538c9a1ed9e3f51e012e5ce127b6
 end
