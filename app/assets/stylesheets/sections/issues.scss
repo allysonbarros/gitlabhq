@@ -130,6 +130,10 @@ form.edit-issue {
     border-color: #CEC;
   }
 
+  &.bgred {
+    background: #f2dede !important; 
+  }
+
   &.closed {
     background: #F5f5f5;
     border-color: #E5E5E5;
