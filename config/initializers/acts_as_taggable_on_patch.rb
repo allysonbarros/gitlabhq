@@ -21,7 +21,7 @@ module ActsAsTaggableOn::Taggable
         context = options.delete(:on)
         owned_by = options.delete(:owned_by)
         alias_base_name = undecorated_table_name.gsub('.','_')
-        quote = ActsAsTaggableOn::Tag.using_postgresql? ? '"' : ''
+        quote = ActsAsTaggableOn::Utils.using_postgresql? ? '"' : ''
 
         if options.delete(:exclude)
           if options.delete(:wild)
@@ -55,7 +55,7 @@ module ActsAsTaggableOn::Taggable
           taggings_context = context ? "_#{context}" : ''
 
           taggings_alias   = adjust_taggings_alias(
-            "#{alias_base_name[0..4]}#{taggings_context[0..6]}_taggings_#{sha_prefix(tags.map(&:name).join('_'))}"
+            "#{alias_base_name[0..4]}#{taggings_context[0..6]}_taggings_#{ActsAsTaggableOn::Utils.sha_prefix(tags.map(&:name).join('_'))}"
           )
 
           tagging_join  = "JOIN #{ActsAsTaggableOn::Tagging.table_name} #{taggings_alias}" +
@@ -83,7 +83,7 @@ module ActsAsTaggableOn::Taggable
           return empty_result unless tags.length == tag_list.length
 
           tags.each do |tag|
-            taggings_alias = adjust_taggings_alias("#{alias_base_name[0..11]}_taggings_#{sha_prefix(tag.name)}")
+            taggings_alias = adjust_taggings_alias("#{alias_base_name[0..11]}_taggings_#{ActsAsTaggableOn::Utils.sha_prefix(tag.name)}")
             tagging_join  = "JOIN #{ActsAsTaggableOn::Tagging.table_name} #{taggings_alias}" +
                             "  ON #{taggings_alias}.taggable_id = #{quote}#{table_name}#{quote}.#{primary_key}" +
                             " AND #{taggings_alias}.taggable_type = #{quote_value(base_class.name, nil)}" +
@@ -112,7 +112,7 @@ module ActsAsTaggableOn::Taggable
                    " AND #{taggings_alias}.taggable_type = #{quote_value(base_class.name, nil)}"
 
 
-          group_columns = ActsAsTaggableOn::Tag.using_postgresql? ? grouped_column_names_for(self) : "#{table_name}.#{primary_key}"
+          group_columns = ActsAsTaggableOn::Utils.using_postgresql? ? grouped_column_names_for(self) : "#{table_name}.#{primary_key}"
           group = group_columns
           having = "COUNT(#{taggings_alias}.taggable_id) = #{tags.size}"
         end
