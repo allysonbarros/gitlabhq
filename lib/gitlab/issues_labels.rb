@@ -37,8 +37,12 @@ module Gitlab
                 %w(edu)
             end
 
+            def feedback_labels
+                %w(feedback)
+            end
+
             def generate(project)
-                labels = important_labels + warning_labels + neutral_labels + positive_labels + info_labels + default_labels + adm_labels + rh_labels + edu_labels
+                labels = important_labels + warning_labels + neutral_labels + positive_labels + info_labels + default_labels + adm_labels + rh_labels + edu_labels + feedback_labels
 
                 project.issues_default_label_list = labels
                 project.save
