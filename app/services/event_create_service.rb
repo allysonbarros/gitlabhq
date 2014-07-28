@@ -69,21 +69,25 @@ class EventCreateService
     ns = NotificationService.new
     author = current_user
     project = record.project
-    message = record.title
+    message = ""
     title = ""
 
     case event.action
       when Event::CREATED
         title = "opened"
+        message = record.title
       when Event::CLOSED
         title = "closed"
+        message = record.title
       when Event::REOPENED
         title = "reopened"
+        message = record.title
       when Event::COMMENTED
         title = "commented on"
         message = record.note
       when Event::MERGED
         title = "accepted"
+        message = record.title
     end
     
     if event.target.respond_to?(:participants)
