@@ -130,7 +130,9 @@ module EventsHelper
   end
 
   def event_note_title(event)
-    if event.note_target
+    if event.merge_request? || event.issue? || event.milestone?
+      "#{event.target_type} #{event.target_iid}"
+    elsif event.note_target
       if event.note_commit?
         "#{event.note_target_type} #{event.note_short_commit_id}"
       elsif event.note_project_snippet?

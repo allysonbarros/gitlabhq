@@ -31,7 +31,10 @@
       .md
         - if event_notification.event
           %i.icon-comment-alt.event-note-icon
-          = event_note(event_notification.event.target.note)
+          - if event_notification.event.note?
+            = event_note(event_notification.event.target.note)
+          -else
+            = event_note(event_notification.event.target.title)
         - else
           %strong (deleted)
           
