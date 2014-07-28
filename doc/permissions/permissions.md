@@ -23,6 +23,7 @@ If a user is a GitLab administrator they receive all permissions.
 | Add tags                              |         |            | ✓           | ✓        | ✓      |
 | Write a wiki                          |         |            | ✓           | ✓        | ✓      |
 | Manage issue tracker                  |         |            | ✓           | ✓        | ✓      |
+| Create new milestones                 |         |            |             | ✓        | ✓      |
 | Add new team members                  |         |            |             | ✓        | ✓      |
 | Push to protected branches            |         |            |             | ✓        | ✓      |
 | Enable/Disable branch protection      |         |            |             | ✓        | ✓      |

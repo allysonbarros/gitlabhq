@@ -1,5 +1,7 @@
 # Backup restore
 
+![backup banner](backup_hrz.png)
+
 ## Create a backup of the GitLab system
 
 Creates a backup archive of the database and all repositories. This archive will be saved in backup_path (see `config/gitlab.yml`).
@@ -7,6 +9,10 @@ Creates a backup archive of the database and all repositories. This archive will
 The filename will be `[TIMESTAMP]_gitlab_backup.tar`. This timestamp can be used to restore an specific backup.
 
 ```
+# omnibus-gitlab
+sudo gitlab-rake gitlab:backup:create
+
+# installation from source or cookbook
 bundle exec rake gitlab:backup:create RAILS_ENV=production
 ```
 
@@ -42,6 +48,10 @@ Deleting old backups... [SKIPPING]
 ## Restore a previously created backup
 
 ```
+# omnibus-gitlab
+sudo gitlab-rake gitlab:backup:restore
+
+# installation from source or cookbook
 bundle exec rake gitlab:backup:restore RAILS_ENV=production
 ```
 
@@ -83,6 +93,8 @@ Deleting tmp directories...[DONE]
 ```
 
 ## Configure cron to make daily backups
+
+For omnibus-gitlab, see https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/README.md#scheduling-a-backup .
 
 ```
 cd /home/git/gitlab
