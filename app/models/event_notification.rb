@@ -16,8 +16,6 @@
 
 class EventNotification < ActiveRecord::Base
   include Rails.application.routes.url_helpers
-  
-	attr_accessible :title, :message, :read, :project, :project_id, :author, :author_id, :event, :event_id, :user
 
   belongs_to :user, class_name: "User"
   belongs_to :author, class_name: "User"
