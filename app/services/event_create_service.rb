@@ -62,10 +62,52 @@ class EventCreateService
       author_id: current_user.id
     )
 
+    create_event_notification_to_observers_and_participating_users(record, current_user, event)
+  end
+
+  def create_event_notification_to_observers_and_participating_users(record, current_user, event)
+    ns = NotificationService.new
+    author = current_user
+    project = record.project
+    message = record.title
+    title = ""
+
+    case event.action
+      when Event::CREATED
+        title = "opened"
+      when Event::CLOSED
+        title = "closed"
+      when Event::REOPENED
+        title = "reopened"
+      when Event::COMMENTED
+        title = "commented on"
+        message = record.note
+      when Event::MERGED
+        title = "accepted"
+    end
+    
+    if event.target.respond_to?(:participants)
+      recipients = event.target.participants
+    else
+      recipients = event.target.noteable.participants
+    end
+
+    recipients.delete(author)
+    recipients.each do |recipient|
+      EventNotification.create!({
+        user: recipient,
+        author: author,
+        project: project,
+        title: title,
+        message: message,
+        event: event,
+        read: false
+      })
+    end
+
     return event
   end
 
-  # Method used to create a new EventNotification record based on Note created instance.
   def create_event_notification(record, event)
     author = record.author
     project = record.project

@@ -10,8 +10,7 @@
       = link_to_author event_notification
     %span.event_label
       /= link_to , show_user_notification_path(event_notification, title: event_notification.title.parameterize)
-      #{event_notification.title}
-      on 
+      #{event_notification.title} 
       
       %span.notification_event_title
         / #{event_note_title_html(event_notification.event)}
