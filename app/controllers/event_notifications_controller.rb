@@ -21,18 +21,24 @@ class EventNotificationsController < ApplicationController
 		@event_notification.read = true
 		@event_notification.save!
 
-		if @event_notification.event.note_target
-	      if @event_notification.event.note_commit?
-	        redirect_to project_commit_path(@event_notification.event.project, @event_notification.event.note_commit_id)
-	      elsif @event_notification.event.note_project_snippet?
-	        redirect_to project_snippet_path(@event_notification.event.project, @event_notification.event.note_target)
-	      else
-	        if @event_notification.event.note? && @event_notification.event.note_commit?
-		      redirect_to project_commit_path(@event_notification.event.project, @event_notification.event.note_target)
-		    else
-		      redirect_to polymorphic_path([@event_notification.event.project, @event_notification.event.note_target])
+		if @event_notification.event.issue?
+	      redirect_to project_issue_url(@event_notification.event.project, @event_notification.event.issue)
+	    elsif @event_notification.event.merge_request?
+	      redirect_to project_merge_request_url(@event_notification.event.project, @event_notification.event.merge_request)
+	    elsif event.note?
+			if @event_notification.event.note_target
+		      if @event_notification.event.note_commit?
+		        redirect_to project_commit_path(@event_notification.event.project, @event_notification.event.note_commit_id)
+		      elsif @event_notification.event.note_project_snippet?
+		        redirect_to project_snippet_path(@event_notification.event.project, @event_notification.event.note_target)
+		      else
+		        if @event_notification.event.note? && @event_notification.event.note_commit?
+			      redirect_to project_commit_path(@event_notification.event.project, @event_notification.event.note_target)
+			    else
+			      redirect_to polymorphic_path([@event_notification.event.project, @event_notification.event.note_target])
+			    end
+		      end
 		    end
-	      end
 	    elsif @event_notification.event.wall_note?
 	      redirect_to project_wall_path(@event_notification.event.project)
 	    else
