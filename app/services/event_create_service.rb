@@ -71,6 +71,7 @@ class EventCreateService
     project = record.project
     message = ""
     title = ""
+    mentioned_users = record.mentioned_users
 
     case event.action
       when Event::CREATED
@@ -96,7 +97,12 @@ class EventCreateService
       recipients = event.target.noteable.participants
     end
 
+    # Deletando o autor e os usuários mencionados no comentário.
     recipients.delete(author)
+    mentioned_users.each do |mentioned_user|
+      recipients.delete(mentioned_user)      
+    end
+
     recipients.each do |recipient|
       EventNotification.create!({
         user: recipient,
