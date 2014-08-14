@@ -71,7 +71,7 @@ class EventCreateService
     project = record.project
     message = ""
     title = ""
-    mentioned_users = record.mentioned_users
+    mentioned_users = []
 
     case event.action
       when Event::CREATED
@@ -86,6 +86,7 @@ class EventCreateService
       when Event::COMMENTED
         title = "commented on"
         message = record.note
+        mentioned_users = record.mentioned_users
       when Event::MERGED
         title = "accepted"
         message = record.title
