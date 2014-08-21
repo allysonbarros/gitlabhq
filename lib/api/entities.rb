@@ -123,6 +123,7 @@ module API
 
     class Milestone < ProjectEntity
       expose :due_date
+      expose :percent_complete
     end
 
     class Issue < ProjectEntity
