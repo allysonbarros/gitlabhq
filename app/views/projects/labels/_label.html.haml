@@ -1,4 +1,4 @@
-- frequency = @project.issues.tagged_with(label.name).count
+- frequency = @project.issues.opened.tagged_with(label.name).count
 %li
   %span{class: "label #{label_css_class(label.name)}"}
     %i.icon-tag

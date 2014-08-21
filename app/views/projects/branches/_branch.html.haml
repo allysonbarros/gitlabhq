@@ -10,27 +10,6 @@
           %i.icon-lock
           protected
 
-      / Declarando a variável
-      - resultado_testes = @repository.resultado_testes(branch.name)
-
-      - if not resultado_testes.nil?
-        - if resultado_testes.ultimo_commit[0..10] == commit.short_id && resultado_testes.resultado == 1
-          %span.label.label-success 
-            %i.icon-thumbs-up
-            Testes
-        - elsif resultado_testes.ultimo_commit[0..10] == commit.short_id && resultado_testes.resultado == 2
-          %span.label.label-danger 
-            %i.icon-thumbs-down
-            Testes
-        - else
-          %span.label.label-inverse
-            %i.icon-thumbs-down
-            Testes pendentes
-      - else
-        %span.label.label-inverse
-          %i.icon-thumbs-down
-          Testes pendentes
-
     .pull-right
       - if can?(current_user, :download_code, @project)
         = render 'projects/repositories/download_archive', ref: branch.name, btn_class: 'btn-grouped btn-group-small'
@@ -45,7 +24,7 @@
 
   - if commit
     %ul.list-unstyled
-      = render 'projects/commits/inline_commit', commit: commit, project: @project
+      = render 'projects/commits/inline_commit_plus', commit: commit, project: @project
   - else
     %p
       Cant find HEAD commit for this branch

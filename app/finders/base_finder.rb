@@ -116,6 +116,10 @@ class BaseFinder
   end
 
   def by_assignee(items)
+    if params[:only_assigned].present?
+      items = items.where.not(assignee_id: nil)
+    end
+
     if params[:assignee_id].present?
       items = items.where(assignee_id: (params[:assignee_id] == '0' ? nil : params[:assignee_id]))
     end

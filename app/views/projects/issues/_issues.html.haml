@@ -10,6 +10,8 @@
           %strong= @assignee.name
         - elsif params[:assignee_id] == "0"
           Unassigned
+        - elsif params[:only_assigned] == "true"
+          Assigned
         - else
           Any
         %b.caret
@@ -17,6 +19,8 @@
         %li
           = link_to project_filter_path(assignee_id: nil) do
             Any
+          = link_to project_filter_path(assignee_id:nil, only_assigned: true) do
+            Assigned
           = link_to project_filter_path(assignee_id: 0) do
             Unassigned
         - @assignees.sort_by(&:name).each do |user|
