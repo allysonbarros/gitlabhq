@@ -145,6 +145,7 @@ class Ability
         :admin_issue,
         :modify_milestone,
         :admin_milestone,
+        :admin_label,
         :push_code
       ]
     end

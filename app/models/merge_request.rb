@@ -47,9 +47,6 @@ class MergeRequest < ActiveRecord::Base
   attr_accessor :can_be_created, :compare_failed,
     :compare_commits, :compare_diffs
 
-  ActsAsTaggableOn.strict_case_match = true
-  acts_as_taggable_on :labels
-
   state_machine :state, initial: :opened do
     event :close do
       transition [:reopened, :opened] => :closed
@@ -287,9 +284,7 @@ class MergeRequest < ActiveRecord::Base
   # Thus it will automatically generate a new fragment
   # when the event is updated because the key changes.
   def reset_events_cache
-    Event.where(target_id: self.id, target_type: 'MergeRequest').
-        order('id DESC').limit(100).
-        update_all(updated_at: Time.now)
+    Event.reset_event_cache_for(self)
   end
 
   def merge_commit_message

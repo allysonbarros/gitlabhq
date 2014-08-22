@@ -1,40 +1,36 @@
 module LabelsHelper
-    def issue_label_names
-        @project.issues_labels.map(&:name)
+  def project_label_names
+    @project.labels.pluck(:title)
+  end
+
+  def render_colored_label(label)
+    label_color = label.color || Label::DEFAULT_COLOR
+    text_color = text_color_for_bg(label_color)
+
+    content_tag :span, class: 'label color-label', style: "background:#{label_color};color:#{text_color}" do
+      label.name
     end
+  end
 
-    def labels_autocomplete_source
-        labels = @project.issues_labels
-        labels = labels.map{ |l| { label: l.name, value: l.name } }
-        labels.to_json
-    end
+  def suggested_colors
+    [
+      '#D9534F',
+      '#F0AD4E',
+      '#428BCA',
+      '#5CB85C',
+      '#34495E',
+      '#7F8C8D',
+      '#8E44AD',
+      '#FFECDB'
+    ]
+  end
 
-    def label_css_class(name)
-        klass = Gitlab::IssuesLabels
+  def text_color_for_bg(bg_color)
+    r, g, b = bg_color.slice(1,7).scan(/.{2}/).map(&:hex)
 
-        case name.downcase
-        when *klass.warning_labels
-            'label-warning'
-        when *klass.neutral_labels
-            'label-primary'
-        when *klass.positive_labels
-            'label-success'
-        when *klass.important_labels
-            'label-danger'
-        when *klass.info_labels
-            'label-info'
-        when *klass.adm_labels
-            'label-info'
-        when *klass.rh_labels
-            'label-warning'
-        when *klass.edu_labels
-            'label-success'
-        when *klass.feedback_labels
-            'label-feedback'
-        when *klass.default_labels 
-            'label-inverse'
-        else
-            'label-default'
-        end
+    if (r + g + b) > 500
+      "#333"
+    else
+      "#FFF"
     end
 end
