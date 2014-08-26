@@ -33,4 +33,5 @@ module LabelsHelper
     else
       "#FFF"
     end
+  end
 end
