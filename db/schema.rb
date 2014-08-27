@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140730111702) do
+ActiveRecord::Schema.define(version: 201401178165903) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -88,7 +88,7 @@ ActiveRecord::Schema.define(version: 20140730111702) do
 
   create_table "ifrn_testes", force: true do |t|
     t.string   "branch",        limit: 100
-    t.string   "ultimo_commit", limit: 40
+    t.string   "ultimo_commit", limit: 80
     t.datetime "data_commit"
     t.integer  "resultado",     limit: 2
   end
@@ -326,12 +326,14 @@ ActiveRecord::Schema.define(version: 20140730111702) do
     t.datetime "created_at"
   end
 
-  add_index "taggings", ["tag_id"], name: "index_taggings_on_tag_id", using: :btree
-  add_index "taggings", ["taggable_id", "taggable_type", "context"], name: "index_taggings_on_taggable_id_and_taggable_type_and_context", using: :btree
+  add_index "taggings", ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "taggings_idx", unique: true, using: :btree
 
   create_table "tags", force: true do |t|
-    t.string "name"
+    t.string  "name"
+    t.integer "taggings_count", default: 0
   end
+
+  add_index "tags", ["name"], name: "index_tags_on_name", unique: true, using: :btree
 
   create_table "users", force: true do |t|
     t.string   "email",                    default: "",    null: false
