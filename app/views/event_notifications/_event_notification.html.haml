@@ -14,10 +14,10 @@
       
       %span.notification_event_title
         / #{event_note_title_html(event_notification.event)}
-        - if event_notification.event
+        - if event_notification.event and event_notification.event.target != nil
           = link_to event_note_title(event_notification.event), show_user_notification_path(event_notification)
         - else
-          (deleted)
+          %strong (deleted)
       at 
       
       %span.notification_project_name
@@ -29,7 +29,7 @@
   .event-body
     .event-note
       .md
-        - if event_notification.event
+        - if event_notification.event and event_notification.event.target != nil
           %i.icon-comment-alt.event-note-icon
           - if event_notification.event.note?
             = event_note(event_notification.event.target.note)
