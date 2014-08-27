@@ -140,8 +140,6 @@ module EventsHelper
       else
         "#{event.note_target_type} ##{truncate event.note_target_iid}"
       end
-    elsif event.wall_note?
-      "wall"
     else
       "(deleted)"
     end

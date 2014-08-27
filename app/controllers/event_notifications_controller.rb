@@ -39,8 +39,6 @@ class EventNotificationsController < ApplicationController
           end
         end
       end
-    elsif @event_notification.event.wall_note?
-        redirect_to project_wall_path(@event_notification.event.project)
     else
       redirect_to projects_dashboard_path
     end

@@ -9,8 +9,21 @@
   %hr
 
 %div.content
-  %h4= @event_notification.title
+  %h4
+    = link_to_author @event_notification
+    = @event_notification.title
+    
+    - if @event_notification.event and @event_notification.event.target != nil
+      = event_note_title(@event_notification.event)
+    - else
+      %strong (deleted)
+    
+    at
 
+    - if @event_notification.project
+      %strong #{link_to_project @event_notification.project}
+    - else
+      %strong #{@event_notification.project_name}
   %br
 
   .notification.visualization
