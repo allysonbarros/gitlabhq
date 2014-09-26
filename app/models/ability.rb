@@ -141,6 +141,7 @@ class Ability
       project_report_rules + [
         :write_merge_request,
         :write_wiki,
+        :admin_wiki,
         :modify_issue,
         :admin_issue,
         :modify_milestone,
