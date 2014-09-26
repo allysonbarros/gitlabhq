@@ -30,8 +30,10 @@ class Projects::NotesController < Projects::ApplicationController
   end
 
   def update
-    note.update_attributes(note_params)
-    note.reset_events_cache
+    if note.editable?
+      note.update_attributes(note_params)
+      note.reset_events_cache
+    end
 
     respond_to do |format|
       format.json { render_note_json(note) }
@@ -40,15 +42,16 @@ class Projects::NotesController < Projects::ApplicationController
   end
 
   def destroy
-    event = Event.where(target_id: note.id, target_type: "Note").first
-    
-    note.destroy
-    note.reset_events_cache
-    
-    # Deletando todas as notificações.
-    if event.event_notifications
-      event.event_notifications.each do |notification|
-        notification.delete
+    if note.editable?
+      note.destroy
+      note.reset_events_cache
+
+      # Deletando todas as notificações.
+      event = Event.where(target_id: note.id, target_type: "Note").first
+      if event.event_notifications
+        event.event_notifications.each do |notification|
+          notification.delete
+        end
       end
     end
 

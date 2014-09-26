@@ -1,3 +1,7 @@
+%ul#notes-list.notes.main-notes-list.timeline
+  = render "projects/notes/notes"
+.js-notes-busy
+
 .js-main-target-form
 - if can? current_user, :write_note, @project
   = render "projects/notes/form"
