@@ -11,7 +11,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141007100818) do
+ActiveRecord::Schema.define(version: 201401178165903) do
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -300,8 +301,8 @@ ActiveRecord::Schema.define(version: 20141007100818) do
     t.string   "type"
     t.string   "title"
     t.integer  "project_id",                 null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
     t.boolean  "active",     default: false, null: false
     t.text     "properties"
   end
@@ -313,8 +314,8 @@ ActiveRecord::Schema.define(version: 20141007100818) do
     t.text     "content"
     t.integer  "author_id",                    null: false
     t.integer  "project_id"
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
     t.string   "file_name"
     t.datetime "expires_at"
     t.string   "type"
@@ -400,33 +401,6 @@ ActiveRecord::Schema.define(version: 20141007100818) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["username"], name: "index_users_on_username", using: :btree
 
-<<<<<<< HEAD
-  create_table "users_groups", force: true do |t|
-    t.integer  "group_access",                   null: false
-    t.integer  "group_id",                       null: false
-    t.integer  "user_id",                        null: false
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-    t.integer  "notification_level", default: 3, null: false
-  end
-
-  add_index "users_groups", ["user_id"], name: "index_users_groups_on_user_id", using: :btree
-
-  create_table "users_projects", force: true do |t|
-    t.integer  "user_id",                        null: false
-    t.integer  "project_id",                     null: false
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-    t.integer  "project_access",     default: 0, null: false
-    t.integer  "notification_level", default: 3, null: false
-  end
-
-  add_index "users_projects", ["project_access"], name: "index_users_projects_on_project_access", using: :btree
-  add_index "users_projects", ["project_id"], name: "index_users_projects_on_project_id", using: :btree
-  add_index "users_projects", ["user_id"], name: "index_users_projects_on_user_id", using: :btree
-
-=======
->>>>>>> ba76dbc3667c2eb0a1a3687f8b0481e619946d73
   create_table "users_star_projects", force: true do |t|
     t.integer  "project_id", null: false
     t.integer  "user_id",    null: false
