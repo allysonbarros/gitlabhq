@@ -267,7 +267,7 @@ class Event < ActiveRecord::Base
   end
 
   def note_short_commit_id
-    note_commit_id[0..8]
+    Commit.truncate_sha(note_commit_id)
   end
 
   def note_commit?
