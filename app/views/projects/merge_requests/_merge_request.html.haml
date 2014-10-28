@@ -51,11 +51,11 @@
       - commit = merge_request.ultimo_commit if not @project.nil?
 
       - if not (commit.nil? or resultado_testes.nil?)
-        - if resultado_testes.ultimo_commit[0..8] == commit.short_id && resultado_testes.resultado == 1
+        - if resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 1
           %span.label.label-success 
             %i.icon-thumbs-up 
             Testes
-        - elsif resultado_testes.ultimo_commit[0..8] == commit.short_id && resultado_testes.resultado == 2
+        - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 2
           %span.label.label-danger 
             %i.icon-thumbs-down
             Testes
