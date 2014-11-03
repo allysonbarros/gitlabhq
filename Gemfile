@@ -31,7 +31,7 @@ gem 'omniauth-shibboleth'
 
 # Extracting information from a git repository
 # Provide access to Gitlab::Git library
-gem "gitlab_git", '7.0.0.rc9'
+gem "gitlab_git", '7.0.0.rc10'
 
 # Ruby/Rack Git Smart-HTTP Server Handler
 gem 'gitlab-grack', '~> 2.0.0.pre', require: 'grack'
@@ -186,6 +186,7 @@ gem "gon", '~> 5.0.0'
 gem 'nprogress-rails'
 gem 'request_store'
 gem "virtus"
+gem 'addressable'
 
 group :development do
   gem "annotate", "~> 2.6.0.beta2"
