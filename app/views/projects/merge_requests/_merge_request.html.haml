@@ -38,7 +38,7 @@
 
       - if merge_request.downvotes > 0
         %span.vote.downvote.label.label-danger.avatar-voters
-          %i.icon-thumbs-down
+          %i.fa.fa-thumbs-down
           \-
           = merge_request.downvotes
 
@@ -57,15 +57,15 @@
             Testes
         - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 2
           %span.label.label-danger 
-            %i.icon-thumbs-down
+            %i.fa.fa-thumbs-down
             Testes
         - else
           %span.label.label-inverse
-            %i.icon-thumbs-down 
+            %i.fa.fa-thumbs-down
             Testes pendentes
       - else
         %span.label.label-inverse
-          %i.icon-thumbs-down
+          %i.fa.fa-thumbs-down
           Testes pendentes
             
     - if merge_request.milestone_id?
