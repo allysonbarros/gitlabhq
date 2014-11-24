@@ -28,7 +28,7 @@
       
       - if merge_request.upvotes > 0
         %span.vote.upvote.label.label-success.avatar-voters
-          %i.icon-thumbs-up
+          %i.fa.fa-thumbs-up
           \+
           = merge_request.upvotes
 
@@ -53,7 +53,7 @@
       - if not (commit.nil? or resultado_testes.nil?)
         - if resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 1
           %span.label.label-success 
-            %i.icon-thumbs-up 
+            %i.fa.fa-thumbs-up 
             Testes
         - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 2
           %span.label.label-danger 
