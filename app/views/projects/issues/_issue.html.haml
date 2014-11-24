@@ -23,7 +23,7 @@
         = issue.notes.count
     
     - if issue.votes_count > 0
-      / = render 'votes/votes_inline', votable: issue
+      = render 'votes/votes_inline', votable: issue
 
       - if issue.upvotes > 0
         %span.vote.upvote.label.label-success.avatar-voters

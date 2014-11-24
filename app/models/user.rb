@@ -229,6 +229,11 @@ class User < ActiveRecord::Base
       where("lower(name) LIKE :query OR lower(email) LIKE :query OR lower(username) LIKE :query", query: "%#{query.downcase}%")
     end
 
+    def by_login(login)
+      where('lower(username) = :value OR lower(email) = :value',
+            value: login.to_s.downcase).first
+    end
+
     def by_username_or_id(name_or_id)
       where('users.username = ? OR users.id = ?', name_or_id.to_s, name_or_id.to_i).first
     end
@@ -333,11 +338,7 @@ class User < ActiveRecord::Base
   end
 
   def abilities
-    @abilities ||= begin
-                     abilities = Six.new
-                     abilities << Ability
-                     abilities
-                   end
+    Ability.abilities
   end
 
   def can_select_namespace?
@@ -498,6 +499,14 @@ class User < ActiveRecord::Base
     else
       GravatarService.new.execute(email, size)
     end
+  end
+
+  def hook_attrs
+    {
+      name: name,
+      username: username,
+      avatar_url: avatar_url
+    }
   end
 
   def ensure_namespace_correct
