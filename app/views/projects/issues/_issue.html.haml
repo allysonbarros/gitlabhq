@@ -14,12 +14,36 @@
   .issue-info
     - if issue.assignee
       assigned to #{link_to_member(@project, issue.assignee)}
-    - if issue.votes_count > 0
-      = render 'votes/votes_inline', votable: issue
+    - else
+      unassigned
+
     - if issue.notes.any?
       %span
         %i.fa.fa-comments
         = issue.notes.count
+    
+    - if issue.votes_count > 0
+      = render 'votes/votes_inline', votable: issue
+
+      - if issue.upvotes > 0
+        %span.vote.upvote.label.label-success.avatar-voters
+          %i.icon-thumbs-up
+          \+
+          = issue.upvotes
+
+          - issue.upvoters.each do |participant|
+            = link_to_member(@project, participant, name: false, size: 16)
+        
+
+      - if issue.downvotes > 0
+        %span.vote.downvote.label.label-danger.avatar-voters
+          %i.fa.fa-thumbs-down
+          \-
+          = issue.downvotes
+
+          - issue.downvoters.each do |participant|
+            = link_to_member(@project, participant, name: false, size: 16)
+
     - if issue.milestone
       %span
         %i.fa.fa-clock-o

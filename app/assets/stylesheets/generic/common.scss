@@ -334,9 +334,61 @@ table {
   .container .content { margin-top: 20px; }
 }
 
+// Notifications
+#header-notifications {
+  overflow: hidden;
+
+  hr {
+    clear: both;
+  }
+}
+
+.event-item.notification {
+  padding: 14px;
+  border-bottom: 1px solid #dfdfdf;
+
+  &.unread {
+    background: #f9f9f9;
+  }
+
+  &:first-child {
+    padding: 14px;
+  }
+
+  .event-title .event_label a {
+    text-decoration: underline;
+    color: #333;
+  }
+
+  span.notification_project_name a, span.notification_event_title a {
+    text-decoration: none !important;
+    color: #2fa0bb !important;
+  }
+}
+
+.notification.visualization {
+  .event-body {
+    font-size:12px;
+  }
+}
+
+.button-mark-read {
+  margin-left: 30px;
+}
+
+.avatar-voters img {
+  margin-right: -2px !important;
+}
+
 .wiki .highlight, .note-body .highlight {
   margin-bottom: 9px;
 }
+
+.label-default { background-color: #bbbbbb; }
+.label-feedback { background-color: #e67e22; }
+.label-primary { background-color: #2980b9; }
+.label-warning { background-color: #f1c40f; }
+.label {line-height: 18px;}
 
 .footer-links a {
   margin-right: 15px;

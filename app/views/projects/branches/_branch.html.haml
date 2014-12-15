@@ -9,6 +9,7 @@
         %span.label.label-success
           %i.fa.fa-lock
           protected
+
     .pull-right
       - if can?(current_user, :download_code, @project)
         = render 'projects/repositories/download_archive', ref: branch.name, btn_class: 'btn-grouped btn-group-small'
@@ -23,7 +24,7 @@
 
   - if commit
     %ul.list-unstyled
-      = render 'projects/commits/inline_commit', commit: commit, project: @project
+      = render 'projects/commits/inline_commit_plus', commit: commit, project: @project
   - else
     %p
       Cant find HEAD commit for this branch

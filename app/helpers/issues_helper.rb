@@ -2,7 +2,8 @@ module IssuesHelper
   def issue_css_classes(issue)
     classes = "issue"
     classes << " closed" if issue.closed?
-    classes << " today" if issue.today?
+    classes << " today" if issue.upvotes > issue.downvotes
+    classes << " bgred" if issue.upvotes < issue.downvotes
     classes
   end
 

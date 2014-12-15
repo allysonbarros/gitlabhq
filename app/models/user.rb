@@ -106,6 +106,9 @@ class User < ActiveRecord::Base
   has_many :assigned_issues,          dependent: :destroy, foreign_key: :assignee_id, class_name: "Issue"
   has_many :assigned_merge_requests,  dependent: :destroy, foreign_key: :assignee_id, class_name: "MergeRequest"
 
+  # Event Notifications
+  has_many :event_notifications, -> { order "created_at DESC" }, dependent: :destroy, foreign_key: :user_id, class_name: "EventNotification"
+  has_many :event_notifications_sent, -> { order "created_at DESC" }, dependent: :destroy, foreign_key: :author_id, class_name: "EventNotification"
 
   #
   # Validations

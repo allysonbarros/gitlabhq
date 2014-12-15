@@ -195,7 +195,7 @@ class MergeRequest < ActiveRecord::Base
       "(noteable_type = 'MergeRequest' AND noteable_id = :mr_id) OR (noteable_type = 'Commit' AND commit_id IN (:commit_ids))",
       mr_id: id,
       commit_ids: commit_ids
-    )
+    ).order("created_at DESC")
   end
 
   # Returns the raw diff for this merge request
@@ -334,6 +334,54 @@ class MergeRequest < ActiveRecord::Base
       []
     else
       source_project.repository.branch_names
+    end
+  end
+
+  def resultado_testes
+    project = self.project
+
+    if not project.nil?
+      resultado_testes = project.repository.resultado_testes(self.source_branch)
+    else
+      return nil
+    end
+  end
+
+  def ultimo_commit
+    project = self.project
+
+    if not project.nil?
+      commit = project.repository.commit(self.source_branch)
+    else
+      return nil
+    end
+  end
+
+  def classe_css
+    if not (self.resultado_testes.nil? or self.ultimo_commit.nil?)
+      if (self.upvotes > self.downvotes and self.resultado_testes.resultado == 1) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 1) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1)
+        " today"
+      elsif (self.upvotes > self.downvotes and self.resultado_testes.resultado == 2) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 2) || (self.upvotes < self.downvotes) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 2)
+        " bgred"
+      elsif self.closed?
+        " closed"
+      elsif self.merged?
+        " merged"
+      else
+        ""
+      end
+    else
+      if (self.upvotes > self.downvotes) 
+        " today"
+      elsif (self.upvotes > self.downvotes)
+        " bgred"
+      elsif self.closed?
+        " closed"
+      elsif self.merged?
+        " merged"
+      else
+        ""
+      end
     end
   end
 end

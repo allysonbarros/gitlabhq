@@ -1,5 +1,4 @@
-module Gitlab
-  class IssuesLabels
+class IssuesLabels
     class << self
       def generate(project)
         red = '#d9534f'
@@ -23,5 +22,4 @@ module Gitlab
         end
       end
     end
-  end
 end

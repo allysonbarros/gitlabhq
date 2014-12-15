@@ -19,6 +19,21 @@
           %li.visible-sm.visible-xs
             = link_to search_path, title: "Search", class: 'has_bottom_tooltip', 'data-original-title' => 'Search area' do
               %i.fa.fa-search
+
+          %li
+          %span.separator
+
+          %li
+            = link_to inbox_user_notifications_path, title: "Notifications", alt: "Notifications", class: 'has_bottom_tooltip', 'data-original-title' => 'Notifications' do
+              %i.fa.fa-bell
+
+              - if current_user.event_notifications.unread.any?
+                %span.notifications-counter.label.label-danger 
+                  =current_user.event_notifications.unread.size
+          
+          %li
+          %span.separator
+
           %li
             = link_to help_path, title: 'Help', class: 'has_bottom_tooltip',
                'data-original-title' => 'Help'  do

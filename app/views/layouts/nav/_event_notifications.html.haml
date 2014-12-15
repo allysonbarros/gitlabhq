@@ -1,0 +1,10 @@
+%ul
+  = nav_link(path: 'dashboard#show', html_options: {class: 'home'}) do
+    = link_to root_path, title: "Home" do
+      %i.icon-home
+  = nav_link(path: 'event_notifications#inbox') do
+    = link_to inbox_user_notifications_path do
+      Inbox
+  = nav_link(path: 'event_notifications#sent') do
+    = link_to sent_user_notifications_path do
+      Sent

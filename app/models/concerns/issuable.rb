@@ -99,6 +99,11 @@ module Issuable
     end
   end
 
+  def downvoters
+    downvotes = notes.select(&:downvote?)
+    downvotes.map(&:author)
+  end
+
   # Return the number of +1 comments (upvotes)
   def upvotes
     notes.select(&:upvote?).size
@@ -110,6 +115,11 @@ module Issuable
     else
       100.0 / votes_count * upvotes
     end
+  end
+
+  def upvoters
+    upvotes = notes.select(&:upvote?)
+    upvotes.map(&:author)
   end
 
   # Return the total number of votes

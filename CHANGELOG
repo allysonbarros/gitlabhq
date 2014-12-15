@@ -87,7 +87,7 @@ v 7.4.0
   - Developers can push to wiki repo. Protected branches does not affect wiki repo any more
   - Faster rev list
   - Fix branch removal
-
+  
 v 7.3.2
   - Fix creating new file via web editor
   - Use gitlab-shell v2.0.1

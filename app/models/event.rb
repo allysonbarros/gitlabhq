@@ -35,6 +35,7 @@ class Event < ActiveRecord::Base
   belongs_to :author, class_name: "User"
   belongs_to :project
   belongs_to :target, polymorphic: true
+  has_many :event_notifications
 
   # For Hash only
   serialize :data

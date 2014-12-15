@@ -56,7 +56,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
   def show
     @note = @project.notes.new(noteable: @issue)
-    @notes = @issue.notes.inc_author.fresh
+    @notes = @issue.notes.order("created_at DESC").inc_author.fresh
     @noteable = @issue
 
     respond_with(@issue)
@@ -152,7 +152,7 @@ class Projects::IssuesController < Projects::ApplicationController
   def issue_params
     params.require(:issue).permit(
       :title, :assignee_id, :position, :description,
-      :milestone_id, :state_event, :task_num, label_ids: []
+      :milestone_id, :state_event, :task_num, :only_assigned, label_ids: []
     )
   end
 end

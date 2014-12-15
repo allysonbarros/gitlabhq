@@ -1,0 +1,40 @@
+.notification.event-item{class: "#{event_notification.read? ? "event-block read" : "event-block unread" }"}
+  %span.cgray.pull-right
+    #{time_ago_with_tooltip(event_notification.created_at)} ago
+
+  = cache event_notification do
+    = image_tag avatar_icon(event_notification.author_email, 48), class: "avatar s48", alt:''
+
+  .event-title
+    %span.author_name
+      = link_to_author event_notification
+    %span.event_label
+      /= link_to , show_user_notification_path(event_notification, title: event_notification.title.parameterize)
+      #{event_notification.title} 
+      
+      %span.notification_event_title
+        / #{event_note_title_html(event_notification.event)}
+        - if event_notification.event and event_notification.event.target != nil
+          = link_to event_note_title(event_notification.event), show_user_notification_path(event_notification)
+        - else
+          %strong (deleted)
+      at 
+      
+      %span.notification_project_name
+        - if event_notification.project
+          %strong #{link_to_project event_notification.project}
+        - else
+          %strong #{event_notification.project_name}
+          
+  .event-body
+    .event-note
+      .md
+        - if event_notification.event and event_notification.event.target != nil
+          %i.icon-comment-alt.event-note-icon
+          - if event_notification.event.note?
+            = event_note(event_notification.event.target.note)
+          -else
+            = event_note(event_notification.event.target.title)
+        - else
+          %strong (deleted)
+          

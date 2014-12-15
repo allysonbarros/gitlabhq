@@ -2,6 +2,7 @@
   .issue {
     padding: 10px 15px;
     position: relative;
+    overflow: hidden;
 
     .issue-title {
       margin-bottom: 5px;
@@ -10,6 +11,8 @@
 
     .issue-info {
       color: #999;
+      overflow: hidden;
+      line-height: 170%;
     }
 
     .issue-check {
@@ -21,6 +24,8 @@
 
     .issue-labels {
       display: inline-block;
+      float: right;
+      margin: 0 5px 0 0;
     }
 
     .issue-actions {
@@ -107,6 +112,10 @@ form.edit-issue {
   &.today {
     background: #EFE;
     border-color: #CEC;
+  }
+
+  &.bgred {
+    background: #f2dede !important; 
   }
 
   &.closed {

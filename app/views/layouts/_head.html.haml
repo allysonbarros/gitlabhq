@@ -10,6 +10,7 @@
   %meta{content: "GitLab Community Edition", name: "description"}
 
   %title
+    = "(#{current_user.event_notifications.unread.size})" if current_user and current_user.event_notifications.unread.any?
     = "#{title} | " if defined?(title)
     GitLab
   = favicon_link_tag 'favicon.ico'

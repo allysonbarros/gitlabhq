@@ -8,6 +8,10 @@ body {
   padding-bottom: 20px;
 }
 
+body > .container {
+	padding-bottom: 40px;
+}
+
 .container {
   padding-top: 0;
   z-index: 5;
@@ -17,3 +21,16 @@ body {
   margin: 0 0;
 }
 
+#top-of-the-page { 
+  background: #EEEEEE; 
+  border-radius: 3px 3px 0px 0px; 
+  bottom: 0; 
+  color: #333333; 
+  font-size: 90%; 
+  padding: 5px 10px; 
+  position: fixed; right: 50px; 
+} 
+
+#top-of-the-page:hover { 
+  backgorund: #cccccc; 
+}
