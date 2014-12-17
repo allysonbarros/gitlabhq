@@ -52,15 +52,15 @@
 
       - if not (commit.nil? or resultado_testes.nil?)
         - if resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 1
-          %span.label.label-success
+          %span.label.label-success.has_tooltip{'data-title' => "#{ if resultado_testes.data_execucao? time_ago_in_words(resultado_testes.data_execucao.ago) end }" }
             %i.fa.fa-thumbs-up 
             Testes
         - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 2
-          %span.label.label-danger
+          %span.label.label-danger.has_tooltip{'data-title' => "#{ if resultado_testes.data_execucao? time_ago_in_words(resultado_testes.data_execucao.ago) end }" }
             %i.fa.fa-thumbs-down
             Testes
         - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 3
-          %span.label.label-danger
+          %span.label.label-danger.has_tooltip{'data-title' => "#{ if resultado_testes.data_execucao? time_ago_in_words(resultado_testes.data_execucao.ago) end }" }
             %i.fa.fa-chain-broken
             Em Conflito
         - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 4
