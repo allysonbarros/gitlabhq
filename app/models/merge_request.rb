@@ -361,7 +361,7 @@ class MergeRequest < ActiveRecord::Base
     if not (self.resultado_testes.nil? or self.ultimo_commit.nil?)
       if (self.upvotes > self.downvotes and self.resultado_testes.resultado == 1) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 1) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1)
         " today"
-      elsif (self.upvotes > self.downvotes and (self.resultado_testes.resultado == 2 || self.resultado_testes.resultado == 3) || (self.upvotes == 0 and self.downvotes == 0 and (self.resultado_testes.resultado == 2 || self.resultado_testes.resultado == 3)) || (self.upvotes < self.downvotes) || (self.upvotes == self.downvotes and (self.resultado_testes.resultado == 2 || self.resultado_testes.resultado == 3)))
+      elsif self.resultado_testes.resultado == 2 || self.resultado_testes.resultado == 3 || self.upvotes < self.downvotes
         " bgred"
       elsif self.closed?
         " closed"
