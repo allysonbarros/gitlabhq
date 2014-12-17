@@ -46,21 +46,21 @@
             = link_to_member(@project, participant, name: false, size: 16)
 
     - if merge_request.open?
-      / Declarando as varáveis
+      / Declarando as variáveis
       - resultado_testes = merge_request.resultado_testes if not @project.nil?
       - commit = merge_request.ultimo_commit if not @project.nil?
 
-      - if not (commit.nil? or resultado_testes.nil?)
+      - if not commit.nil? and not resultado_testes.nil?
         - if resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 1
-          %span.label.label-success
+          %span.label.label-success.has_tooltip{'data-title' => "#{time_ago_in_words(resultado_testes.data_execucao)}" }
             %i.fa.fa-thumbs-up 
             Testes
         - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 2
-          %span.label.label-danger
+          %span.label.label-danger.has_tooltip{'data-title' => "#{time_ago_in_words(resultado_testes.data_execucao)}" }
             %i.fa.fa-thumbs-down
             Testes
         - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 3
-          %span.label.label-danger
+          %span.label.label-danger.has_tooltip{'data-title' => "#{time_ago_in_words(resultado_testes.data_execucao)}" }
             %i.fa.fa-chain-broken
             Em Conflito
         - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 4
@@ -71,10 +71,6 @@
           %span.label.label-inverse
             %i.fa.fa-thumbs-down
             Testes Pendentes
-      - else
-        %span.label.label-inverse
-          %i.fa.fa-thumbs-down
-          Testes Pendentes
             
     - if merge_request.milestone_id?
       %span
