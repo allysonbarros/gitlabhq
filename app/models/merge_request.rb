@@ -397,4 +397,5 @@ class MergeRequest < ActiveRecord::Base
         ""
       end
     end
+  end
 end
