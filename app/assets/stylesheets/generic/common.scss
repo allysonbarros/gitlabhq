@@ -330,8 +330,36 @@ table {
   }
 }
 
-@media (max-width: $screen-xs-max) {
-  .container .content { margin-top: 20px; }
+.wiki .highlight, .note-body .highlight {
+  margin-bottom: 9px;
+}
+
+.label-default { background-color: #bbbbbb; }
+.label-feedback { background-color: #e67e22; }
+.label-primary { background-color: #2980b9; }
+.label-warning { background-color: #f1c40f; }
+.label {line-height: 18px;}
+
+.footer-links a {
+  margin-right: 15px;
+}
+
+.search_box {
+  position: relative;
+  padding: 30px;
+  text-align: center;
+  background-color: #F9F9F9;
+  border: 1px solid #DDDDDD;
+  border-radius: 0px;
+}
+
+.search_glyph {
+  color: #555;
+  font-size: 42px;
+}
+
+.task-status {
+  margin-left: 10px;
 }
 
 // Notifications
@@ -378,36 +406,4 @@ table {
 
 .avatar-voters img {
   margin-right: -2px !important;
-}
-
-.wiki .highlight, .note-body .highlight {
-  margin-bottom: 9px;
-}
-
-.label-default { background-color: #bbbbbb; }
-.label-feedback { background-color: #e67e22; }
-.label-primary { background-color: #2980b9; }
-.label-warning { background-color: #f1c40f; }
-.label {line-height: 18px;}
-
-.footer-links a {
-  margin-right: 15px;
-}
-
-.search_box {
-  position: relative;
-  padding: 30px;
-  text-align: center;
-  background-color: #F9F9F9;
-  border: 1px solid #DDDDDD;
-  border-radius: 0px;
-}
-
-.search_glyph {
-  color: #555;
-  font-size: 42px;
-}
-
-.task-status {
-  margin-left: 10px;
 }

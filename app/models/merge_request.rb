@@ -70,6 +70,16 @@ class MergeRequest < ActiveRecord::Base
       transition locked: :reopened
     end
 
+    after_transition any => :locked do |merge_request, transition|
+      merge_request.locked_at = Time.now
+      merge_request.save
+    end
+
+    after_transition :locked => (any - :locked) do |merge_request, transition|
+      merge_request.locked_at = nil
+      merge_request.save
+    end
+
     state :opened
     state :reopened
     state :closed
@@ -337,6 +347,10 @@ class MergeRequest < ActiveRecord::Base
     end
   end
 
+  def locked_long_ago?
+    locked_at && locked_at < (Time.now - 1.day)
+  end
+
   def resultado_testes
     project = self.project
 
@@ -383,5 +397,4 @@ class MergeRequest < ActiveRecord::Base
         ""
       end
     end
-  end
 end
