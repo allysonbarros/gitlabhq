@@ -1,10 +1,19 @@
-%ul
+%ul.nav.nav-sidebar
   = nav_link(path: 'dashboard#show', html_options: {class: 'home'}) do
-    = link_to root_path, title: "Home" do
-      %i.icon-home
+    = link_to root_path, title: 'Home', class: 'shortcuts-activity' do
+      %i.fa.fa-dashboard
+      %span
+        Dashboard
   = nav_link(path: 'event_notifications#inbox') do
     = link_to inbox_user_notifications_path do
-      Inbox
+      %i.fa.fa-inbox
+      %span
+        Inbox
+        %span.count= current_user.event_notifications.count
+
   = nav_link(path: 'event_notifications#sent') do
     = link_to sent_user_notifications_path do
-      Sent
+      %i.fa.fa-paper-plane
+      %span
+        Sent
+        %span.count= current_user.event_notifications_sent.count

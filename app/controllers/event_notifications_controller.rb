@@ -13,7 +13,7 @@ class EventNotificationsController < ApplicationController
   end
 
   def sent
-    @event_notifications_sent = current_user.event_notifications_sent.none.page(params[:page]).per(20)
+    @event_notifications = current_user.event_notifications_sent.page(params[:page]).per(20)
   end
 
   def show

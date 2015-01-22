@@ -1,11 +1,9 @@
-%header.navbar.navbar-static-top.navbar-gitlab
+%header.navbar.navbar-fixed-top.navbar-gitlab
   .navbar-inner
     .container
       %div.app_logo
-        %span.separator
         = link_to root_path, class: "home has_bottom_tooltip", title: "Dashboard" do
           %h1 GITLAB
-        %span.separator
       %h1.title= title
 
       %button.navbar-toggle{"data-target" => ".navbar-collapse", "data-toggle" => "collapse", type: "button"}
@@ -21,18 +19,12 @@
               %i.fa.fa-search
 
           %li
-          %span.separator
-
-          %li
             = link_to inbox_user_notifications_path, title: "Notifications", alt: "Notifications", class: 'has_bottom_tooltip', 'data-original-title' => 'Notifications' do
               %i.fa.fa-bell
 
               - if current_user.event_notifications.unread.any?
-                %span.notifications-counter.label.label-danger 
+                %span.label.label-danger 
                   =current_user.event_notifications.unread.size
-          
-          %li
-          %span.separator
 
           %li
             = link_to help_path, title: 'Help', class: 'has_bottom_tooltip',
@@ -61,3 +53,5 @@
           %li.hidden-xs
             = link_to current_user, class: "profile-pic", id: 'profile-pic' do
               = image_tag avatar_icon(current_user.email, 26), alt: 'User activity'
+
+= render 'shared/outdated_browser'

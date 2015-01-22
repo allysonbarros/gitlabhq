@@ -1,14 +1,7 @@
 !!! 5
 %html{ lang: "en"}
-  = render "layouts/head", title: "Notifications"
-  %body{class: "#{app_theme} application", :'data-page' => body_data_page }
+  = render "layouts/head", title: "Dashboard"
+  %body{class: "#{app_theme} #{theme_type} application", :'data-page' => body_data_page }
     = render "layouts/broadcast"
-    = render "layouts/head_panel", title: "Notifications"
-    = render "layouts/flash"
-    %nav.main-nav
-      .container= render 'layouts/nav/event_notifications'
-
-    .container
-      .content= yield
-
-      = render "layouts/top_of_page"
+    = render "layouts/head_panel", title: "Dashboard"
+    = render 'layouts/page', sidebar: 'layouts/nav/event_notifications'
