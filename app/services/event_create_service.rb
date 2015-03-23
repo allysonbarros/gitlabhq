@@ -47,8 +47,7 @@ class EventCreateService
   end
 
   def leave_note(note, current_user)
-    event = create_record_event(note, current_user, Event::COMMENTED)
-    create_event_notification(note, event)
+    create_record_event(note, current_user, Event::COMMENTED)
   end
 
   def join_project(project, current_user)
@@ -70,7 +69,7 @@ class EventCreateService
   private
 
   def create_record_event(record, current_user, status)
-    return create_event(record.project, current_user, status, target_id: record.id, target_type: record.class.name)
+    create_event(record.project, current_user, status, target_id: record.id, target_type: record.class.name)
   end
 
   def create_event(project, current_user, status, attributes = {})
@@ -81,81 +80,5 @@ class EventCreateService
     )
 
     Event.create(attributes)
-    create_event_notification_to_observers_and_participating_users(record, current_user, event)
-  end
-
-  def create_event_notification_to_observers_and_participating_users(record, current_user, event)
-    ns = NotificationService.new
-    author = current_user
-    project = record.project
-    message = ""
-    title = ""
-    mentioned_users = []
-
-    case event.action
-      when Event::CREATED
-        title = "opened"
-        message = record.title
-      when Event::CLOSED
-        title = "closed"
-        message = record.title
-      when Event::REOPENED
-        title = "reopened"
-        message = record.title
-      when Event::COMMENTED
-        title = "commented on"
-        message = record.note
-        mentioned_users = record.mentioned_users
-      when Event::MERGED
-        title = "accepted"
-        message = record.title
-    end
-    
-    if event.target.respond_to?(:participants)
-      recipients = event.target.participants
-    else
-      recipients = event.target.noteable.participants
-    end
-
-    # Deletando o autor e os usuários mencionados no comentário.
-    recipients.delete(author)
-    mentioned_users.each do |mentioned_user|
-      recipients.delete(mentioned_user)      
-    end
-
-    recipients.each do |recipient|
-      EventNotification.create!({
-        user: recipient,
-        author: author,
-        project: project,
-        title: title,
-        message: message,
-        event: event,
-        read: false
-      })
-    end
-
-    return event
-  end
-
-  def create_event_notification(record, event)
-    author = record.author
-    project = record.project
-    message = record.note
-    mentioned_users = record.mentioned_users
-
-    mentioned_users.each do |user|
-      EventNotification.create({
-        user: user,
-        author: author,
-        project: project,
-        title: "mentioned you",
-        message: message,
-        event: event,
-        read: false
-      })
-    end
-
-    return event
   end
 end
