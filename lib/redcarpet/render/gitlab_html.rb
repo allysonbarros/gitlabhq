@@ -3,11 +3,18 @@ class Redcarpet::Render::GitlabHTML < Redcarpet::Render::HTML
   attr_reader :template
   alias_method :h, :template
 
-  def initialize(template, options = {})
+  def initialize(template, color_scheme, options = {})
     @template = template
+    @color_scheme = color_scheme
     @project = @template.instance_variable_get("@project")
     @options = options.dup
     super options
+  end
+
+  def preprocess(full_document)
+    # Redcarpet doesn't allow SMB links when `safe_links_only` is enabled.
+    # FTP links are allowed, so we trick Redcarpet.
+    full_document.gsub("smb://", "ftp://smb:")
   end
 
   # If project has issue number 39, apostrophe will be linked in
@@ -21,23 +28,22 @@ class Redcarpet::Render::GitlabHTML < Redcarpet::Render::HTML
     text.gsub("'", "&rsquo;")
   end
 
+  # Stolen from Rugments::Plugins::Redcarpet as this module is not required
+  # from Rugments's gem root.
   def block_code(code, language)
-    # New lines are placed to fix an rendering issue
-    # with code wrapped inside <h1> tag for next case:
-    #
-    # # Title kinda h1
-    #
-    #     ruby code here
-    #
-    <<-HTML
+    lexer = Rugments::Lexer.find_fancy(language, code) || Rugments::Lexers::PlainText
 
-<div class="highlighted-data #{h.user_color_scheme_class}">
-  <div class="highlight">
-    <pre><code class="#{language}">#{h.send(:html_escape, code)}</code></pre>
-  </div>
-</div>
+    # XXX HACK: Redcarpet strips hard tabs out of code blocks,
+    # so we assume you're not using leading spaces that aren't tabs,
+    # and just replace them here.
+    if lexer.tag == 'make'
+      code.gsub! /^    /, "\t"
+    end
 
-    HTML
+    formatter = Rugments::Formatters::HTML.new(
+      cssclass: "code highlight #{@color_scheme} #{lexer.tag}"
+    )
+    formatter.format(lexer.lex(code))
   end
 
   def link(link, title, content)
@@ -55,14 +61,12 @@ class Redcarpet::Render::GitlabHTML < Redcarpet::Render::HTML
   end
 
   def postprocess(full_document)
+    full_document.gsub!("ftp://smb:", "smb://")
+
     full_document.gsub!("&rsquo;", "'")
     unless @template.instance_variable_get("@project_wiki") || @project.nil?
       full_document = h.create_relative_links(full_document)
     end
-    if @options[:parse_tasks]
-      h.gfm_with_tasks(full_document)
-    else
-      h.gfm(full_document)
-    end
+    h.gfm_with_options(full_document, @options)
   end
 end

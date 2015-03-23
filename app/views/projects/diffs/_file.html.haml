@@ -1,6 +1,6 @@
 - blob = project.repository.blob_for_diff(@commit, diff_file.diff)
 - return unless blob
-- blob_diff_path = diff_project_blob_path(project, tree_join(@commit.id, diff_file.file_path))
+- blob_diff_path = namespace_project_blob_diff_path(project.namespace, project, tree_join(@commit.id, diff_file.file_path))
 .diff-file{id: "diff-#{i}", data: {blob_diff_path: blob_diff_path }}
   .diff-header{id: "file-path-#{hexdigest(diff_file.new_path || diff_file.old_path)}"}
     - if diff_file.deleted_file
@@ -9,6 +9,9 @@
       .diff-btn-group
         - if @commit.parent_ids.present?
           = view_file_btn(@commit.parent_id, diff_file, project)
+    - elsif diff_file.diff.submodule?
+      - submodule_item = project.repository.blob_at(@commit.id, diff_file.file_path)
+      = submodule_link(submodule_item, @commit.id)
     - else
       - if diff_file.renamed_file
         %span= "#{diff_file.old_path} renamed to #{diff_file.new_path}"
@@ -24,9 +27,9 @@
               = check_box_tag nil, 1, false, class: 'js-toggle-diff-line-wrap'
               Wrap text
           &nbsp;
-          = link_to '#', class: 'js-toggle-diff-comments btn btn-small' do
+          = link_to '#', class: 'js-toggle-diff-comments btn btn-sm' do
             %i.fa.fa-chevron-down
-            Diff comments
+            Show/Hide comments
           &nbsp;
 
         - if @merge_request && @merge_request.source_project

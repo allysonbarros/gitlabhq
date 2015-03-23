@@ -1,5 +1,7 @@
 %h3.page-title
-  OAuth2
+  Application Settings
+%p.light
+  OAuth2 protocol settings below.
 
 %fieldset.oauth-applications
   %legend Your applications
@@ -21,7 +23,7 @@
               - application.redirect_uri.split.each do |uri|
                 %div= uri
             %td= application.access_tokens.count
-            %td= link_to 'Edit', edit_oauth_application_path(application), class: 'btn btn-link btn-small'
+            %td= link_to 'Edit', edit_oauth_application_path(application), class: 'btn btn-link btn-sm'
             %td= render 'doorkeeper/applications/delete_form', application: application
 
 %fieldset.oauth-authorized-applications.prepend-top-20
@@ -36,12 +38,12 @@
           %th Scope
           %th
       %tbody
-        - @authorized_tokens.each do |token|
-          - application = token.application
-          %tr{:id => "application_#{application.id}"}
-            %td= application.name
+        - @authorized_apps.each do |app|
+          - token = app.authorized_tokens.order('created_at desc').first
+          %tr{:id => "application_#{app.id}"}
+            %td= app.name
             %td= token.created_at
             %td= token.scopes
-            %td= render 'doorkeeper/authorized_applications/delete_form', application: application
+            %td= render 'doorkeeper/authorized_applications/delete_form', application: app
   - else
     %p.light You dont have any authorized applications

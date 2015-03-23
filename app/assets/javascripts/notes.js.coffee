@@ -39,9 +39,6 @@ class @Notes
     # reset main target form after submit
     $(document).on "ajax:complete", ".js-main-target-form", @resetMainTargetForm
 
-    # attachment button
-    $(document).on "click", ".js-choose-note-attachment-button", @chooseNoteAttachment
-
     # update the file name when an attachment is selected
     $(document).on "change", ".js-note-attachment-input", @updateFormAttachment
 
@@ -58,8 +55,9 @@ class @Notes
     $(document).on "visibilitychange", @visibilityChange
 
     @notes_forms = '.js-main-target-form textarea, .js-discussion-note-form textarea'
-    $(document).on('keypress', @notes_forms, (e)->
-      if e.keyCode == 10 || (e.ctrlKey && e.keyCode == 13)
+    # Chrome doesn't fire keypress or keyup for Command+Enter, so we need keydown.
+    $(document).on('keydown', @notes_forms, (e) ->
+      if e.keyCode == 10 || ((e.metaKey || e.ctrlKey) && e.keyCode == 13)
         $(@).parents('form').submit()
     )
 
@@ -72,11 +70,10 @@ class @Notes
     $(document).off "click", ".js-note-delete"
     $(document).off "click", ".js-note-attachment-delete"
     $(document).off "ajax:complete", ".js-main-target-form"
-    $(document).off "click", ".js-choose-note-attachment-button"
     $(document).off "click", ".js-discussion-reply-button"
     $(document).off "click", ".js-add-diff-note-button"
     $(document).off "visibilitychange"
-    $(document).off "keypress", @notes_forms
+    $(document).off "keydown", @notes_forms
     $(document).off "keyup", ".js-note-text"
     $(document).off "click", ".js-note-target-reopen"
     $(document).off "click", ".js-note-target-close"
@@ -113,11 +110,7 @@ class @Notes
     # or skip if rendered
     if @isNewNote(note)
       @note_ids.push(note.id)
-      $('ul.main-notes-list').prepend(note.html)
-      code = "#note_" + note.id + " .highlight pre code"
-      $(code).each (i, e) ->
-        hljs.highlightBlock(e)
-        
+      $('ul.main-notes-list').append(note.html)
   ###
   Check if note does not exists on page
   ###
@@ -173,14 +166,7 @@ class @Notes
     form.find(".js-md-write-button").click()
     form.find(".js-note-text").val("").trigger "input"
 
-  ###
-  Called when clicking the "Choose File" button.
-
-  Opens the file selection dialog.
-  ###
-  chooseNoteAttachment: ->
-    form = $(this).closest("form")
-    form.find(".js-note-attachment-input").click()
+    form.find(".js-note-text").data("autosave").reset()
 
   ###
   Shows the main form and does some setup on it.
@@ -223,19 +209,28 @@ class @Notes
     # setup preview buttons
     form.find(".js-md-write-button, .js-md-preview-button").tooltip placement: "left"
     previewButton = form.find(".js-md-preview-button")
-    form.find(".js-note-text").on "input", ->
+
+    textarea = form.find(".js-note-text")
+
+    textarea.on "input", ->
       if $(this).val().trim() isnt ""
         previewButton.removeClass("turn-off").addClass "turn-on"
       else
         previewButton.removeClass("turn-on").addClass "turn-off"
 
+    new Autosave textarea, [
+      "Note"
+      form.find("#note_commit_id").val()
+      form.find("#note_line_code").val()
+      form.find("#note_noteable_type").val()
+      form.find("#note_noteable_id").val()
+    ]
 
     # remove notify commit author checkbox for non-commit notes
     form.find(".js-notify-commit-author").remove()  if form.find("#note_noteable_type").val() isnt "Commit"
     GitLab.GfmAutoComplete.setup()
     new DropzoneInput(form)
     form.show()
-
 
   ###
   Called in response to the new note form being submitted
@@ -263,10 +258,7 @@ class @Notes
     note_li = $(".note-row-" + note.id)
     note_li.replaceWith(note.html)
     note_li.find('.note-edit-form').hide()
-    note_li.find('.note-text').show()
-    code = "#note_" + note.id + " .highlight pre code"
-    $(code).each (i, e) ->
-      hljs.highlightBlock(e)
+    note_li.find('.note-body > .note-text').show()
 
   ###
   Called in response to clicking the edit note link
@@ -278,7 +270,7 @@ class @Notes
   showEditForm: (e) ->
     e.preventDefault()
     note = $(this).closest(".note")
-    note.find(".note-text").hide()
+    note.find(".note-body > .note-text").hide()
     note.find(".note-header").hide()
     base_form = note.find(".note-edit-form")
     form = base_form.clone().insertAfter(base_form)
@@ -305,7 +297,7 @@ class @Notes
   cancelEdit: (e) ->
     e.preventDefault()
     note = $(this).closest(".note")
-    note.find(".note-text").show()
+    note.find(".note-body > .note-text").show()
     note.find(".note-header").show()
     note.find(".current-note-edit-form").remove()
 
@@ -339,7 +331,7 @@ class @Notes
   removeAttachment: ->
     note = $(this).closest(".note")
     note.find(".note-attachment").remove()
-    note.find(".note-text").show()
+    note.find(".note-body > .note-text").show()
     note.find(".js-note-attachment-delete").hide()
     note.find(".note-edit-form").hide()
 
@@ -413,6 +405,8 @@ class @Notes
   removeDiscussionNoteForm: (form)->
     row = form.closest("tr")
 
+    form.find(".js-note-text").data("autosave").reset()
+
     # show the reply button (will only work for replies)
     form.prev(".js-discussion-reply-button").show()
     if row.is(".js-temp-notes-holder")
@@ -430,7 +424,7 @@ class @Notes
     @removeDiscussionNoteForm(form)
 
   updateVotes: ->
-    (new NotesVotes).updateVotes()
+    true
 
   ###
   Called after an attachment file has been selected.

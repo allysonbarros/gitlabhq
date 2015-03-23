@@ -15,3 +15,10 @@ class @Issue
       "issue"
       updateTaskState
     )
+
+    $('.issue-details').waitForImages ->
+      $('.issuable-affix').affix offset:
+        top: ->
+          @top = ($('.issuable-affix').offset().top - 70)
+        bottom: ->
+          @bottom = $('.footer').outerHeight(true)

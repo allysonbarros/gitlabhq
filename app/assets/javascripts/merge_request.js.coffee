@@ -20,6 +20,13 @@ class @MergeRequest
     if $("a.btn-close").length
       $("li.task-list-item input:checkbox").prop("disabled", false)
 
+    $('.merge-request-details').waitForImages ->
+      $('.issuable-affix').affix offset:
+        top: ->
+          @top = ($('.issuable-affix').offset().top - 70)
+        bottom: ->
+          @bottom = $('.footer').outerHeight(true)
+
   # Local jQuery finder
   $: (selector) ->
     this.$el.find(selector)
@@ -89,6 +96,7 @@ class @MergeRequest
         this.$('.merge-request-tabs .diffs-tab').addClass 'active'
         this.loadDiff() unless @diffs_loaded
         this.$('.diffs').show()
+        $(".diff-header").trigger("sticky_kit:recalc")
       when 'commits'
         this.$('.merge-request-tabs .commits-tab').addClass 'active'
         this.$('.commits').show()
@@ -102,7 +110,7 @@ class @MergeRequest
 
   showCiState: (state) ->
     $('.ci_widget').hide()
-    allowed_states = ["failed", "running", "pending", "success"]
+    allowed_states = ["failed", "canceled", "running", "pending", "success"]
     if state in allowed_states
       $('.ci_widget.ci-' + state).show()
     else
@@ -117,7 +125,7 @@ class @MergeRequest
   loadDiff: (event) ->
     $.ajax
       type: 'GET'
-      url: this.$('.merge-request-tabs .diffs-tab a').attr('href')
+      url: this.$('.merge-request-tabs .diffs-tab a').attr('href') + ".json"
       beforeSend: =>
         this.$('.mr-loading-status .loading').show()
       complete: =>

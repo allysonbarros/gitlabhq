@@ -6,18 +6,20 @@ class @DropzoneInput
     divHover = "<div class=\"div-dropzone-hover\"></div>"
     divSpinner = "<div class=\"div-dropzone-spinner\"></div>"
     divAlert = "<div class=\"" + alertClass + "\"></div>"
-    iconPicture = "<i class=\"fa fa-picture-o div-dropzone-icon\"></i>"
+    iconPaperclip = "<i class=\"fa fa-paperclip div-dropzone-icon\"></i>"
     iconSpinner = "<i class=\"fa fa-spinner fa-spin div-dropzone-icon\"></i>"
     btnAlert = "<button type=\"button\"" + alertAttr + ">&times;</button>"
-    project_image_path_upload = window.project_image_path_upload or null
+    project_uploads_path = window.project_uploads_path or null
 
     form_textarea = $(form).find("textarea.markdown-area")
     form_textarea.wrap "<div class=\"div-dropzone\"></div>"
+    form_textarea.bind 'paste', (event) =>
+      handlePaste(event)
 
     form_dropzone = $(form).find('.div-dropzone')
     form_dropzone.parent().addClass "div-dropzone-wrapper"
     form_dropzone.append divHover
-    $(".div-dropzone-hover").append iconPicture
+    $(".div-dropzone-hover").append iconPaperclip
     form_dropzone.append divSpinner
     $(".div-dropzone-spinner").append iconSpinner
     $(".div-dropzone-spinner").css
@@ -48,7 +50,7 @@ class @DropzoneInput
         preview.text "Nothing to preview."
       else
         preview.text "Loading..."
-        $.get($(this).data("url"),
+        $.post($(this).data("url"),
           md_text: mdText
         ).success (previewData) ->
           preview.html previewData
@@ -70,13 +72,12 @@ class @DropzoneInput
       form.find(".md-preview-holder").hide()
 
     dropzone = form_dropzone.dropzone(
-      url: project_image_path_upload
+      url: project_uploads_path
       dictDefaultMessage: ""
       clickable: true
-      paramName: "markdown_img"
+      paramName: "file"
       maxFilesize: 10
       uploadMultiple: false
-      acceptedFiles: "image/jpg,image/jpeg,image/gif,image/png"
       headers:
         "X-CSRF-Token": $("meta[name=\"csrf-token\"]").attr("content")
 
@@ -130,27 +131,22 @@ class @DropzoneInput
 
     child = $(dropzone[0]).children("textarea")
 
-    formatLink = (str) ->
-      "![" + str.alt + "](" + str.url + ")"
+    formatLink = (link) ->
+      text = "[#{link.alt}](#{link.url})"
+      text = "!#{text}" if link.is_image
+      text
 
-    handlePaste = (e) ->
-      e.preventDefault()
-      my_event = e.originalEvent
+    handlePaste = (event) ->
+      pasteEvent = event.originalEvent
+      if pasteEvent.clipboardData and pasteEvent.clipboardData.items
+        image = isImage(pasteEvent)
+        if image
+          event.preventDefault()
 
-      if my_event.clipboardData and my_event.clipboardData.items
-        processItem(my_event)
-
-    processItem = (e) ->
-      image = isImage(e)
-      if image
-        filename = getFilename(e) or "image.png"
-        text = "{{" + filename + "}}"
-        pasteText(text)
-        uploadFile image.getAsFile(), filename
-
-      else
-        text = e.clipboardData.getData("text/plain")
-        pasteText(text)
+          filename = getFilename(pasteEvent) or "image.png"
+          text = "{{" + filename + "}}"
+          pasteText(text)
+          uploadFile image.getAsFile(), filename
 
     isImage = (data) ->
       i = 0
@@ -182,9 +178,9 @@ class @DropzoneInput
 
     uploadFile = (item, filename) ->
       formData = new FormData()
-      formData.append "markdown_img", item, filename
+      formData.append "file", item, filename
       $.ajax
-        url: project_image_path_upload
+        url: project_uploads_path
         type: "POST"
         data: formData
         dataType: "json"
@@ -238,5 +234,7 @@ class @DropzoneInput
       $(@).closest('.gfm-form').find('.div-dropzone').click()
       return
 
-  formatLink: (str) ->
-    "![" + str.alt + "](" + str.url + ")"
+  formatLink: (link) ->
+    text = "[#{link.alt}](#{link.url})"
+    text = "!#{text}" if link.is_image
+    text
