@@ -15,7 +15,8 @@
         %span.hidden-xs.hidden-sm
           %span.label-branch<
             %i.fa.fa-code-fork
-            %span= merge_request.target_branch
+            %span
+              = "#{merge_request.source_branch} >> #{merge_request.target_branch}"
       - if merge_request.notes.any?
         &nbsp;
         %span
