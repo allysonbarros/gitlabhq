@@ -45,14 +45,6 @@ class Projects::NotesController < Projects::ApplicationController
     if note.editable?
       note.destroy
       note.reset_events_cache
-
-      # Deletando todas as notificações.
-      event = Event.where(target_id: note.id, target_type: "Note").first
-      if event.event_notifications
-        event.event_notifications.each do |notification|
-          notification.delete
-        end
-      end
     end
 
     respond_to do |format|

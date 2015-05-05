@@ -138,12 +138,7 @@
       background-color: #F1FAF1;
     }
 
-    &.ci-pending {
-      color: #548;
-      border-color: #548;
-      background-color: #F4F1FA;
-    }
-
+    &.ci-pending,
     &.ci-running {
       color: $gl-warning;
       border-color: $gl-warning;
@@ -161,7 +156,7 @@
       border-color: $gl-danger;
       background-color: #FAF5F1;
     }
-
+    
     &.ci-error {
       color: $gl-danger;
       border-color: $gl-danger;
@@ -200,4 +195,8 @@
       padding: 6px 10px;
     }
   }
+}
+
+.merge-request-form .select2-container {
+  width: 250px !important;
 }
