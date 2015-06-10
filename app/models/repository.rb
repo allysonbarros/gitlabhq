@@ -370,6 +370,10 @@ class Repository
     @root_ref ||= raw_repository.root_ref
   end
 
+  def resultado_testes(branch_name)
+    IfrnTestes.where(branch: branch_name).first
+  end
+
   private
 
   def cache

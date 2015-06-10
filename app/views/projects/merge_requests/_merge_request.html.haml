@@ -19,7 +19,8 @@
         %span.hidden-xs.hidden-sm
           %span.label-branch<
             %i.fa.fa-code-fork
-            %span= merge_request.target_branch
+            %span
+            = "#{merge_request.source_branch} &raquo; #{merge_request.target_branch}".html_safe
       - note_count = merge_request.mr_and_commit_notes.user.count
       - if merge_request.assignee
         &nbsp;
@@ -37,8 +38,56 @@
 
   .merge-request-info
     = "##{merge_request.iid} opened #{time_ago_with_tooltip(merge_request.created_at, 'bottom')} by #{link_to_member(@project, merge_request.author, avatar: false)}".html_safe
-    - if merge_request.votes_count > 0
-      = render 'votes/votes_inline', votable: merge_request
+    
+    - if merge_request.upvotes > 0
+      %span.vote.upvote.label.label-success.avatar-voters
+        %i.fa.fa-thumbs-up
+        \+
+        = merge_request.upvotes
+
+        - merge_request.upvoters.each do |participant|
+          = link_to_member(@project, participant, name: false, size: 16)
+      
+    - if merge_request.downvotes > 0
+      %span.vote.downvote.label.label-danger.avatar-voters
+        %i.fa.fa-thumbs-down
+        \-
+        = merge_request.downvotes
+
+        - merge_request.downvoters.each do |participant|
+          = link_to_member(@project, participant, name: false, size: 16)
+    
+    - if merge_request.open?
+      / Declarando as variáveis
+      - resultado_testes = merge_request.resultado_testes if not @project.nil?
+      - commit = merge_request.ultimo_commit if not @project.nil?
+
+      - if not commit.nil? and not resultado_testes.nil?
+        - if resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 1
+          %span.label.label-success.has_tooltip{'data-title' => "#{time_ago_in_words(resultado_testes.data_execucao)}" }
+            %i.fa.fa-thumbs-up 
+            Testes
+        - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 2
+          %span.label.label-danger.has_tooltip{'data-title' => "#{time_ago_in_words(resultado_testes.data_execucao)}" }
+            %i.fa.fa-thumbs-down
+            Testes
+        - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 3
+          %span.label.label-danger.has_tooltip{'data-title' => "#{time_ago_in_words(resultado_testes.data_execucao)}" }
+            %i.fa.fa-chain-broken
+            Em Conflito
+        - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 4
+          %span.label.label-warning
+            %i.fa.fa-refresh.fa-spin
+            Testes em Execução
+        - else
+          %span.label.label-inverse
+            %i.fa.fa-thumbs-down
+            Testes Pendentes
+      - else
+        %span.label.label-inverse
+          %i.fa.fa-thumbs-down
+          Testes Pendentes
+
     - if merge_request.milestone_id?
       &nbsp;
       %span

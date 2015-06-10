@@ -101,6 +101,11 @@ module Issuable
     end
   end
 
+  def downvoters
+    downvotes = notes.select(&:downvote?)
+    downvotes.map(&:author).uniq
+  end
+
   # Return the number of +1 comments (upvotes)
   def upvotes
     filter_superceded_votes(notes.select(&:upvote?), notes).size
@@ -112,6 +117,11 @@ module Issuable
     else
       100.0 / votes_count * upvotes
     end
+  end
+
+  def upvoters
+    upvotes = notes.select(&:upvote?)
+    upvotes.map(&:author).uniq
   end
 
   # Return the total number of votes
