@@ -36,22 +36,22 @@
     = render "projects/merge_requests/show/state_widget"
 
   - if @merge_request.open?
-  / Declarando as varáveis
-  - resultado_testes = @merge_request.resultado_testes if not @project.nil?
-  - commit = @merge_request.ultimo_commit if not @project.nil?
+    / Declarando as varáveis
+    - resultado_testes = @merge_request.resultado_testes if not @project.nil?
+    - commit = @merge_request.ultimo_commit if not @project.nil?
 
-  - if not (commit.nil? or resultado_testes.nil?)
-    - if resultado_testes.erro?
-      .panel.panel-danger
-        .panel-heading
-          %i.fa.fa-exclamation-triangle
-          Erros na Execução dos Testes
-          
-          %div.pull-right
-            %span.label.label-danger Atenção!
-        .panel-body
-          %pre.pre-scrollable
-            = resultado_testes.erro
+    - if not (commit.nil? or resultado_testes.nil?)
+      - if resultado_testes.erro?
+        .panel.panel-danger
+          .panel-heading
+            %i.fa.fa-exclamation-triangle
+            Erros na Execução dos Testes
+            
+            %div.pull-right
+              %span.label.label-danger Atenção!
+          .panel-body
+            %%pre.pre-scrollable
+              = resultado_testes.erro
 
   - if @commits.present?
     %ul.nav.nav-tabs.merge-request-tabs
