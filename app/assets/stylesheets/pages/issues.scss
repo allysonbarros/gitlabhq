@@ -88,6 +88,10 @@ form.edit-issue {
     border-color: #E5E5E5;
   }
 
+  &.bgred {
+    background: #f2dede !important; 
+  }
+
   &.merged {
     background: #F9F9F9;
     border-color: #E5E5E5;
