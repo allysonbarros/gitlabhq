@@ -88,10 +88,6 @@ form.edit-issue {
     border-color: #E5E5E5;
   }
 
-  &.bgred {
-    background: #f2dede !important; 
-  }
-
   &.merged {
     background: #F9F9F9;
     border-color: #E5E5E5;
@@ -150,6 +146,8 @@ h2.issue-title {
   width: 250px !important;
 }
 
-.label, .shortcut-mappings .key {
-  line-height: 18px;
+.issues-holder {
+  .issue-info {
+    margin-left: 20px;
+  }
 }
