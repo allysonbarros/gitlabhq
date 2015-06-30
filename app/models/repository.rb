@@ -375,6 +375,7 @@ class Repository
 
   def resultado_testes(branch_name)
     IfrnTestes.where(branch: branch_name).first
+  end
 
   def commit_file(user, path, content, message, ref)
     path[0] = '' if path[0] == '/'

@@ -450,6 +450,8 @@ class MergeRequest < ActiveRecord::Base
       else
         ""
       end
+    end
+  end
 
   def has_ci?
     source_project.ci_service && commits.any?
