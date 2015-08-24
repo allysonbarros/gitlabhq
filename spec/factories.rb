@@ -30,8 +30,9 @@ FactoryGirl.define do
 
     trait :two_factor do
       before(:create) do |user|
-        user.otp_required_for_login = true
+        user.two_factor_enabled = true
         user.otp_secret = User.generate_otp_secret(32)
+        user.generate_otp_backup_codes!
       end
     end
 
@@ -99,7 +100,7 @@ FactoryGirl.define do
   factory :key do
     title
     key do
-      "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIEAiPWx6WM4lhHNedGfBpPJNPpZ7yKu+dnn1SJejgt4596k6YjzGGphH2TUxwKzxcKDKKezwkpfnxPkSMkuEspGRt/aZZ9wa++Oi7Qkr8prgHc4soW6NUlfDzpvZK2H5E7eQaSeP3SAwGmQKUFHCddNaP0L+hM7zhFNzjFvpaMgJw0="
+      "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIEAiPWx6WM4lhHNedGfBpPJNPpZ7yKu+dnn1SJejgt4596k6YjzGGphH2TUxwKzxcKDKKezwkpfnxPkSMkuEspGRt/aZZ9wa++Oi7Qkr8prgHc4soW6NUlfDzpvZK2H5E7eQaSeP3SAwGmQKUFHCddNaP0L+hM7zhFNzjFvpaMgJw0= dummy@gitlab.com"
     end
 
     factory :deploy_key, class: 'DeployKey' do

@@ -1,12 +1,12 @@
 class ProjectsController < ApplicationController
   prepend_before_filter :render_go_import, only: [:show]
-  skip_before_action :authenticate_user!, only: [:show]
+  skip_before_action :authenticate_user!, only: [:show, :activity]
   before_action :project, except: [:new, :create]
   before_action :repository, except: [:new, :create]
 
   # Authorize
   before_action :authorize_admin_project!, only: [:edit, :update, :destroy, :transfer, :archive, :unarchive]
-  before_action :event_filter, only: :show
+  before_action :event_filter, only: [:show, :activity]
 
   layout :determine_layout
 
@@ -24,7 +24,7 @@ class ProjectsController < ApplicationController
     if @project.saved?
       redirect_to(
         project_path(@project),
-        notice: 'Project was successfully created.'
+        notice: "Project '#{@project.name}' was successfully created."
       )
     else
       render 'new'
@@ -36,11 +36,11 @@ class ProjectsController < ApplicationController
 
     respond_to do |format|
       if status
-        flash[:notice] = 'Project was successfully updated.'
+        flash[:notice] = "Project '#{@project.name}' was successfully updated."
         format.html do
           redirect_to(
             edit_project_path(@project),
-            notice: 'Project was successfully updated.'
+            notice: "Project '#{@project.name}' was successfully updated."
           )
         end
         format.js
@@ -52,10 +52,21 @@ class ProjectsController < ApplicationController
   end
 
   def transfer
-    transfer_params = params.permit(:new_namespace_id)
-    ::Projects::TransferService.new(project, current_user, transfer_params).execute
-    if @project.errors[:namespace_id].present?
-      flash[:alert] = @project.errors[:namespace_id].first
+    namespace = Namespace.find_by(id: params[:new_namespace_id])
+    ::Projects::TransferService.new(project, current_user).execute(namespace)
+
+    if @project.errors[:new_namespace].present?
+      flash[:alert] = @project.errors[:new_namespace].first
+    end
+  end
+
+  def activity
+    respond_to do |format|
+      format.html
+      format.json do
+        load_events
+        pager_json('events/_events', @events.count)
+      end
     end
   end
 
@@ -65,25 +76,17 @@ class ProjectsController < ApplicationController
       return
     end
 
-    @show_star = !(current_user && current_user.starred?(@project))
-
     respond_to do |format|
       format.html do
         if @project.repository_exists?
           if @project.empty_repo?
             render 'projects/empty'
           else
-            @last_push = current_user.recent_push(@project.id) if current_user
             render :show
           end
         else
           render 'projects/no_repo'
         end
-      end
-
-      format.json do
-        load_events
-        pager_json('events/_events', @events.count)
       end
 
       format.atom do
@@ -97,7 +100,7 @@ class ProjectsController < ApplicationController
     return access_denied! unless can?(current_user, :remove_project, @project)
 
     ::Projects::DestroyService.new(@project, current_user, {}).execute
-    flash[:alert] = 'Project deleted.'
+    flash[:alert] = "Project '#{@project.name}' was deleted."
 
     if request.referer.include?('/admin')
       redirect_to admin_namespaces_projects_path
@@ -147,11 +150,14 @@ class ProjectsController < ApplicationController
   def toggle_star
     current_user.toggle_star(@project)
     @project.reload
-    render json: { star_count: @project.star_count }
+
+    render json: {
+      html: view_to_html_string("projects/buttons/_star")
+    }
   end
 
   def markdown_preview
-    text = params[:text] 
+    text = params[:text]
 
     ext = Gitlab::ReferenceExtractor.new(@project, current_user)
     ext.analyze(text)

@@ -1,5 +1,5 @@
 # Migrating GitLab from MySQL to Postgres
-*Make sure you view this [guide from the `master` branch](../../../master/doc/update/mysql_to_postgresql.md) for the most up to date instructions.*
+*Make sure you view this [guide from the `master` branch](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/update/mysql_to_postgresql.md#migrating-gitlab-from-mysql-to-postgres) for the most up to date instructions.*
 
 If you are replacing MySQL with Postgres while keeping GitLab on the same server all you need to do is to export from MySQL, convert the resulting SQL file, and import it into Postgres. If you are also moving GitLab to another server, or if you are switching to omnibus-gitlab, you may want to use a GitLab backup file. The second part of this documents explains the procedure to do this.
 
@@ -16,6 +16,7 @@ git clone https://github.com/gitlabhq/mysql-postgresql-converter.git -b gitlab
 cd mysql-postgresql-converter
 mysqldump --compatible=postgresql --default-character-set=utf8 -r gitlabhq_production.mysql -u root gitlabhq_production -p
 python db_converter.py gitlabhq_production.mysql gitlabhq_production.psql
+ed -s gitlabhq_production.psql < move_drop_indexes.ed
 
 # Import the database dump as the application database user
 sudo -u git psql -f gitlabhq_production.psql -d gitlabhq_production
@@ -56,14 +57,18 @@ sudo -u git -H git clone https://github.com/gitlabhq/mysql-postgresql-converter.
 # Convert gitlabhq_production.mysql
 sudo -u git -H mkdir db
 sudo -u git -H python mysql-postgresql-converter/db_converter.py gitlabhq_production.mysql db/database.sql
+sudo -u git -H ed -s db/database.sql < mysql-postgresql-converter/move_drop_indexes.ed
+
+# Compress database backup
+sudo -u git -H gzip db/database.sql
 
 # Replace the MySQL dump in TIMESTAMP_gitlab_backup.tar.
 
 # Warning: if you forget to replace TIMESTAMP below, tar will create a new file
 # 'TIMESTAMP_gitlab_backup.tar' without giving an error.
 
-sudo -u git -H tar rf TIMESTAMP_gitlab_backup.tar db/database.sql
+sudo -u git -H tar rf TIMESTAMP_gitlab_backup.tar db/database.sql.gz
 
 # Done! TIMESTAMP_gitlab_backup.tar can now be restored into a Postgres GitLab
-# installation. Remember to recreate the indexes after the import.
+# installation.
 ```

@@ -25,21 +25,11 @@ module Gitlab
     # Public: Parse the provided text with GitLab-Flavored Markdown
     #
     # text         - the source text
-    # options      - options
-    # html_options - extra options for the reference links as given to link_to
-    def gfm(text, options = {}, html_options = {})
-      gfm_with_options(text, options, html_options)
-    end
-
-    # Public: Parse the provided text with GitLab-Flavored Markdown
-    #
-    # text         - the source text
     # options      - A Hash of options used to customize output (default: {}):
     #                :xhtml               - output XHTML instead of HTML
     #                :reference_only_path - Use relative path for reference links
-    # project      - the project
     # html_options - extra options for the reference links as given to link_to
-    def gfm_with_options(text, options = {}, html_options = {})
+    def gfm(text, options = {}, html_options = {})
       return text if text.nil?
 
       # Duplicate the string so we don't alter the original, then call to_str
@@ -54,7 +44,7 @@ module Gitlab
         current_user:         current_user
       )
 
-      pipeline = HTML::Pipeline.new(filters)
+      @pipeline ||= HTML::Pipeline.new(filters)
 
       context = {
         # SanitizationFilter
@@ -79,7 +69,7 @@ module Gitlab
         project_wiki:   @project_wiki
       }
 
-      result = pipeline.call(text, context)
+      result = @pipeline.call(text, context)
 
       save_options = 0
       if options[:xhtml]

@@ -3,6 +3,7 @@ class Import::BitbucketController < Import::BaseController
   before_action :bitbucket_auth, except: :callback
 
   rescue_from OAuth::Error, with: :bitbucket_unauthorized
+  rescue_from Gitlab::BitbucketImport::Client::Unauthorized, with: :bitbucket_unauthorized
 
   def callback
     request_token = session.delete(:oauth_request_token)
@@ -21,6 +22,7 @@ class Import::BitbucketController < Import::BaseController
 
   def status
     @repos = client.projects
+    @incompatible_repos = client.incompatible_projects
 
     @already_added_projects = current_user.created_projects.where(import_type: "bitbucket")
     already_added_projects_names = @already_added_projects.pluck(:import_source)

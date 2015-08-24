@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-feature 'Project' do
+feature 'Project', feature: true do
   describe 'description' do
     let(:project) { create(:project) }
     let(:path)    { namespace_project_path(project.namespace, project) }
@@ -22,9 +22,9 @@ feature 'Project' do
     end
 
     it 'sanitizes unwanted tags' do
-      project.update_attribute(:description, '# Project Description')
+      project.update_attribute(:description, "```\ncode\n```")
       visit path
-      expect(page).not_to have_css('.project-home-desc h1')
+      expect(page).not_to have_css('.project-home-desc code')
     end
 
     it 'permits `rel` attribute on links' do

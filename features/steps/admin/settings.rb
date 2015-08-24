@@ -6,14 +6,14 @@ class Spinach::Features::AdminSettings < Spinach::FeatureSteps
 
   step 'I modify settings and save form' do
     uncheck 'Gravatar enabled'
-    fill_in 'Home page url', with: 'https://about.gitlab.com/'
+    fill_in 'Home page URL', with: 'https://about.gitlab.com/'
     click_button 'Save'
   end
 
   step 'I should see application settings saved' do
-    expect(current_application_settings.gravatar_enabled).to be_false
-    expect(current_application_settings.home_page_url).to eq 'https://about.gitlab.com/'
-    expect(page).to have_content 'Application settings saved successfully'
+    expect(current_application_settings.gravatar_enabled).to be_falsey
+    expect(current_application_settings.home_page_url).to eq "https://about.gitlab.com/"
+    expect(page).to have_content "Application settings saved successfully"
   end
 
   step 'I click on "Service Templates"' do

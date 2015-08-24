@@ -24,6 +24,7 @@ class Key < ActiveRecord::Base
 
   validates :title, presence: true, length: { within: 0..255 }
   validates :key, presence: true, length: { within: 0..5000 }, format: { with: /\A(ssh|ecdsa)-.*\Z/ }, uniqueness: true
+  validates :key, format: { without: /\n|\r/, message: 'should be a single line' }
   validates :fingerprint, uniqueness: true, presence: { message: 'cannot be generated' }
 
   delegate :name, :email, to: :user, prefix: true
@@ -36,6 +37,11 @@ class Key < ActiveRecord::Base
 
   def strip_white_space
     self.key = key.strip unless key.blank?
+  end
+
+  def publishable_key
+    #Removes anything beyond the keytype and key itself
+    self.key.split[0..1].join(' ')
   end
 
   # projects that has this key

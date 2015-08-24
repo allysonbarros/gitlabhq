@@ -19,6 +19,9 @@
         = link_to 'Close Milestone', namespace_project_milestone_path(@project.namespace, @project, @milestone, milestone: {state_event: :close }), method: :put, class: "btn btn-close btn-grouped"
       - else
         = link_to 'Reopen Milestone', namespace_project_milestone_path(@project.namespace, @project, @milestone, milestone: {state_event: :activate }), method: :put, class: "btn btn-reopen btn-grouped"
+      = link_to namespace_project_milestone_path(@project.namespace, @project, @milestone), data: { confirm: 'Are you sure?' }, method: :delete, class: "btn btn-grouped btn-remove" do
+        %i.fa.fa-trash-o
+        Remove
 
 %hr
 - if @milestone.issues.any? && @milestone.can_be_closed?
@@ -62,7 +65,7 @@
       %span.badge= @users.count
 
   .pull-right
-    - if can?(current_user, :write_issue, @project)
+    - if can?(current_user, :create_issue, @project)
       = link_to new_namespace_project_issue_path(@project.namespace, @project, issue: { milestone_id: @milestone.id }), class: "btn  btn-grouped", title: "New Issue" do
         %i.fa.fa-plus
         New Issue

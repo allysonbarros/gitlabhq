@@ -3,6 +3,14 @@ class Spinach::Features::AdminUsers < Spinach::FeatureSteps
   include SharedPaths
   include SharedAdmin
 
+  before do
+    allow(Devise).to receive(:omniauth_providers).and_return([:twitter, :twitter_updated])
+  end
+
+  after do
+    allow(Devise).to receive(:omniauth_providers).and_call_original
+  end
+
   step 'I should see all users' do
     User.all.each do |user|
       expect(page).to have_content user.name
@@ -71,7 +79,7 @@ class Spinach::Features::AdminUsers < Spinach::FeatureSteps
     project.team << [user, :developer]
 
     group = create(:group)
-    group.add_user(user, Gitlab::Access::DEVELOPER)
+    group.add_developer(user)
   end
 
   step 'click on "Mike" link' do
@@ -113,5 +121,45 @@ class Spinach::Features::AdminUsers < Spinach::FeatureSteps
 
   step 'I should see the key removed' do
     expect(page).not_to have_content 'ssh-rsa Key2'
+  end
+
+  step 'user "Pete" with twitter account' do
+    @user = create(:user, name: 'Pete')
+    @user.identities.create!(extern_uid: '123456', provider: 'twitter')
+  end
+
+  step 'I visit "Pete" identities page in admin' do
+    visit admin_user_identities_path(@user)
+  end
+
+  step 'I should see twitter details' do
+    expect(page).to have_content 'Pete'
+    expect(page).to have_content 'twitter'
+  end
+
+  step 'I modify twitter identity' do
+    find('.table').find(:link, 'Edit').click
+    fill_in 'identity_extern_uid', with: '654321'
+    select 'twitter_updated', from: 'identity_provider'
+    click_button 'Save changes'
+  end
+
+  step 'I should see twitter details updated' do
+    expect(page).to have_content 'Pete'
+    expect(page).to have_content 'twitter_updated'
+    expect(page).to have_content '654321'
+  end
+
+  step 'I remove twitter identity' do
+    click_link 'Delete'
+  end
+
+  step 'I should not see twitter details' do
+    expect(page).to have_content 'Pete'
+    expect(page).to_not have_content 'twitter'
+  end
+
+  step 'click on ssh keys tab' do
+    click_link 'SSH keys'
   end
 end

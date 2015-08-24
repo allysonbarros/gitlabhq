@@ -30,6 +30,14 @@ module Gitlab::Markdown
       expect(doc.css('a').first.attr('class')).to include 'custom'
     end
 
+    it 'includes a data-project-id attribute' do
+      doc = filter("Label #{reference}")
+      link = doc.css('a').first
+
+      expect(link).to have_attribute('data-project-id')
+      expect(link.attr('data-project-id')).to eq project.id.to_s
+    end
+
     it 'supports an :only_path context' do
       doc = filter("Label #{reference}", only_path: true)
       link = doc.css('a').first.attr('href')
@@ -127,7 +135,7 @@ module Gitlab::Markdown
       it 'gracefully handles non-references matching the pattern' do
         exp = act = '(format nil "~0f" 3.0) ; 3.0'
         expect(filter(act).to_html).to eq exp
-     end
+      end
     end
   end
 end

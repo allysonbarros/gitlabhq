@@ -22,8 +22,12 @@ class GitlabCiService < CiService
   API_PREFIX = "api/v1"
 
   prop_accessor :project_url, :token
-  validates :project_url, presence: true, if: :activated?
-  validates :token, presence: true, if: :activated?
+  validates :project_url,
+    presence: true,
+    format: { with: /\A#{URI.regexp(%w(http https))}\z/, message: "should be a valid url" }, if: :activated?
+  validates :token,
+    presence: true,
+    format: { with: /\A([A-Za-z0-9]+)\z/ },  if: :activated?
 
   after_save :compose_service_hook, if: :activated?
 
@@ -76,6 +80,7 @@ class GitlabCiService < CiService
     params = {
       id:                  new_project.id,
       name_with_namespace: new_project.name_with_namespace,
+      path_with_namespace: new_project.path_with_namespace,
       web_url:             new_project.web_url,
       default_branch:      new_project.default_branch,
       ssh_url_to_repo:     new_project.ssh_url_to_repo

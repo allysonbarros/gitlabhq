@@ -12,6 +12,7 @@ module Issuable
   included do
     belongs_to :author, class_name: "User"
     belongs_to :assignee, class_name: "User"
+    belongs_to :updated_by, class_name: "User"
     belongs_to :milestone
     has_many :notes, as: :noteable, dependent: :destroy
     has_many :label_links, as: :target, dependent: :destroy
@@ -167,6 +168,16 @@ module Issuable
         find_or_create_by(title: label_name.strip)
       self.labels << label
     end
+  end
+
+  # Convert this Issuable class name to a format usable by Ability definitions
+  #
+  # Examples:
+  #
+  #   issuable.class           # => MergeRequest
+  #   issuable.to_ability_name # => "merge_request"
+  def to_ability_name
+    self.class.to_s.underscore
   end
 
   private

@@ -55,12 +55,16 @@ module ExtractsPath
       valid_refs = @project.repository.ref_names
       valid_refs.select! { |v| id.start_with?("#{v}/") }
 
-      if valid_refs.length != 1
+      if valid_refs.length == 0
         # No exact ref match, so just try our best
         pair = id.match(/([^\/]+)(.*)/).captures
       else
+        # There is a distinct possibility that multiple refs prefix the ID.
+        # Use the longest match to maximize the chance that we have the
+        # right ref.
+        best_match = valid_refs.max_by(&:length)
         # Partition the string into the ref and the path, ignoring the empty first value
-        pair = id.partition(valid_refs.first)[1..-1]
+        pair = id.partition(best_match)[1..-1]
       end
     end
 
@@ -90,7 +94,7 @@ module ExtractsPath
     @options = params.select {|key, value| allowed_options.include?(key) && !value.blank? }
     @options = HashWithIndifferentAccess.new(@options)
 
-    @id = get_id
+    @id = Addressable::URI.unescape(get_id)
     @ref, @path = extract_ref(@id)
     @repo = @project.repository
     if @options[:extended_sha1].blank?

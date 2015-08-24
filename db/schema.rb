@@ -16,6 +16,14 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "abuse_reports", force: true do |t|
+    t.integer  "reporter_id"
+    t.integer  "user_id"
+    t.text     "message"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "application_settings", force: true do |t|
     t.integer  "default_projects_limit"
     t.boolean  "signup_enabled"
@@ -28,14 +36,29 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.integer  "default_branch_protection",    default: 2
     t.boolean  "twitter_sharing_enabled",      default: true
     t.text     "restricted_visibility_levels"
-    t.integer  "max_attachment_size",          default: 10,   null: false
+    t.integer  "max_attachment_size",          default: 10,    null: false
     t.boolean  "version_check_enabled",        default: true
     t.integer  "default_project_visibility"
     t.integer  "default_snippet_visibility"
     t.text     "restricted_signup_domains"
     t.boolean  "user_oauth_applications",      default: true
     t.string   "after_sign_out_path"
+    t.integer  "session_expire_delay",         default: 10080, null: false
   end
+
+  create_table "audit_events", force: true do |t|
+    t.integer  "author_id",   null: false
+    t.string   "type",        null: false
+    t.integer  "entity_id",   null: false
+    t.string   "entity_type", null: false
+    t.text     "details"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "audit_events", ["author_id"], name: "index_audit_events_on_author_id", using: :btree
+  add_index "audit_events", ["entity_id", "entity_type"], name: "index_audit_events_on_entity_id_and_entity_type", using: :btree
+  add_index "audit_events", ["type"], name: "index_audit_events_on_type", using: :btree
 
   create_table "broadcast_messages", force: true do |t|
     t.text     "message",    null: false
@@ -132,14 +155,15 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.integer  "assignee_id"
     t.integer  "author_id"
     t.integer  "project_id"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-    t.integer  "position",     default: 0
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.integer  "position",      default: 0
     t.string   "branch_name"
     t.text     "description"
     t.integer  "milestone_id"
     t.string   "state"
     t.integer  "iid"
+    t.integer  "updated_by_id"
   end
 
   add_index "issues", ["assignee_id"], name: "index_issues_on_assignee_id", using: :btree
@@ -236,6 +260,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.text     "description"
     t.integer  "position",          default: 0
     t.datetime "locked_at"
+    t.integer  "updated_by_id"
   end
 
   add_index "merge_requests", ["assignee_id"], name: "index_merge_requests_on_assignee_id", using: :btree
@@ -295,6 +320,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.integer  "noteable_id"
     t.text     "st_diff"
     t.boolean  "system",        default: false, null: false
+    t.integer  "updated_by_id"
   end
 
   add_index "notes", ["author_id"], name: "index_notes_on_author_id", using: :btree
@@ -380,6 +406,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.string   "import_type"
     t.string   "import_source"
     t.string   "avatar"
+    t.integer  "commit_count",           default: 0
   end
 
   add_index "projects", ["created_at", "id"], name: "index_projects_on_created_at_and_id", using: :btree
@@ -519,9 +546,10 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.string   "encrypted_otp_secret"
     t.string   "encrypted_otp_secret_iv"
     t.string   "encrypted_otp_secret_salt"
-    t.boolean  "otp_required_for_login"
+    t.boolean  "otp_required_for_login",        default: false, null: false
     t.text     "otp_backup_codes"
     t.integer  "dashboard",                     default: 0
+    t.integer  "project_view",                  default: 0
   end
 
   add_index "users", ["admin"], name: "index_users_on_admin", using: :btree

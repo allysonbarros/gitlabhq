@@ -28,6 +28,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
     # Do additional LDAP checks for the user filter and EE features
     if @user.allowed?
+      log_audit_event(gl_user, with: :ldap)
       sign_in_and_redirect(gl_user)
     else
       flash[:alert] = "Access denied for your LDAP account."
@@ -47,6 +48,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     if current_user
       # Add new authentication method
       current_user.identities.find_or_create_by(extern_uid: oauth['uid'], provider: oauth['provider'])
+      log_audit_event(current_user, with: oauth['provider'])
       redirect_to profile_account_path, notice: 'Authentication method updated'
     else
       @user = Gitlab::OAuth::User.new(oauth)
@@ -54,6 +56,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
       # Only allow properly saved users to login.
       if @user.persisted? && @user.valid?
+        log_audit_event(@user.gl_user, with: oauth['provider'])
         sign_in_and_redirect(@user.gl_user)
       else
         error_message =
@@ -69,10 +72,11 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
       end
     end
   rescue Gitlab::OAuth::SignupDisabledError => e
-    message = "Signing in using your #{oauth['provider']} account without a pre-existing GitLab account is not allowed."
+    label = Gitlab::OAuth::Provider.label_for(oauth['provider'])
+    message = "Signing in using your #{label} account without a pre-existing GitLab account is not allowed."
 
     if current_application_settings.signup_enabled?
-      message << " Create a GitLab account first, and then connect it to your #{oauth['provider']} account."
+      message << " Create a GitLab account first, and then connect it to your #{label} account."
     end
 
     flash[:notice] = message
@@ -82,5 +86,10 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def oauth
     @oauth ||= request.env['omniauth.auth']
+  end
+
+  def log_audit_event(user, options = {})
+    AuditEventService.new(user, user, options).
+      for_authentication.security_event
   end
 end

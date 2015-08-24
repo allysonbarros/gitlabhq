@@ -82,12 +82,12 @@
                 You can change your avatar here
                 - if Gitlab.config.gravatar.enabled
                   %br
-                  or remove the current avatar to revert to #{link_to "gravatar.com", "http://gravatar.com"}
+                  or remove the current avatar to revert to #{link_to Gitlab.config.gravatar.host, "http://" + Gitlab.config.gravatar.host}
               - else
                 You can upload an avatar here
                 - if Gitlab.config.gravatar.enabled
                   %br
-                  or change it at #{link_to "gravatar.com", "http://gravatar.com"}
+                  or change it at #{link_to Gitlab.config.gravatar.host, "http://" + Gitlab.config.gravatar.host}
             %hr
             %a.choose-btn.btn.btn-sm.js-choose-user-avatar-button
               %i.fa.fa-paperclip
@@ -109,6 +109,5 @@
   .row
     .col-md-7
       .form-group
-        .col-sm-2 &nbsp;
-        .col-sm-10
+        .col-sm-offset-2.col-sm-10
           = f.submit 'Save changes', class: "btn btn-success"

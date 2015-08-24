@@ -70,7 +70,7 @@
     font-family: $monospace_font;
     white-space: pre;
     word-wrap: normal;
-    padding: 0;
+    padding: 1px 2px;
   }
 
   kbd {
@@ -109,7 +109,7 @@
     font-size: 1.2em;
   }
 
-  blockquote p {
+  blockquote {
     color: #888;
     font-size: 15px;
     line-height: 1.5;
