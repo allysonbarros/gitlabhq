@@ -34,3 +34,7 @@ html {
 #top-of-the-page:hover { 
   backgorund: #cccccc; 
 }
+
+.container-limited {
+  max-width: $fixed-layout-width;
+}
