@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 201401178165903) do
+ActiveRecord::Schema.define(version: 20150920161119) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,14 +36,17 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.integer  "default_branch_protection",    default: 2
     t.boolean  "twitter_sharing_enabled",      default: true
     t.text     "restricted_visibility_levels"
-    t.integer  "max_attachment_size",          default: 10,    null: false
     t.boolean  "version_check_enabled",        default: true
+    t.integer  "max_attachment_size",          default: 10,    null: false
     t.integer  "default_project_visibility"
     t.integer  "default_snippet_visibility"
     t.text     "restricted_signup_domains"
     t.boolean  "user_oauth_applications",      default: true
     t.string   "after_sign_out_path"
     t.integer  "session_expire_delay",         default: 10080, null: false
+    t.text     "import_sources"
+    t.text     "help_page_text"
+    t.boolean  "ci_enabled",                   default: true,  null: false
   end
 
   create_table "audit_events", force: true do |t|
@@ -65,17 +68,225 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.datetime "starts_at"
     t.datetime "ends_at"
     t.integer  "alert_type"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "color"
     t.string   "font"
+  end
+
+  create_table "ci_application_settings", force: true do |t|
+    t.boolean  "all_broken_builds"
+    t.boolean  "add_pusher"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "ci_builds", force: true do |t|
+    t.integer  "project_id"
+    t.string   "status"
+    t.datetime "finished_at"
+    t.text     "trace"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.datetime "started_at"
+    t.integer  "runner_id"
+    t.float    "coverage"
+    t.integer  "commit_id"
+    t.text     "commands"
+    t.integer  "job_id"
+    t.string   "name"
+    t.boolean  "deploy",             default: false
+    t.text     "options"
+    t.boolean  "allow_failure",      default: false, null: false
+    t.string   "stage"
+    t.integer  "trigger_request_id"
+  end
+
+  add_index "ci_builds", ["commit_id"], name: "index_ci_builds_on_commit_id", using: :btree
+  add_index "ci_builds", ["project_id", "commit_id"], name: "index_ci_builds_on_project_id_and_commit_id", using: :btree
+  add_index "ci_builds", ["project_id"], name: "index_ci_builds_on_project_id", using: :btree
+  add_index "ci_builds", ["runner_id"], name: "index_ci_builds_on_runner_id", using: :btree
+
+  create_table "ci_commits", force: true do |t|
+    t.integer  "project_id"
+    t.string   "ref"
+    t.string   "sha"
+    t.string   "before_sha"
+    t.text     "push_data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "tag",          default: false
+    t.text     "yaml_errors"
+    t.datetime "committed_at"
+  end
+
+  add_index "ci_commits", ["project_id", "committed_at", "id"], name: "index_ci_commits_on_project_id_and_committed_at_and_id", using: :btree
+  add_index "ci_commits", ["project_id", "committed_at"], name: "index_ci_commits_on_project_id_and_committed_at", using: :btree
+  add_index "ci_commits", ["project_id", "sha"], name: "index_ci_commits_on_project_id_and_sha", using: :btree
+  add_index "ci_commits", ["project_id"], name: "index_ci_commits_on_project_id", using: :btree
+  add_index "ci_commits", ["sha"], name: "index_ci_commits_on_sha", using: :btree
+
+  create_table "ci_events", force: true do |t|
+    t.integer  "project_id"
+    t.integer  "user_id"
+    t.integer  "is_admin"
+    t.text     "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "ci_events", ["created_at"], name: "index_ci_events_on_created_at", using: :btree
+  add_index "ci_events", ["is_admin"], name: "index_ci_events_on_is_admin", using: :btree
+  add_index "ci_events", ["project_id"], name: "index_ci_events_on_project_id", using: :btree
+
+  create_table "ci_jobs", force: true do |t|
+    t.integer  "project_id",                          null: false
+    t.text     "commands"
+    t.boolean  "active",         default: true,       null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "name"
+    t.boolean  "build_branches", default: true,       null: false
+    t.boolean  "build_tags",     default: false,      null: false
+    t.string   "job_type",       default: "parallel"
+    t.string   "refs"
+    t.datetime "deleted_at"
+  end
+
+  add_index "ci_jobs", ["deleted_at"], name: "index_ci_jobs_on_deleted_at", using: :btree
+  add_index "ci_jobs", ["project_id"], name: "index_ci_jobs_on_project_id", using: :btree
+
+  create_table "ci_projects", force: true do |t|
+    t.string   "name",                                     null: false
+    t.integer  "timeout",                  default: 3600,  null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "token"
+    t.string   "default_ref"
+    t.string   "path"
+    t.boolean  "always_build",             default: false, null: false
+    t.integer  "polling_interval"
+    t.boolean  "public",                   default: false, null: false
+    t.string   "ssh_url_to_repo"
+    t.integer  "gitlab_id"
+    t.boolean  "allow_git_fetch",          default: true,  null: false
+    t.string   "email_recipients",         default: "",    null: false
+    t.boolean  "email_add_pusher",         default: true,  null: false
+    t.boolean  "email_only_broken_builds", default: true,  null: false
+    t.string   "skip_refs"
+    t.string   "coverage_regex"
+    t.boolean  "shared_runners_enabled",   default: false
+    t.text     "generated_yaml_config"
+  end
+
+  create_table "ci_runner_projects", force: true do |t|
+    t.integer  "runner_id",  null: false
+    t.integer  "project_id", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "ci_runner_projects", ["project_id"], name: "index_ci_runner_projects_on_project_id", using: :btree
+  add_index "ci_runner_projects", ["runner_id"], name: "index_ci_runner_projects_on_runner_id", using: :btree
+
+  create_table "ci_runners", force: true do |t|
+    t.string   "token"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "description"
+    t.datetime "contacted_at"
+    t.boolean  "active",       default: true,  null: false
+    t.boolean  "is_shared",    default: false
+    t.string   "name"
+    t.string   "version"
+    t.string   "revision"
+    t.string   "platform"
+    t.string   "architecture"
+  end
+
+  create_table "ci_services", force: true do |t|
+    t.string   "type"
+    t.string   "title"
+    t.integer  "project_id",                 null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "active",     default: false, null: false
+    t.text     "properties"
+  end
+
+  add_index "ci_services", ["project_id"], name: "index_ci_services_on_project_id", using: :btree
+
+  create_table "ci_sessions", force: true do |t|
+    t.string   "session_id", null: false
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "ci_sessions", ["session_id"], name: "index_ci_sessions_on_session_id", using: :btree
+  add_index "ci_sessions", ["updated_at"], name: "index_ci_sessions_on_updated_at", using: :btree
+
+  create_table "ci_taggings", force: true do |t|
+    t.integer  "tag_id"
+    t.integer  "taggable_id"
+    t.string   "taggable_type"
+    t.integer  "tagger_id"
+    t.string   "tagger_type"
+    t.string   "context",       limit: 128
+    t.datetime "created_at"
+  end
+
+  add_index "ci_taggings", ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "ci_taggings_idx", unique: true, using: :btree
+  add_index "ci_taggings", ["taggable_id", "taggable_type", "context"], name: "index_ci_taggings_on_taggable_id_and_taggable_type_and_context", using: :btree
+
+  create_table "ci_tags", force: true do |t|
+    t.string  "name"
+    t.integer "taggings_count", default: 0
+  end
+
+  add_index "ci_tags", ["name"], name: "index_ci_tags_on_name", unique: true, using: :btree
+
+  create_table "ci_trigger_requests", force: true do |t|
+    t.integer  "trigger_id", null: false
+    t.text     "variables"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "commit_id"
+  end
+
+  create_table "ci_triggers", force: true do |t|
+    t.string   "token"
+    t.integer  "project_id", null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "ci_triggers", ["deleted_at"], name: "index_ci_triggers_on_deleted_at", using: :btree
+
+  create_table "ci_variables", force: true do |t|
+    t.integer "project_id",           null: false
+    t.string  "key"
+    t.text    "value"
+    t.text    "encrypted_value"
+    t.string  "encrypted_value_salt"
+    t.string  "encrypted_value_iv"
+  end
+
+  add_index "ci_variables", ["project_id"], name: "index_ci_variables_on_project_id", using: :btree
+
+  create_table "ci_web_hooks", force: true do |t|
+    t.string   "url",        null: false
+    t.integer  "project_id", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "deploy_keys_projects", force: true do |t|
     t.integer  "deploy_key_id", null: false
     t.integer  "project_id",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "deploy_keys_projects", ["project_id"], name: "index_deploy_keys_projects_on_project_id", using: :btree
@@ -90,26 +301,14 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   add_index "emails", ["email"], name: "index_emails_on_email", unique: true, using: :btree
   add_index "emails", ["user_id"], name: "index_emails_on_user_id", using: :btree
 
-  create_table "event_notifications", force: true do |t|
-    t.text     "title",      null: false
-    t.text     "message",    null: false
-    t.boolean  "read"
-    t.integer  "user_id",    null: false
-    t.integer  "author_id",  null: false
-    t.integer  "project_id"
-    t.integer  "event_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "events", force: true do |t|
     t.string   "target_type"
     t.integer  "target_id"
     t.string   "title"
     t.text     "data"
     t.integer  "project_id"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "action"
     t.integer  "author_id"
   end
@@ -124,8 +323,8 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   create_table "forked_project_links", force: true do |t|
     t.integer  "forked_to_project_id",   null: false
     t.integer  "forked_from_project_id", null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "forked_project_links", ["forked_to_project_id"], name: "index_forked_project_links_on_forked_to_project_id", unique: true, using: :btree
@@ -141,22 +340,13 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   add_index "identities", ["created_at", "id"], name: "index_identities_on_created_at_and_id", using: :btree
   add_index "identities", ["user_id"], name: "index_identities_on_user_id", using: :btree
 
-  create_table "ifrn_testes", force: true do |t|
-    t.string   "branch",        limit: 100
-    t.string   "ultimo_commit", limit: 80
-    t.datetime "data_commit"
-    t.integer  "resultado",     limit: 2
-    t.text     "erro"
-    t.datetime "data_execucao",             default: "now()", null: false
-  end
-
   create_table "issues", force: true do |t|
     t.string   "title"
     t.integer  "assignee_id"
     t.integer  "author_id"
     t.integer  "project_id"
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "position",      default: 0
     t.string   "branch_name"
     t.text     "description"
@@ -177,8 +367,8 @@ ActiveRecord::Schema.define(version: 201401178165903) do
 
   create_table "keys", force: true do |t|
     t.integer  "user_id"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.text     "key"
     t.string   "title"
     t.string   "type"
@@ -206,6 +396,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.integer  "project_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "template",   default: false
   end
 
   add_index "labels", ["project_id"], name: "index_labels_on_project_id", using: :btree
@@ -250,8 +441,8 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.integer  "author_id"
     t.integer  "assignee_id"
     t.string   "title"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "milestone_id"
     t.string   "state"
     t.string   "merge_status"
@@ -269,7 +460,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   add_index "merge_requests", ["created_at"], name: "index_merge_requests_on_created_at", using: :btree
   add_index "merge_requests", ["milestone_id"], name: "index_merge_requests_on_milestone_id", using: :btree
   add_index "merge_requests", ["source_branch"], name: "index_merge_requests_on_source_branch", using: :btree
-  add_index "merge_requests", ["source_project_id"], name: "index_merge_requests_on_project_id", using: :btree
+  add_index "merge_requests", ["source_project_id"], name: "index_merge_requests_on_source_project_id", using: :btree
   add_index "merge_requests", ["target_branch"], name: "index_merge_requests_on_target_branch", using: :btree
   add_index "merge_requests", ["target_project_id", "iid"], name: "index_merge_requests_on_target_project_id_and_iid", unique: true, using: :btree
   add_index "merge_requests", ["title"], name: "index_merge_requests_on_title", using: :btree
@@ -279,8 +470,8 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.integer  "project_id",  null: false
     t.text     "description"
     t.date     "due_date"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "state"
     t.integer  "iid"
   end
@@ -294,8 +485,8 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.string   "name",                     null: false
     t.string   "path",                     null: false
     t.integer  "owner_id"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "type"
     t.string   "description", default: "", null: false
     t.string   "avatar"
@@ -311,15 +502,15 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.text     "note"
     t.string   "noteable_type"
     t.integer  "author_id"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "project_id"
     t.string   "attachment"
     t.string   "line_code"
     t.string   "commit_id"
     t.integer  "noteable_id"
-    t.text     "st_diff"
     t.boolean  "system",        default: false, null: false
+    t.text     "st_diff"
     t.integer  "updated_by_id"
   end
 
@@ -385,8 +576,8 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.string   "name"
     t.string   "path"
     t.text     "description"
-    t.datetime "created_at",                                null: false
-    t.datetime "updated_at",                                null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "creator_id"
     t.boolean  "issues_enabled",         default: true,     null: false
     t.boolean  "wall_enabled",           default: true,     null: false
@@ -400,17 +591,17 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.string   "import_url"
     t.integer  "visibility_level",       default: 0,        null: false
     t.boolean  "archived",               default: false,    null: false
+    t.string   "avatar"
     t.string   "import_status"
     t.float    "repository_size",        default: 0.0
     t.integer  "star_count",             default: 0,        null: false
     t.string   "import_type"
     t.string   "import_source"
-    t.string   "avatar"
     t.integer  "commit_count",           default: 0
   end
 
   add_index "projects", ["created_at", "id"], name: "index_projects_on_created_at_and_id", using: :btree
-  add_index "projects", ["creator_id"], name: "index_projects_on_owner_id", using: :btree
+  add_index "projects", ["creator_id"], name: "index_projects_on_creator_id", using: :btree
   add_index "projects", ["last_activity_at"], name: "index_projects_on_last_activity_at", using: :btree
   add_index "projects", ["namespace_id"], name: "index_projects_on_namespace_id", using: :btree
   add_index "projects", ["star_count"], name: "index_projects_on_star_count", using: :btree
@@ -418,19 +609,31 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   create_table "protected_branches", force: true do |t|
     t.integer  "project_id",                          null: false
     t.string   "name",                                null: false
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.boolean  "developers_can_push", default: false, null: false
   end
 
   add_index "protected_branches", ["project_id"], name: "index_protected_branches_on_project_id", using: :btree
 
+  create_table "sent_notifications", force: true do |t|
+    t.integer "project_id"
+    t.integer "noteable_id"
+    t.string  "noteable_type"
+    t.integer "recipient_id"
+    t.string  "commit_id"
+    t.string  "reply_key",     null: false
+    t.string  "line_code"
+  end
+
+  add_index "sent_notifications", ["reply_key"], name: "index_sent_notifications_on_reply_key", unique: true, using: :btree
+
   create_table "services", force: true do |t|
     t.string   "type"
     t.string   "title"
     t.integer  "project_id"
-    t.datetime "created_at",                            null: false
-    t.datetime "updated_at",                            null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.boolean  "active",                default: false, null: false
     t.text     "properties"
     t.boolean  "template",              default: false
@@ -449,8 +652,8 @@ ActiveRecord::Schema.define(version: 201401178165903) do
     t.text     "content"
     t.integer  "author_id",                    null: false
     t.integer  "project_id"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "file_name"
     t.datetime "expires_at"
     t.string   "type"
@@ -486,6 +689,7 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   end
 
   add_index "taggings", ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "taggings_idx", unique: true, using: :btree
+  add_index "taggings", ["taggable_id", "taggable_type", "context"], name: "index_taggings_on_taggable_id_and_taggable_type_and_context", using: :btree
 
   create_table "tags", force: true do |t|
     t.string  "name"
@@ -495,61 +699,58 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   add_index "tags", ["name"], name: "index_tags_on_name", unique: true, using: :btree
 
   create_table "users", force: true do |t|
-    t.string   "email",                         default: "",    null: false
-    t.string   "encrypted_password",            default: "",    null: false
+    t.string   "email",                      default: "",    null: false
+    t.string   "encrypted_password",         default: "",    null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                 default: 0
+    t.integer  "sign_in_count",              default: 0
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "name"
-    t.boolean  "admin",                         default: false, null: false
-    t.integer  "projects_limit",                default: 10
-    t.string   "skype",                         default: "",    null: false
-    t.string   "linkedin",                      default: "",    null: false
-    t.string   "twitter",                       default: "",    null: false
+    t.boolean  "admin",                      default: false, null: false
+    t.integer  "projects_limit",             default: 10
+    t.string   "skype",                      default: "",    null: false
+    t.string   "linkedin",                   default: "",    null: false
+    t.string   "twitter",                    default: "",    null: false
     t.string   "authentication_token"
-    t.integer  "theme_id",                      default: 1,     null: false
+    t.integer  "theme_id",                   default: 1,     null: false
     t.string   "bio"
-    t.integer  "failed_attempts",               default: 0
+    t.integer  "failed_attempts",            default: 0
     t.datetime "locked_at"
     t.string   "username"
-    t.boolean  "can_create_group",              default: true,  null: false
-    t.boolean  "can_create_team",               default: true,  null: false
+    t.boolean  "can_create_group",           default: true,  null: false
+    t.boolean  "can_create_team",            default: true,  null: false
     t.string   "state"
-    t.integer  "color_scheme_id",               default: 1,     null: false
-    t.integer  "notification_level",            default: 1,     null: false
+    t.integer  "color_scheme_id",            default: 1,     null: false
+    t.integer  "notification_level",         default: 1,     null: false
     t.datetime "password_expires_at"
     t.integer  "created_by_id"
+    t.datetime "last_credential_check_at"
     t.string   "avatar"
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
-    t.boolean  "hide_no_ssh_key",               default: false
-    t.string   "website_url",                   default: "",    null: false
-    t.datetime "last_credential_check_at"
-    t.string   "github_access_token"
-    t.string   "gitlab_access_token"
+    t.boolean  "hide_no_ssh_key",            default: false
+    t.string   "website_url",                default: "",    null: false
     t.string   "notification_email"
-    t.boolean  "hide_no_password",              default: false
-    t.boolean  "password_automatically_set",    default: false
-    t.string   "bitbucket_access_token"
-    t.string   "bitbucket_access_token_secret"
+    t.boolean  "hide_no_password",           default: false
+    t.boolean  "password_automatically_set", default: false
     t.string   "location"
-    t.string   "public_email",                  default: "",    null: false
     t.string   "encrypted_otp_secret"
     t.string   "encrypted_otp_secret_iv"
     t.string   "encrypted_otp_secret_salt"
-    t.boolean  "otp_required_for_login",        default: false, null: false
+    t.boolean  "otp_required_for_login",     default: false, null: false
     t.text     "otp_backup_codes"
-    t.integer  "dashboard",                     default: 0
-    t.integer  "project_view",                  default: 0
+    t.string   "public_email",               default: "",    null: false
+    t.integer  "dashboard",                  default: 0
+    t.integer  "project_view",               default: 0
+    t.integer  "consumed_timestep"
   end
 
   add_index "users", ["admin"], name: "index_users_on_admin", using: :btree
@@ -576,15 +777,16 @@ ActiveRecord::Schema.define(version: 201401178165903) do
   create_table "web_hooks", force: true do |t|
     t.string   "url"
     t.integer  "project_id"
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
-    t.string   "type",                  default: "ProjectHook"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "type",                    default: "ProjectHook"
     t.integer  "service_id"
-    t.boolean  "push_events",           default: true,          null: false
-    t.boolean  "issues_events",         default: false,         null: false
-    t.boolean  "merge_requests_events", default: false,         null: false
-    t.boolean  "tag_push_events",       default: false
-    t.boolean  "note_events",           default: false,         null: false
+    t.boolean  "push_events",             default: true,          null: false
+    t.boolean  "issues_events",           default: false,         null: false
+    t.boolean  "merge_requests_events",   default: false,         null: false
+    t.boolean  "tag_push_events",         default: false
+    t.boolean  "note_events",             default: false,         null: false
+    t.boolean  "enable_ssl_verification", default: true
   end
 
   add_index "web_hooks", ["created_at", "id"], name: "index_web_hooks_on_created_at_and_id", using: :btree
