@@ -121,6 +121,8 @@ end
 
 # State machine
 gem "state_machine", '~> 1.2.0'
+# Run events after state machine commits
+gem 'after_commit_queue'
 
 # Issue tags
 gem 'acts-as-taggable-on', '~> 3.4'
@@ -283,10 +285,11 @@ group :production do
 end
 
 gem "newrelic_rpm", '~> 3.9.4.245'
+gem 'newrelic-grape'
 
 gem 'octokit', '~> 3.7.0'
 
-gem "mail_room", "~> 0.5.1"
+gem "mail_room", "~> 0.5.2"
 
 gem 'email_reply_parser', '~> 0.5.8'
 

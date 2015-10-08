@@ -19,7 +19,7 @@
 #
 
 class GitlabCiService < CiService
-  prop_accessor :token
+  include Gitlab::Application.routes.url_helpers
 
   after_save :compose_service_hook, if: :activated?
 
@@ -48,6 +48,12 @@ class GitlabCiService < CiService
     ci_project = Ci::Project.find_by(gitlab_id: project.id)
     if ci_project
       Ci::CreateCommitService.new.execute(ci_project, data)
+    end
+  end
+
+  def token
+    if project.gitlab_ci_project.present?
+      project.gitlab_ci_project.token
     end
   end
 
@@ -88,7 +94,7 @@ class GitlabCiService < CiService
 
   def build_page(sha, ref)
     if project.gitlab_ci_project.present?
-      Ci::RoutesHelper.ci_project_ref_commits_path(project.gitlab_ci_project, ref, sha)
+      ci_project_ref_commits_url(project.gitlab_ci_project, ref, sha)
     end
   end
 
