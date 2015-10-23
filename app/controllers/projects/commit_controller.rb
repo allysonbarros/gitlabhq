@@ -4,7 +4,8 @@
 class Projects::CommitController < Projects::ApplicationController
   # Authorize
   before_action :require_non_empty_project
-  before_action :authorize_download_code!
+  before_action :authorize_download_code!, except: [:cancel_builds]
+  before_action :authorize_manage_builds!, only: [:cancel_builds]
   before_action :commit
 
   def show
@@ -22,12 +23,29 @@ class Projects::CommitController < Projects::ApplicationController
       commit_id: @commit.id
     }
 
+    @ci_commit = project.ci_commit(commit.sha)
+
     respond_to do |format|
       format.html
       format.diff  { render text: @commit.to_diff }
       format.patch { render text: @commit.to_patch }
     end
   end
+
+  def ci
+    @ci_commit = @project.ci_commit(@commit.sha)
+    @builds = @ci_commit.builds if @ci_commit
+    @notes_count = @commit.notes.count
+    @ci_project = @project.gitlab_ci_project
+  end
+
+  def cancel_builds
+    @ci_commit = @project.ci_commit(@commit.sha)
+    @ci_commit.builds.running_or_pending.each(&:cancel)
+
+    redirect_to ci_namespace_project_commit_path(project.namespace, project, commit.sha)
+  end
+
 
   def branches
     @branches = @project.repository.branch_names_contains(commit.id)
@@ -37,5 +55,13 @@ class Projects::CommitController < Projects::ApplicationController
 
   def commit
     @commit ||= @project.commit(params[:id])
+  end
+
+  private
+
+  def authorize_manage_builds!
+    unless can?(current_user, :manage_builds, project)
+      return page_404
+    end
   end
 end
