@@ -8,6 +8,12 @@ v 7.13.0 (unreleased)
   - Support commenting on diffs in side-by-side mode (Stan Hu)
   - Fix JavaScript error when clicking on the comment button on a diff line that has a comment already (Stan Hu)
 v 7.14.0 (unreleased)
+v 8.0.6
+  - Fix loading spinner sometimes not being hidden on Merge Request tab switches
+
+v 8.0.5
+  - Correct lookup-by-email for LDAP logins
+
 v 8.0.4
   - Fix Message-ID header to be RFC 2111-compliant to prevent e-mails being dropped (Stan Hu)
   - Fix referrals for :back and relative URL installs
