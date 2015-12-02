@@ -54,6 +54,8 @@
 #  public_email               :string(255)      default(""), not null
 #  dashboard                  :integer          default(0)
 #  project_view               :integer          default(0)
+#  consumed_timestep          :integer
+#  layout                     :integer          default(0)
 #
 
 require 'spec_helper'
@@ -663,28 +665,28 @@ describe User do
       @user1 = create :user, created_at: Date.today - 1, last_sign_in_at: Date.today - 1, name: 'Omega'
     end
 
-    it "sorts users as recently_signed_in" do
+    it "sorts users by the recent sign-in time" do
       expect(User.sort('recent_sign_in').first).to eq(@user)
     end
 
-    it "sorts users as late_signed_in" do
+    it "sorts users by the oldest sign-in time" do
       expect(User.sort('oldest_sign_in').first).to eq(@user1)
     end
 
-    it "sorts users as recently_created" do
+    it "sorts users in descending order by their creation time" do
       expect(User.sort('created_desc').first).to eq(@user)
     end
 
-    it "sorts users as late_created" do
+    it "sorts users in ascending order by their creation time" do
       expect(User.sort('created_asc').first).to eq(@user1)
     end
 
-    it "sorts users by name when nil is passed" do
-      expect(User.sort(nil).first).to eq(@user)
+    it "sorts users by id in descending order when nil is passed" do
+      expect(User.sort(nil).first).to eq(@user1)
     end
   end
 
-  describe "#contributed_projects_ids" do
+  describe "#contributed_projects" do
     subject { create(:user) }
     let!(:project1) { create(:project) }
     let!(:project2) { create(:project, forked_from_project: project3) }
@@ -699,15 +701,15 @@ describe User do
     end
 
     it "includes IDs for projects the user has pushed to" do
-      expect(subject.contributed_projects_ids).to include(project1.id)
+      expect(subject.contributed_projects).to include(project1)
     end
 
     it "includes IDs for projects the user has had merge requests merged into" do
-      expect(subject.contributed_projects_ids).to include(project3.id)
+      expect(subject.contributed_projects).to include(project3)
     end
 
     it "doesn't include IDs for unrelated projects" do
-      expect(subject.contributed_projects_ids).not_to include(project2.id)
+      expect(subject.contributed_projects).not_to include(project2)
     end
   end
 
@@ -727,3 +729,59 @@ describe User do
       it { expect(subject.can_be_removed?).to be_falsey }
     end
   end
+
+  describe "#recent_push" do
+    subject { create(:user) }
+    let!(:project1) { create(:project) }
+    let!(:project2) { create(:project, forked_from_project: project1) }
+    let!(:push_data) { Gitlab::PushDataBuilder.build_sample(project2, subject) }
+    let!(:push_event) { create(:event, action: Event::PUSHED, project: project2, target: project1, author: subject, data: push_data) }
+
+    before do
+      project1.team << [subject, :master]
+      project2.team << [subject, :master]
+    end
+
+    it "includes push event" do
+      expect(subject.recent_push).to eq(push_event)
+    end
+
+    it "excludes push event if branch has been deleted" do
+      allow_any_instance_of(Repository).to receive(:branch_names).and_return(['foo'])
+
+      expect(subject.recent_push).to eq(nil)
+    end
+
+    it "excludes push event if MR is opened for it" do
+      create(:merge_request, source_project: project2, target_project: project1, source_branch: project2.default_branch, target_branch: 'fix', author: subject)
+
+      expect(subject.recent_push).to eq(nil)
+    end
+  end
+
+  describe '#authorized_groups' do
+    let!(:user) { create(:user) }
+    let!(:private_group) { create(:group) }
+
+    before do
+      private_group.add_user(user, Gitlab::Access::MASTER)
+    end
+
+    subject { user.authorized_groups }
+
+    it { is_expected.to eq([private_group]) }
+  end
+
+  describe '#authorized_projects' do
+    let!(:user) { create(:user) }
+    let!(:private_project) { create(:project, :private) }
+
+    before do
+      private_project.team << [user, Gitlab::Access::MASTER]
+    end
+
+    subject { user.authorized_projects }
+
+    it { is_expected.to eq([private_project]) }
+  end
+end

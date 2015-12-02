@@ -20,6 +20,7 @@
 #  position          :integer          default(0)
 #  locked_at         :datetime
 #  updated_by_id     :integer
+#  merge_error       :string(255)
 #
 
 require Rails.root.join("app/models/commit")
@@ -40,7 +41,7 @@ class MergeRequest < ActiveRecord::Base
   after_create :create_merge_request_diff
   after_update :update_merge_request_diff
 
-  delegate :commits, :diffs, to: :merge_request_diff, prefix: nil
+  delegate :commits, :diffs, :diffs_no_whitespace, to: :merge_request_diff, prefix: nil
 
   # When this attribute is true some MR validation is ignored
   # It allows us to close or modify broken merge requests
@@ -159,11 +160,11 @@ class MergeRequest < ActiveRecord::Base
 
   def last_commit
     merge_request_diff ? merge_request_diff.last_commit : compare_commits.last
-  end 
+  end
 
   def first_commit
     merge_request_diff ? merge_request_diff.first_commit : compare_commits.first
-  end 
+  end
 
   def last_commit_short_sha
     last_commit.short_id
@@ -257,7 +258,7 @@ class MergeRequest < ActiveRecord::Base
 
     Note.where(
       "(project_id = :target_project_id AND noteable_type = 'MergeRequest' AND noteable_id = :mr_id) OR" +
-      "(project_id = :source_project_id AND noteable_type = 'Commit' AND commit_id IN (:commit_ids))",
+      "((project_id = :source_project_id OR project_id = :target_project_id) AND noteable_type = 'Commit' AND commit_id IN (:commit_ids))",
       mr_id: id,
       commit_ids: commit_ids,
       target_project_id: target_project_id,
@@ -411,55 +412,6 @@ class MergeRequest < ActiveRecord::Base
     locked_at.nil? || locked_at < (Time.now - 1.day)
   end
 
-  def ultimo_commit
-    project = self.project
-
-    if not project.nil?
-      commit = project.repository.commit(self.source_branch)
-    else
-      return nil
-    end
-  end
-
-
-  def resultado_testes
-    project = self.project
-
-    if not project.nil?
-      resultado_testes = project.repository.resultado_testes(self.source_branch)
-    else
-      return nil
-    end
-  end
-
-  def classe_css
-    if not (self.resultado_testes.nil? or self.ultimo_commit.nil?)
-      if (self.upvotes > self.downvotes and self.resultado_testes.resultado == 1) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 1) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1)
-        " today"
-      elsif self.resultado_testes.resultado == 2 || self.resultado_testes.resultado == 3 || self.upvotes < self.downvotes
-        " bgred"
-      elsif self.closed?
-        " closed"
-      elsif self.merged?
-        " merged"
-      else
-        ""
-      end
-    else
-      if (self.upvotes > self.downvotes) 
-        " today"
-      elsif (self.upvotes < self.downvotes)
-        " bgred"
-      elsif self.closed?
-        " closed"
-      elsif self.merged?
-        " merged"
-      else
-        ""
-      end
-    end
-  end
-
   def has_ci?
     source_project.ci_service && commits.any?
   end
@@ -517,6 +469,12 @@ class MergeRequest < ActiveRecord::Base
       yield
     ensure
       unlock_mr if locked?
+    end
+  end
+
+  def ci_commit
+    if last_commit and source_project
+      source_project.ci_commit(last_commit.id)
     end
   end
 end

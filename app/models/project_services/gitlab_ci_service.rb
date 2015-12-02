@@ -30,6 +30,7 @@ class GitlabCiService < CiService
   end
 
   def ensure_gitlab_ci_project
+    return unless project
     project.ensure_gitlab_ci_project
   end
 
@@ -71,7 +72,7 @@ class GitlabCiService < CiService
 
   def build_page(sha, ref)
     if project.gitlab_ci_project.present?
-      ci_namespace_project_commit_url(project.namespace, project, sha)
+      builds_namespace_project_commit_url(project.namespace, project, sha)
     end
   end
 
