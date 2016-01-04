@@ -142,8 +142,6 @@ describe Note, models: true do
       expect(Note.grouped_awards.first.last).to match_array(Note.all)
     end
   end
-<<<<<<< HEAD
-=======
 
   describe "editable?" do
     it "returns true" do
@@ -170,5 +168,4 @@ describe Note, models: true do
       expect(note.reload.note).to eq("+1")
     end
   end
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
 end

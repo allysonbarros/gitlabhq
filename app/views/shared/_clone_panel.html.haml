@@ -6,12 +6,5 @@
     .input-group-btn
       = http_clone_button(project)
   = text_field_tag :project_clone, default_url_to_repo(project), class: "js-select-on-focus form-control", readonly: true
-<<<<<<< HEAD
-  - if project.kind_of?(Project)
-    .input-group-addon.has_tooltip{title: "#{visibility_level_label(project.visibility_level)} project", data: { container: "body" } }
-      .visibility-level-label
-        = visibility_level_icon(project.visibility_level)
-=======
   .input-group-btn
     = clipboard_button(clipboard_target: '#project_clone')
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880

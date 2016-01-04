@@ -28,62 +28,6 @@ class Spinach::Features::Groups < Spinach::FeatureSteps
     expect(page).to have_content 'Public-project'
   end
 
-<<<<<<< HEAD
-  step 'I select "Mike" as "Reporter"' do
-    user = User.find_by(name: "Mike")
-
-    page.within ".users-group-form" do
-      select2(user.id, from: "#user_ids", multiple: true)
-      select "Reporter", from: "access_level"
-    end
-
-    click_button "Add users to group"
-  end
-
-  step 'I select "Mike" as "Master"' do
-    user = User.find_by(name: "Mike")
-
-    page.within ".users-group-form" do
-      select2(user.id, from: "#user_ids", multiple: true)
-      select "Master", from: "access_level"
-    end
-
-    click_button "Add users to group"
-  end
-
-  step 'I should see "Mike" in team list as "Reporter"' do
-    page.within '.well-list' do
-      expect(page).to have_content('Mike')
-      expect(page).to have_content('Reporter')
-    end
-  end
-
-  step 'I should see "Mike" in team list as "Owner"' do
-    page.within '.well-list' do
-      expect(page).to have_content('Mike')
-      expect(page).to have_content('Owner')
-    end
-  end
-
-  step 'I select "sjobs@apple.com" as "Reporter"' do
-    page.within ".users-group-form" do
-      select2("sjobs@apple.com", from: "#user_ids", multiple: true)
-      select "Reporter", from: "access_level"
-    end
-
-    click_button "Add users to group"
-  end
-
-  step 'I should see "sjobs@apple.com" in team list as invited "Reporter"' do
-    page.within '.well-list' do
-      expect(page).to have_content('sjobs@apple.com')
-      expect(page).to have_content('invited')
-      expect(page).to have_content('Reporter')
-    end
-  end
-
-=======
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
   step 'I should see group "Owned" projects list' do
     owned_group.projects.each do |project|
       expect(page).to have_link project.name

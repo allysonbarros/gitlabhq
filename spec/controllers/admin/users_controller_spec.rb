@@ -21,34 +21,6 @@ describe Admin::UsersController do
       expect { User.find(user.id) }.to raise_exception(ActiveRecord::RecordNotFound)
     end
   end
-<<<<<<< HEAD
-=======
-
-  describe 'PUT block/:id' do
-    let(:user) { create(:user) }
-
-    it 'blocks user' do
-      put :block, id: user.username
-      user.reload
-      expect(user.blocked?).to be_truthy
-      expect(flash[:notice]).to eq 'Successfully blocked'
-    end
-  end
-
-  describe 'PUT unblock/:id' do
-    let(:user) { create(:user) }
-
-    before do
-      user.block
-    end
-
-    it 'unblocks user' do
-      put :unblock, id: user.username
-      user.reload
-      expect(user.blocked?).to be_falsey
-      expect(flash[:notice]).to eq 'Successfully unblocked'
-    end
-  end
 
   describe 'PUT block/:id' do
     let(:user) { create(:user) }
@@ -132,5 +104,4 @@ describe Admin::UsersController do
       patch :disable_two_factor, id: user.to_param
     end
   end
->>>>>>> 6efd0bc1e2f273c98fb8f78cdcb1dcce1bd94a59
 end

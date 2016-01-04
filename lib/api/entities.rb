@@ -198,10 +198,7 @@ module API
       expose :author, using: Entities::UserBasic
       expose :created_at
       expose :system?, as: :system
-<<<<<<< HEAD
-=======
       expose :noteable_id, :noteable_type
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
       # upvote? and downvote? are deprecated, always return false
       expose :upvote?, as: :upvote
       expose :downvote?, as: :downvote

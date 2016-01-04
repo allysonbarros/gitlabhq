@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 @project_issues
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
 Feature: Award Emoji
   Background:
     Given I sign in as a user
@@ -15,12 +12,8 @@ Feature: Award Emoji
     And I click to emoji in the picker
     Then I have award added
     And I can remove it by clicking to icon
-<<<<<<< HEAD
-    
-=======
 
   @javascript
   Scenario: I add award emoji using regular comment
   Given I leave comment with a single emoji
   Then I have award added
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880

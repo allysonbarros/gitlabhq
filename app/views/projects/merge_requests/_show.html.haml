@@ -32,16 +32,7 @@
         = link_to namespace_project_commits_path(@project.namespace, @project, @merge_request.target_branch), class: "label-branch" do
           = @merge_request.target_branch
 
-    = render "projects/merge_requests/show/how_to_merge"
-    = render "projects/merge_requests/widget/show.html.haml"
 
-    - if @merge_request.open? && @merge_request.source_branch_exists? && @merge_request.can_be_merged? && @merge_request.can_be_merged_by?(current_user)
-      .light.prepend-top-default
-        You can also accept this merge request manually using the
-        = succeed '.' do
-          = link_to "command line", "#modal_merge_info", class: "how_to_merge_link vlink", title: "How To Merge", "data-toggle" => "modal"
-
-<<<<<<< HEAD
     - if @merge_request.open?
       / Declarando as varáveis
       - resultado_testes = @merge_request.resultado_testes if not @project.nil?
@@ -59,22 +50,16 @@
             .panel-body
               %%pre.pre-scrollable
                 = resultado_testes.erro
-          
-  - if @commits.present?
-    %ul.merge-request-tabs
-      %li.notes-tab
-        = link_to namespace_project_merge_request_path(@project.namespace, @project, @merge_request), data: {target: '#notes', action: 'notes', toggle: 'tab'} do
-          Discussion
-          %span.badge= @merge_request.mr_and_commit_notes.user.count
-      %li.commits-tab
-        = link_to commits_namespace_project_merge_request_path(@project.namespace, @project, @merge_request), data: {target: '#commits', action: 'commits', toggle: 'tab'} do
-          Commits
-          %span.badge= @commits.size
-      %li.diffs-tab
-        = link_to diffs_namespace_project_merge_request_path(@project.namespace, @project, @merge_request), data: {target: '#diffs', action: 'diffs', toggle: 'tab'} do
-          Changes
-          %span.badge= @merge_request.diffs.size
-=======
+
+    = render "projects/merge_requests/show/how_to_merge"
+    = render "projects/merge_requests/widget/show.html.haml"
+
+    - if @merge_request.open? && @merge_request.source_branch_exists? && @merge_request.can_be_merged? && @merge_request.can_be_merged_by?(current_user)
+      .light.prepend-top-default
+        You can also accept this merge request manually using the
+        = succeed '.' do
+          = link_to "command line", "#modal_merge_info", class: "how_to_merge_link vlink", title: "How To Merge", "data-toggle" => "modal"
+
     - if @commits.present?
       %ul.merge-request-tabs.center-top-menu.no-top.no-bottom
         %li.notes-tab
@@ -107,7 +92,6 @@
             %aside.col-md-3
               = render 'shared/issuable/sidebar', issuable: @merge_request
             = render 'shared/show_aside'
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
 
         #commits.commits.tab-pane
           - # This tab is always loaded via AJAX

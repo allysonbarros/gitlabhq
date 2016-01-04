@@ -802,8 +802,4 @@ describe User, models: true do
 
     it { is_expected.to eq([private_project]) }
   end
-<<<<<<< HEAD
 end
-=======
-end
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880

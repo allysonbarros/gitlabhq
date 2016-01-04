@@ -637,13 +637,13 @@ class Repository
     raise
   end
 
+  def resultado_testes(branch_name)
+    IfrnTestes.where(branch: branch_name).first
+  end
+
   private
 
   def cache
     @cache ||= RepositoryCache.new(path_with_namespace)
-  end
-
-  def resultado_testes(branch_name)
-    IfrnTestes.where(branch: branch_name).first
   end
 end

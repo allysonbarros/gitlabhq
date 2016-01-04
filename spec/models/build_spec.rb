@@ -376,9 +376,6 @@ describe Ci::Build, models: true do
       is_expected.to_not be_nil
     end
   end
-<<<<<<< HEAD
-end
-=======
 
   describe :repo_url do
     let(:build) { FactoryGirl.create :ci_build }
@@ -394,4 +391,3 @@ end
     it { is_expected.to include(project.web_url[7..-1]) }
   end
 end
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880

@@ -6,11 +6,6 @@ class AwardEmoji
     "ambulance", "anguished", "two_hearts", "wink"
   ]
 
-<<<<<<< HEAD
-  def self.path_to_emoji_image(name)
-    "emoji/#{Emoji.emoji_filename(name)}.png"
-  end
-=======
   ALIASES = {
     pout: "rage",
     satisfied: "laughing",
@@ -49,5 +44,4 @@ class AwardEmoji
   def self.normilize_emoji_name(name)
     ALIASES[name] || name
   end
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
 end

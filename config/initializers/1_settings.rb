@@ -313,8 +313,4 @@ begin
 rescue
   # Gracefully handle when Redis is not available. For example,
   # omnibus may fail here during assets:precompile.
-<<<<<<< HEAD
 end
-=======
-end
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880

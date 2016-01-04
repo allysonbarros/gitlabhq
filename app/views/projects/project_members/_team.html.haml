@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-.panel.panel-default.prepend-top-20
-=======
 .panel.panel-default
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
   .panel-heading
     %strong #{@project.name}
     project members
@@ -17,12 +13,9 @@
   %ul.content-list
     - members.each do |project_member|
       = render 'project_member', member: project_member
-<<<<<<< HEAD
-=======
 
 :javascript
   $('form.member-search-form').on('submit', function (event) {
     event.preventDefault();
     Turbolinks.visit(this.action + '?' + $(this).serialize());
   });
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880

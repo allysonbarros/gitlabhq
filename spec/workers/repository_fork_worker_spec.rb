@@ -9,15 +9,9 @@ describe RepositoryForkWorker do
   describe "#perform" do
     it "creates a new repository from a fork" do
       expect_any_instance_of(Gitlab::Shell).to receive(:fork_repository).with(
-<<<<<<< HEAD
-                                                   project.path_with_namespace,
-                                                   fork_project.namespace.path).
-                                                   and_return(true)
-=======
         project.path_with_namespace,
         fork_project.namespace.path
       ).and_return(true)
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
 
       subject.perform(
         project.id,

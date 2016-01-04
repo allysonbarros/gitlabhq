@@ -146,11 +146,7 @@ class Spinach::Features::ProjectSourceBrowseFiles < Spinach::FeatureSteps
   end
 
   step 'I can see new file page' do
-<<<<<<< HEAD
-    expect(page).to have_content "Create New File"
-=======
     expect(page).to have_content "New File"
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
     expect(page).to have_content "Commit message"
   end
 
@@ -247,13 +243,8 @@ class Spinach::Features::ProjectSourceBrowseFiles < Spinach::FeatureSteps
   end
 
   step 'I am redirected to the new file with directory' do
-<<<<<<< HEAD
-    expect(current_path).to eq(namespace_project_blob_path(
-      @project.namespace, @project, 'master/' + new_file_name_with_directory))
-=======
     expect(current_path).to eq(
       namespace_project_blob_path(@project.namespace, @project, 'master/' + new_file_name_with_directory))
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
   end
 
   step 'I am redirected to the new merge request page' do

@@ -491,8 +491,6 @@ describe Project, models: true do
       it { is_expected.to eq([]) }
     end
   end
-<<<<<<< HEAD
-=======
 
   context 'shared runners by default' do
     let(:project) { create(:empty_project) }
@@ -554,5 +552,4 @@ describe Project, models: true do
       end
     end
   end
->>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
 end
