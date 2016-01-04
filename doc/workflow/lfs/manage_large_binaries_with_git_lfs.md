@@ -121,6 +121,12 @@ git config --global credential.helper 'cache --timeout=3600'
 
 This will remember the credentials for an hour after which Git operations will require re-authentication.
 
+<<<<<<< HEAD
 If you are using OS X you can use `osxkeychain` to store and encrypt your credentials. For Windows, `wincred` is available.
 
 More details about various methods of storing the user credentials can be found on [Git Credential Storage documentation](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage).
+=======
+If you are using OS X you can use `osxkeychain` to store and encrypt your credentials. For Windows, you can use `wincred` or Microsoft's [Git Credential Manager for Windows](https://github.com/Microsoft/Git-Credential-Manager-for-Windows/releases).
+
+More details about various methods of storing the user credentials can be found on [Git Credential Storage documentation](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage).
+>>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880

@@ -2,6 +2,7 @@
 
 - unless @project.empty_repo?
   .form-group.branch
+<<<<<<< HEAD
     = label_tag 'branch', class: 'control-label' do
       Branch
     .col-sm-10
@@ -14,5 +15,17 @@
         = label_tag "create_merge_request-#{nonce}" do
           = check_box_tag 'create_merge_request', 1, true, class: 'js-create-merge-request', id: "create_merge_request-#{nonce}"
           Start a <strong>new merge request</strong> with this commit
+=======
+    = label_tag 'new_branch', 'Target branch', class: 'control-label'
+    .col-sm-10
+      = text_field_tag 'new_branch', @new_branch || tree_edit_branch, required: true, class: "form-control js-new-branch"
+
+      .js-create-merge-request-container
+        .checkbox
+          - nonce = SecureRandom.hex
+          = label_tag "create_merge_request-#{nonce}" do
+            = check_box_tag 'create_merge_request', 1, true, class: 'js-create-merge-request', id: "create_merge_request-#{nonce}"
+            Start a <strong>new merge request</strong> with these changes
+>>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
 
   = hidden_field_tag 'original_branch', @ref, class: 'js-original-branch'

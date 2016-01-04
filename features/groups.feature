@@ -2,7 +2,6 @@ Feature: Groups
   Background:
     Given I sign in as "John Doe"
     And "John Doe" is owner of group "Owned"
-    And "John Doe" is guest of group "Guest"
 
   Scenario: I should have back to group button
     When I visit group "Owned" page
@@ -24,13 +23,6 @@ Feature: Groups
     When I visit group "Owned" merge requests page
     Then I should see merge requests from group "Owned" assigned to me
 
-  @javascript
-  Scenario: I should add user to projects in group "Owned"
-    Given User "Mary Jane" exists
-    When I visit group "Owned" members page
-    And I select user "Mary Jane" from list with role "Reporter"
-    Then I should see user "Mary Jane" in team list
-
   Scenario: I should see edit group "Owned" page
     When I visit group "Owned" settings page
     And I change group "Owned" name to "new-name"
@@ -51,6 +43,7 @@ Feature: Groups
     Then I should not see group "Owned" avatar
     And I should not see the "Remove avatar" button
 
+<<<<<<< HEAD
   @javascript
   Scenario: Add user to group
     Given gitlab user "Mike"
@@ -168,6 +161,8 @@ Feature: Groups
     When I press create mileston button
     Then milestone in each project should be created
 
+=======
+>>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
   # Group projects in settings
   Scenario: I should see all projects in the project list in settings
     Given Group "Owned" has archived project

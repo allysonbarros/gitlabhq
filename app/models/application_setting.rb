@@ -27,30 +27,44 @@
 #  admin_notification_email     :string(255)
 #  shared_runners_enabled       :boolean          default(TRUE), not null
 #  max_artifacts_size           :integer          default(100), not null
+#  runners_registration_token   :string(255)
 #
 
 class ApplicationSetting < ActiveRecord::Base
+  include TokenAuthenticatable
+  add_authentication_token_field :runners_registration_token
+
+  CACHE_KEY = 'application_setting.last'
+
   serialize :restricted_visibility_levels
   serialize :import_sources
   serialize :restricted_signup_domains, Array
   attr_accessor :restricted_signup_domains_raw
 
   validates :session_expire_delay,
-    presence: true,
-    numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+            presence: true,
+            numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   validates :home_page_url,
-    allow_blank: true,
-    format: { with: /\A#{URI.regexp(%w(http https))}\z/, message: "should be a valid url" },
-    if: :home_page_url_column_exist
+            allow_blank: true,
+            url: true,
+            if: :home_page_url_column_exist
 
   validates :after_sign_out_path,
-    allow_blank: true,
-    format: { with: /\A#{URI.regexp(%w(http https))}\z/, message: "should be a valid url" }
+            allow_blank: true,
+            url: true
 
   validates :admin_notification_email,
-    allow_blank: true,
-    email: true
+            allow_blank: true,
+            email: true
+
+  validates :recaptcha_site_key,
+            presence: true,
+            if: :recaptcha_enabled
+
+  validates :recaptcha_private_key,
+            presence: true,
+            if: :recaptcha_enabled
 
   validates_each :restricted_visibility_levels do |record, attr, value|
     unless value.nil?
@@ -72,22 +86,20 @@ class ApplicationSetting < ActiveRecord::Base
     end
   end
 
+  before_save :ensure_runners_registration_token
+
   after_commit do
-    Rails.cache.write(cache_key, self)
+    Rails.cache.write(CACHE_KEY, self)
   end
 
   def self.current
-    Rails.cache.fetch(cache_key) do
+    Rails.cache.fetch(CACHE_KEY) do
       ApplicationSetting.last
     end
   end
 
   def self.expire
-    Rails.cache.delete(cache_key)
-  end
-
-  def self.cache_key
-    'application_setting.last'
+    Rails.cache.delete(CACHE_KEY)
   end
 
   def self.create_from_defaults
@@ -122,13 +134,16 @@ class ApplicationSetting < ActiveRecord::Base
   def restricted_signup_domains_raw=(values)
     self.restricted_signup_domains = []
     self.restricted_signup_domains = values.split(
-        /\s*[,;]\s*     # comma or semicolon, optionally surrounded by whitespace
-        |               # or
-        \s              # any whitespace character
-        |               # or
-        [\r\n]          # any number of newline characters
-        /x)
+      /\s*[,;]\s*     # comma or semicolon, optionally surrounded by whitespace
+      |               # or
+      \s              # any whitespace character
+      |               # or
+      [\r\n]          # any number of newline characters
+      /x)
     self.restricted_signup_domains.reject! { |d| d.empty? }
   end
 
+  def runners_registration_token
+    ensure_runners_registration_token!
+  end
 end

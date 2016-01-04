@@ -13,6 +13,12 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
     end
   end
 
+  def reset_runners_token
+    @application_setting.reset_runners_registration_token!
+    flash[:notice] = 'New runners registration token has been generated!'
+    redirect_to admin_runners_path
+  end
+
   private
 
   def set_application_setting
@@ -59,6 +65,9 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
       :user_oauth_applications,
       :shared_runners_enabled,
       :max_artifacts_size,
+      :recaptcha_enabled,
+      :recaptcha_site_key,
+      :recaptcha_private_key,
       restricted_visibility_levels: [],
       import_sources: []
     )

@@ -8,6 +8,7 @@ module Issuable
   extend ActiveSupport::Concern
   include Participable
   include Mentionable
+  include StripAttribute
 
   included do
     belongs_to :author, class_name: "User"
@@ -35,6 +36,9 @@ module Issuable
     scope :order_milestone_due_desc, -> { joins(:milestone).reorder('milestones.due_date DESC, milestones.id DESC') }
     scope :order_milestone_due_asc, -> { joins(:milestone).reorder('milestones.due_date ASC, milestones.id ASC') }
 
+    scope :join_project, -> { joins(:project) }
+    scope :references_project, -> { references(:project) }
+
     delegate :name,
              :email,
              to: :author,
@@ -46,8 +50,10 @@ module Issuable
              allow_nil: true,
              prefix: true
 
-    attr_mentionable :title, :description
+    attr_mentionable :title, pipeline: :single_line
+    attr_mentionable :description, cache: true
     participant :author, :assignee, :notes_with_associations
+    strip_attributes :title
   end
 
   module ClassMethods
@@ -157,5 +163,10 @@ module Issuable
 
   def notes_with_associations
     notes.includes(:author, :project)
+  end
+
+  def updated_tasks
+    Taskable.get_updated_tasks(old_content: previous_changes['description'].first,
+                               new_content: description)
   end
 end

@@ -153,4 +153,8 @@ describe IssuesHelper do
       expect(note_active_class(Note.all, @note.author)).to eq("active")
     end
   end
+<<<<<<< HEAD
 end
+=======
+end
+>>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880

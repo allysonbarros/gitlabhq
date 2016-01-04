@@ -33,13 +33,15 @@ class Settings < Settingslogic
     end
 
     def build_gitlab_shell_ssh_path_prefix
+      user_host = "#{gitlab_shell.ssh_user}@#{gitlab_shell.ssh_host}"
+
       if gitlab_shell.ssh_port != 22
-        "ssh://#{gitlab_shell.ssh_user}@#{gitlab_shell.ssh_host}:#{gitlab_shell.ssh_port}/"
+        "ssh://#{user_host}:#{gitlab_shell.ssh_port}/"
       else
         if gitlab_shell.ssh_host.include? ':'
-          "[#{gitlab_shell.ssh_user}@#{gitlab_shell.ssh_host}]:"
+          "[#{user_host}]:"
         else
-          "#{gitlab_shell.ssh_user}@#{gitlab_shell.ssh_host}:"
+          "#{user_host}:"
         end
       end
     end
@@ -125,6 +127,7 @@ Settings.omniauth['auto_link_ldap_user'] = false if Settings.omniauth['auto_link
 
 Settings.omniauth['providers']  ||= []
 
+
 Settings['shared'] ||= Settingslogic.new({})
 Settings.shared['path'] = File.expand_path(Settings.shared['path'] || "shared", Rails.root)
 
@@ -162,7 +165,7 @@ Settings.gitlab['signin_enabled'] ||= true if Settings.gitlab['signin_enabled'].
 Settings.gitlab['twitter_sharing_enabled'] ||= true if Settings.gitlab['twitter_sharing_enabled'].nil?
 Settings.gitlab['restricted_visibility_levels'] = Settings.send(:verify_constant_array, Gitlab::VisibilityLevel, Settings.gitlab['restricted_visibility_levels'], [])
 Settings.gitlab['username_changing_enabled'] = true if Settings.gitlab['username_changing_enabled'].nil?
-Settings.gitlab['issue_closing_pattern'] = '((?:[Cc]los(?:e[sd]?|ing)|[Ff]ix(?:e[sd]|ing)?|[Rr]esolv(?:e[sd]?|ing)) +(?:(?:issues? +)?#\d+(?:(?:, *| +and +)?))+)' if Settings.gitlab['issue_closing_pattern'].nil?
+Settings.gitlab['issue_closing_pattern'] = '((?:[Cc]los(?:e[sd]?|ing)|[Ff]ix(?:e[sd]|ing)?|[Rr]esolv(?:e[sd]?|ing)) +(?:(?:issues? +)?%{issue_ref}(?:(?:, *| +and +)?)|([A-Z]*-\d*))+)' if Settings.gitlab['issue_closing_pattern'].nil?
 Settings.gitlab['default_projects_features'] ||= {}
 Settings.gitlab['webhook_timeout'] ||= 10
 Settings.gitlab['max_attachment_size'] ||= 10
@@ -221,6 +224,15 @@ Settings.gravatar['enabled']      = true if Settings.gravatar['enabled'].nil?
 Settings.gravatar['plain_url']  ||= 'http://www.gravatar.com/avatar/%{hash}?s=%{size}&d=identicon'
 Settings.gravatar['ssl_url']    ||= 'https://secure.gravatar.com/avatar/%{hash}?s=%{size}&d=identicon'
 Settings.gravatar['host']         = Settings.get_host_without_www(Settings.gravatar['plain_url'])
+
+#
+# Cron Jobs
+#
+Settings['cron_jobs'] ||= Settingslogic.new({})
+Settings.cron_jobs['stuck_ci_builds_worker'] ||= Settingslogic.new({})
+Settings.cron_jobs['stuck_ci_builds_worker']['cron'] ||= '0 0 * * *'
+Settings.cron_jobs['stuck_ci_builds_worker']['job_class'] = 'StuckCiBuildsWorker'
+
 
 #
 # GitLab Shell
@@ -301,4 +313,8 @@ begin
 rescue
   # Gracefully handle when Redis is not available. For example,
   # omnibus may fail here during assets:precompile.
+<<<<<<< HEAD
 end
+=======
+end
+>>>>>>> 01824a0fac17331c7eacf40feb6882c508fe4880
