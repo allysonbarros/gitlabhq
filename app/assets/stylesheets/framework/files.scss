@@ -3,11 +3,8 @@
  *
  */
 .file-holder {
-  margin-left: -$gl-padding;
-  margin-right: -$gl-padding;
   border: none;
-  border-top: 1px solid #E7E9EE;
-  border-bottom: 1px solid #E7E9EE;
+  border: 1px solid $border-color;
 
   &.readme-holder {
     border-bottom: 0;
@@ -95,15 +92,6 @@
         &:last-child {
           border-right: none;
         }
-        background: #fff;
-      }
-      .lines {
-        pre {
-          padding: 0;
-          margin: 0;
-          background: none;
-          border: none;
-        }
       }
       img.avatar {
         border: 0 none;
@@ -119,17 +107,17 @@
           color: #888;
         }
       }
-      td.blame-numbers {
-        pre {
-          color: #AAA;
-          white-space: pre;
-        }
-        background: #f1f1f1;
+      td.line-numbers {
+        float: none;
         border-left: 1px solid #DDD;
       }
       td.lines {
+        padding: 0;
         code {
           font-family: $monospace_font;
+        }
+        pre {
+          margin: 0;
         }
       }
     }

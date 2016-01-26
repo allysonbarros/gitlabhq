@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem 'rails', '4.2.4'
+gem 'rails', '4.2.5.1'
 gem 'rails-deprecated_sanitizer', '~> 1.0.3'
 
 # Responders respond_to and respond_with
@@ -18,11 +18,13 @@ gem "mysql2", '~> 0.3.16', group: :mysql
 gem "pg", '~> 0.18.2', group: :postgres
 
 # Authentication libraries
-gem 'devise',                 '~> 3.5.3'
+gem 'devise',                 '~> 3.5.4'
 gem 'devise-async',           '~> 0.9.0'
 gem 'doorkeeper',             '~> 2.2.0'
 gem 'omniauth',               '~> 1.2.2'
+gem 'omniauth-azure-oauth2',  '~> 0.0.6'
 gem 'omniauth-bitbucket',     '~> 0.0.2'
+gem 'omniauth-cas3',          '~> 1.1.2'
 gem 'omniauth-facebook',      '~> 3.0.0'
 gem 'omniauth-github',        '~> 1.1.1'
 gem 'omniauth-gitlab',        '~> 1.0.0'
@@ -31,7 +33,7 @@ gem 'omniauth-kerberos',      '~> 0.3.0', group: :kerberos
 gem 'omniauth-saml',          '~> 1.4.0'
 gem 'omniauth-shibboleth',    '~> 1.2.0'
 gem 'omniauth-twitter',       '~> 1.2.0'
-gem 'omniauth_crowd'
+gem 'omniauth_crowd',         '~> 2.2.0'
 gem 'rack-oauth2',            '~> 1.2.1'
 
 # reCAPTCHA protection
@@ -47,7 +49,7 @@ gem "browser", '~> 1.0.0'
 
 # Extracting information from a git repository
 # Provide access to Gitlab::Git library
-gem "gitlab_git", '~> 7.2.20'
+gem "gitlab_git", '~> 7.2.22'
 
 # LDAP Auth
 # GitLab fork with several improvements to original library. For full list of changes
@@ -65,10 +67,6 @@ gem 'grape',        '~> 0.13.0'
 gem 'grape-entity', '~> 0.4.2'
 gem 'rack-cors',    '~> 0.4.0', require: 'rack/cors'
 
-# Format dates and times
-# based on human-friendly examples
-gem "stamp", '~> 0.6.0'
-
 # Pagination
 gem "kaminari", "~> 0.16.3"
 
@@ -82,7 +80,7 @@ gem "carrierwave", '~> 0.9.0'
 gem 'dropzonejs-rails', '~> 0.7.1'
 
 # for aws storage
-gem "fog", "~> 1.25.0"
+gem "fog", "~> 1.36.0"
 gem "unf", '~> 0.1.4'
 
 # Authorization
@@ -105,7 +103,8 @@ gem 'asciidoctor',   '~> 1.5.2'
 gem 'rouge',         '~> 1.10.1'
 
 # See https://groups.google.com/forum/#!topic/ruby-security-ann/aSbgDiwb24s
-gem 'nokogiri', '1.6.7.1'
+# and https://groups.google.com/forum/#!topic/ruby-security-ann/Dy7YiKb_pMM
+gem 'nokogiri', '1.6.7.2'
 
 # Diffs
 gem 'diffy', '~> 3.0.3'
@@ -168,13 +167,13 @@ gem 'asana', '~> 0.4.0'
 gem 'ruby-fogbugz', '~> 0.2.1'
 
 # d3
-gem 'd3_rails', '~> 3.5.5'
+gem 'd3_rails', '~> 3.5.0'
 
 #cal-heatmap
-gem "cal-heatmap-rails", "~> 0.0.1"
+gem 'cal-heatmap-rails', '~> 3.5.0'
 
 # underscore-rails
-gem "underscore-rails", "~> 1.4.4"
+gem "underscore-rails", "~> 1.8.0"
 
 # Sanitize user input
 gem "sanitize", '~> 2.0'
@@ -192,21 +191,21 @@ gem 'mousetrap-rails', '~> 1.4.6'
 # Detect and convert string character encoding
 gem 'charlock_holmes', '~> 0.7.3'
 
-gem "sass-rails", '~> 4.0.5'
+gem "sass-rails", '~> 5.0.0'
 gem "coffee-rails", '~> 4.1.0'
 gem "uglifier", '~> 2.7.2'
 gem 'turbolinks', '~> 2.5.0'
 gem 'jquery-turbolinks', '~> 2.1.0'
 
 gem 'addressable',        '~> 2.3.8'
-gem 'bootstrap-sass',     '~> 3.0'
+gem 'bootstrap-sass',     '~> 3.3.0'
 gem 'font-awesome-rails', '~> 4.2'
 gem 'gitlab_emoji',       '~> 0.2.0'
 gem 'gon',                '~> 6.0.1'
 gem 'jquery-atwho-rails', '~> 1.3.2'
-gem 'jquery-rails',       '~> 3.1.3'
+gem 'jquery-rails',       '~> 4.0.0'
 gem 'jquery-scrollto-rails', '~> 1.4.3'
-gem 'jquery-ui-rails',    '~> 4.2.1'
+gem 'jquery-ui-rails',    '~> 5.0.0'
 gem 'nprogress-rails',    '~> 0.1.6.7'
 gem 'raphael-rails',      '~> 2.1.2'
 gem 'request_store',      '~> 1.2.0'
@@ -214,9 +213,17 @@ gem 'select2-rails',      '~> 3.5.9'
 gem 'virtus',             '~> 1.0.1'
 gem 'net-ssh',            '~> 3.0.1'
 
+# Metrics
+group :metrics do
+  gem 'allocations', '~> 1.0', require: false, platform: :mri
+  gem 'method_source', '~> 0.8', require: false
+  gem 'influxdb', '~> 0.2', require: false
+  gem 'connection_pool', '~> 2.0', require: false
+end
+
 group :development do
   gem "foreman"
-  gem 'brakeman', '3.0.1', require: false
+  gem 'brakeman', '~> 3.1.0', require: false
 
   gem "annotate", "~> 2.6.0"
   gem "letter_opener", '~> 1.1.2'
@@ -241,7 +248,7 @@ group :development, :test do
   gem 'byebug', platform: :mri
   gem 'pry-rails'
 
-  gem 'awesome_print', '~> 1.2.0'
+  gem 'awesome_print', '~> 1.2.0', require: false
   gem 'fuubar', '~> 2.0.0'
 
   gem 'database_cleaner', '~> 1.4.0'
@@ -287,6 +294,9 @@ end
 
 group :production do
   gem "gitlab_meta", '7.0'
+
+  # Sentry integration
+  gem 'sentry-raven'
 end
 
 gem "newrelic_rpm", '~> 3.9.4.245'

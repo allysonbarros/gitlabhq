@@ -2,12 +2,11 @@
   .issue {
     padding: 10px $gl-padding;
     position: relative;
-    overflow: visible;
 
     .issue-title {
       margin-bottom: 5px;
       font-size: $list-font-size;
-      font-weight: bold;
+      font-weight: 600;
     }
 
     .issue-info {
@@ -146,8 +145,7 @@ form.edit-issue {
   width: 250px !important;
 }
 
-.issues-holder {
-  .issue-info {
-    margin-left: 20px;
-  }
+.issue-closed-by-widget {
+  color: $secondary-text;
+  margin-left: 52px;
 }

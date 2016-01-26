@@ -2,28 +2,28 @@
 #
 # Table name: merge_requests
 #
-#  id                         :integer          not null, primary key
-#  target_branch              :string(255)      not null
-#  source_branch              :string(255)      not null
-#  source_project_id          :integer          not null
-#  author_id                  :integer
-#  assignee_id                :integer
-#  title                      :string(255)
-#  created_at                 :datetime
-#  updated_at                 :datetime
-#  milestone_id               :integer
-#  state                      :string(255)
-#  merge_status               :string(255)
-#  target_project_id          :integer          not null
-#  iid                        :integer
-#  description                :text
-#  position                   :integer          default(0)
-#  locked_at                  :datetime
-#  updated_by_id              :integer
-#  merge_error                :string(255)
-#  merge_params               :text (serialized to hash)
-#  merge_when_build_succeeds  :boolean          default(false), not null
-#  merge_user_id              :integer
+#  id                        :integer          not null, primary key
+#  target_branch             :string(255)      not null
+#  source_branch             :string(255)      not null
+#  source_project_id         :integer          not null
+#  author_id                 :integer
+#  assignee_id               :integer
+#  title                     :string(255)
+#  created_at                :datetime
+#  updated_at                :datetime
+#  milestone_id              :integer
+#  state                     :string(255)
+#  merge_status              :string(255)
+#  target_project_id         :integer          not null
+#  iid                       :integer
+#  description               :text
+#  position                  :integer          default(0)
+#  locked_at                 :datetime
+#  updated_by_id             :integer
+#  merge_error               :string(255)
+#  merge_params              :text
+#  merge_when_build_succeeds :boolean          default(FALSE), not null
+#  merge_user_id             :integer
 #
 
 require Rails.root.join("app/models/commit")
@@ -131,7 +131,7 @@ class MergeRequest < ActiveRecord::Base
   validate :validate_branches
   validate :validate_fork
 
-  scope :of_group, ->(group) { where("source_project_id in (:group_project_ids) OR target_project_id in (:group_project_ids)", group_project_ids: group.project_ids) }
+  scope :of_group, ->(group) { where("source_project_id in (:group_project_ids) OR target_project_id in (:group_project_ids)", group_project_ids: group.projects.select(:id).reorder(nil)) }
   scope :by_branch, ->(branch_name) { where("(source_branch LIKE :branch) OR (target_branch LIKE :branch)", branch: branch_name) }
   scope :cared, ->(user) { where('assignee_id = :user OR author_id = :user', user: user.id) }
   scope :by_milestone, ->(milestone) { where(milestone_id: milestone) }
@@ -178,6 +178,14 @@ class MergeRequest < ActiveRecord::Base
 
   def first_commit
     merge_request_diff ? merge_request_diff.first_commit : compare_commits.first
+  end
+
+  def diff_base_commit
+    if merge_request_diff
+      merge_request_diff.base_commit
+    else
+      self.target_project.commit(self.target_branch)
+    end
   end
 
   def last_commit_short_sha
@@ -229,6 +237,8 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def check_if_can_be_merged
+    return unless unchecked?
+
     can_be_merged =
       project.repository.can_be_merged?(source_sha, target_branch)
 
@@ -252,7 +262,11 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def mergeable?
-    open? && !work_in_progress? && can_be_merged?
+    return false unless open? && !work_in_progress? && !broken?
+
+    check_if_can_be_merged
+
+    can_be_merged?
   end
 
   def gitlab_merge_status
@@ -452,6 +466,10 @@ class MergeRequest < ActiveRecord::Base
     !source_branch_exists? || !target_branch_exists?
   end
 
+  def broken?
+    self.commits.blank? || branch_missing? || cannot_be_merged?
+  end
+
   def can_be_merged_by?(user)
     ::Gitlab::GitAccess.new(user, project).can_push_to_branch?(target_branch)
   end
@@ -467,8 +485,7 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def target_sha
-    @target_sha ||= target_project.
-      repository.commit(target_branch).sha
+    @target_sha ||= target_project.repository.commit(target_branch).sha
   end
 
   def source_sha
@@ -508,8 +525,10 @@ class MergeRequest < ActiveRecord::Base
     @ci_commit ||= source_project.ci_commit(last_commit.id) if last_commit && source_project
   end
 
-  def broken?
-    self.commits.blank? || branch_missing? || cannot_be_merged?
+  def diff_refs
+    return nil unless diff_base_commit
+
+    [diff_base_commit, last_commit]
   end
 
   def ultimo_commit

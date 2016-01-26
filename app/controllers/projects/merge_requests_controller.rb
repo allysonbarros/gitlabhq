@@ -58,7 +58,11 @@ class Projects::MergeRequestsController < Projects::ApplicationController
 
   def diffs
     @commit = @merge_request.last_commit
-    @first_commit = @merge_request.first_commit
+    @base_commit = @merge_request.diff_base_commit
+
+    # MRs created before 8.4 don't have a diff_base_commit,
+    # but we need it for the "View file @ ..." link by deleted files
+    @base_commit ||= @merge_request.first_commit.parent || @merge_request.first_commit
 
     @comments_allowed = @reply_allowed = true
     @comments_target = {
@@ -90,13 +94,16 @@ class Projects::MergeRequestsController < Projects::ApplicationController
   def new
     params[:merge_request] ||= ActionController::Parameters.new(source_project: @project)
     @merge_request = MergeRequests::BuildService.new(project, current_user, merge_request_params).execute
-    @merge_request.description = '''### CHANGELOG
-[NOME DA APP] Descrição das alterações
-### EMAIL
-**[NOME DA APP] Grupos afetados pelas alterações**
-Texto para o email
-### DESENVOLVEDOR
-[NOME DA APP] Descrição das alterações'''
+    @merge_request.description = '''
+    ### CHANGELOG
+    [NOME DA APP] Descrição das alterações
+    ### EMAIL
+    **[NOME DA APP] Grupos afetados pelas alterações**
+    Texto para o email
+    ### DESENVOLVEDOR
+    [NOME DA APP] Descrição das alterações
+    '''
+    @noteable = @merge_request
 
     @target_branches = if @merge_request.target_project
                          @merge_request.target_project.repository.branch_names
@@ -108,7 +115,7 @@ Texto para o email
     @source_project = merge_request.source_project
     @commits = @merge_request.compare_commits.reverse
     @commit = @merge_request.last_commit
-    @first_commit = @merge_request.first_commit
+    @base_commit = @merge_request.diff_base_commit
     @diffs = @merge_request.compare_diffs
 
     @ci_commit = @merge_request.ci_commit
@@ -160,7 +167,7 @@ Texto para o email
   end
 
   def merge_check
-    @merge_request.check_if_can_be_merged if @merge_request.unchecked?
+    @merge_request.check_if_can_be_merged
 
     render partial: "projects/merge_requests/widget/show.html.haml", layout: false
   end

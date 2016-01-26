@@ -29,6 +29,13 @@
 #  import_source          :string(255)
 #  commit_count           :integer          default(0)
 #  import_error           :text
+#  ci_id                  :integer
+#  builds_enabled         :boolean          default(TRUE), not null
+#  shared_runners_enabled :boolean          default(TRUE), not null
+#  runners_token          :string
+#  build_coverage_regex   :string
+#  build_allow_git_fetch  :boolean          default(TRUE), not null
+#  build_timeout          :integer          default(3600), not null
 #
 
 require 'spec_helper'
@@ -95,7 +102,7 @@ describe Project, models: true do
       expect(project2.errors[:limit_reached].first).to match(/Your project limit is 0/)
     end
   end
-  
+
   describe 'project token' do
     it 'should set an random token if none provided' do
       project = FactoryGirl.create :empty_project, runners_token: ''
@@ -517,30 +524,30 @@ describe Project, models: true do
 
     context 'for shared runners disabled' do
       let(:shared_runners_enabled) { false }
-      
+
       it 'there are no runners available' do
         expect(project.any_runners?).to be_falsey
       end
-  
+
       it 'there is a specific runner' do
         project.runners << specific_runner
         expect(project.any_runners?).to be_truthy
       end
-  
+
       it 'there is a shared runner, but they are prohibited to use' do
         shared_runner
         expect(project.any_runners?).to be_falsey
       end
-  
+
       it 'checks the presence of specific runner' do
         project.runners << specific_runner
         expect(project.any_runners? { |runner| runner == specific_runner }).to be_truthy
       end
     end
-    
+
     context 'for shared runners enabled' do
       let(:shared_runners_enabled) { true }
-      
+
       it 'there is a shared runner' do
         shared_runner
         expect(project.any_runners?).to be_truthy
@@ -551,5 +558,29 @@ describe Project, models: true do
         expect(project.any_runners? { |runner| runner == shared_runner }).to be_truthy
       end
     end
+  end
+
+  describe '#visibility_level_allowed?' do
+    let(:project) { create :project, visibility_level: Gitlab::VisibilityLevel::INTERNAL }
+
+    context 'when checking on non-forked project' do
+      it { expect(project.visibility_level_allowed?(Gitlab::VisibilityLevel::PRIVATE)).to be_truthy }
+      it { expect(project.visibility_level_allowed?(Gitlab::VisibilityLevel::INTERNAL)).to be_truthy }
+      it { expect(project.visibility_level_allowed?(Gitlab::VisibilityLevel::PUBLIC)).to be_truthy }
+    end
+
+    context 'when checking on forked project' do
+      let(:forked_project) { create :forked_project_with_submodules }
+
+      before do
+        forked_project.build_forked_project_link(forked_to_project_id: forked_project.id, forked_from_project_id: project.id)
+        forked_project.save
+      end
+
+      it { expect(forked_project.visibility_level_allowed?(Gitlab::VisibilityLevel::PRIVATE)).to be_truthy }
+      it { expect(forked_project.visibility_level_allowed?(Gitlab::VisibilityLevel::INTERNAL)).to be_truthy }
+      it { expect(forked_project.visibility_level_allowed?(Gitlab::VisibilityLevel::PUBLIC)).to be_falsey }
+    end
+
   end
 end

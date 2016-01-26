@@ -29,10 +29,13 @@
 #  target_url         :string(255)
 #  description        :string(255)
 #  artifacts_file     :text
+#  gl_project_id      :integer
+#  artifacts_metadata :text
 #
 
 module Ci
   class Build < CommitStatus
+    include Gitlab::Application.routes.url_helpers
     LAZY_ATTRIBUTES = ['trace']
 
     belongs_to :runner, class_name: 'Ci::Runner'
@@ -48,11 +51,14 @@ module Ci
     scope :similar, ->(build) { where(ref: build.ref, tag: build.tag, trigger_request_id: build.trigger_request_id) }
 
     mount_uploader :artifacts_file, ArtifactUploader
+    mount_uploader :artifacts_metadata, ArtifactUploader
 
     acts_as_taggable
 
     # To prevent db load megabytes of data from trace
     default_scope -> { select(Ci::Build.columns_without_lazy) }
+
+    before_destroy { project }
 
     class << self
       def columns_without_lazy
@@ -122,6 +128,14 @@ module Ci
       !self.commit.latest_builds_for_ref(self.ref).include?(self)
     end
 
+    def depends_on_builds
+      # Get builds of the same type
+      latest_builds = self.commit.builds.similar(self).latest
+
+      # Return builds from previous stages
+      latest_builds.where('stage_idx < ?', stage_idx)
+    end
+
     def trace_html
       html = Ci::Ansi2html::convert(trace) if trace.present?
       html || ''
@@ -135,8 +149,14 @@ module Ci
       predefined_variables + yaml_variables + project_variables + trigger_variables
     end
 
-    def project
-      commit.project
+    def merge_request
+      merge_requests = MergeRequest.includes(:merge_request_diff)
+                                   .where(source_branch: ref, source_project_id: commit.gl_project_id)
+                                   .reorder(iid: :asc)
+
+      merge_requests.find do |merge_request|
+        merge_request.commits.any? { |ci| ci.id == commit.sha }
+      end
     end
 
     def project_id
@@ -170,7 +190,8 @@ module Ci
 
     def extract_coverage(text, regex)
       begin
-        matches = text.gsub(Regexp.new(regex)).to_a.last
+        matches = text.scan(Regexp.new(regex)).last
+        matches = matches.last if matches.kind_of?(Array)
         coverage = matches.gsub(/\d+(\.\d+)?/).first
 
         if coverage.present?
@@ -196,7 +217,7 @@ module Ci
 
     def trace
       trace = raw_trace
-      if project && trace.present?
+      if project && trace.present? && project.runners_token.present?
         trace.gsub(project.runners_token, 'xxxxxx')
       else
         trace
@@ -281,21 +302,18 @@ module Ci
     end
 
     def target_url
-      Gitlab::Application.routes.url_helpers.
-        namespace_project_build_url(project.namespace, project, self)
+      namespace_project_build_url(project.namespace, project, self)
     end
 
     def cancel_url
       if active?
-        Gitlab::Application.routes.url_helpers.
-          cancel_namespace_project_build_path(project.namespace, project, self)
+        cancel_namespace_project_build_path(project.namespace, project, self)
       end
     end
 
     def retry_url
       if retryable?
-        Gitlab::Application.routes.url_helpers.
-          retry_namespace_project_build_path(project.namespace, project, self)
+        retry_namespace_project_build_path(project.namespace, project, self)
       end
     end
 
@@ -311,20 +329,35 @@ module Ci
       pending? && !any_runners_online?
     end
 
-    def download_url
-      if artifacts_file.exists?
-        Gitlab::Application.routes.url_helpers.
-          download_namespace_project_build_path(project.namespace, project, self)
-      end
-    end
-
     def execute_hooks
       build_data = Gitlab::BuildDataBuilder.build(self)
       project.execute_hooks(build_data.dup, :build_hooks)
       project.execute_services(build_data.dup, :build_hooks)
     end
 
+    def artifacts?
+      artifacts_file.exists?
+    end
 
+    def artifacts_download_url
+      if artifacts?
+        download_namespace_project_build_artifacts_path(project.namespace, project, self)
+      end
+    end
+
+    def artifacts_browse_url
+      if artifacts_metadata?
+        browse_namespace_project_build_artifacts_path(project.namespace, project, self)
+      end
+    end
+
+    def artifacts_metadata?
+      artifacts? && artifacts_metadata.exists?
+    end
+
+    def artifacts_metadata_entry(path, **options)
+      Gitlab::Ci::Build::Artifacts::Metadata.new(artifacts_metadata.path, path, **options).to_entry
+    end
 
     private
 

@@ -7,10 +7,14 @@
     %strong.monospace= link_to @build.commit.short_sha, ci_status_path(@build.commit)
     from
     = link_to @build.ref, namespace_project_commits_path(@project.namespace, @project, @build.ref)
+    - merge_request = @build.merge_request
+    - if merge_request
+      via
+      = link_to "merge request ##{merge_request.iid}", merge_request_path(merge_request)
 
   #up-build-trace
   - if @commit.matrix_for_ref?(@build.ref)
-    %ul.center-top-menu.no-top.no-bottom
+    %ul.nav-links.no-top.no-bottom
       - @commit.latest_builds_for_ref(@build.ref).each do |build|
         %li{class: ('active' if build == @build) }
           = link_to namespace_project_build_path(@project.namespace, @project, build) do
@@ -85,9 +89,15 @@
             Test coverage
           %h1 #{@build.coverage}%
 
-      - if current_user && can?(current_user, :download_build_artifacts, @project) && @build.download_url
-        .build-widget.center
-          = link_to "Download artifacts", @build.download_url, class: 'btn btn-sm btn-primary'
+      - if current_user && can?(current_user, :read_build_artifacts, @project) && @build.artifacts?
+
+        .build-widget.artifacts
+          %h4.title Build artifacts
+          .center
+            .btn-group{ role: :group }
+              = link_to "Download", @build.artifacts_download_url, class: 'btn btn-sm btn-primary'
+              - if @build.artifacts_metadata?
+                = link_to "Browse", @build.artifacts_browse_url, class: 'btn btn-sm btn-primary'
 
       .build-widget
         %h4.title

@@ -1,28 +1,3 @@
-# == Schema Information
-#
-# Table name: builds
-#
-#  id                 :integer          not null, primary key
-#  project_id         :integer
-#  status             :string(255)
-#  finished_at        :datetime
-#  trace              :text
-#  created_at         :datetime
-#  updated_at         :datetime
-#  started_at         :datetime
-#  runner_id          :integer
-#  commit_id          :integer
-#  coverage           :float
-#  commands           :text
-#  job_id             :integer
-#  name               :string(255)
-#  deploy             :boolean          default(FALSE)
-#  options            :text
-#  allow_failure      :boolean          default(FALSE), not null
-#  stage              :string(255)
-#  trigger_request_id :integer
-#
-
 require 'spec_helper'
 
 describe Ci::Build, models: true do
@@ -188,6 +163,12 @@ describe Ci::Build, models: true do
       subject { build.extract_coverage(' (98.39%) covered. (98.29%) covered', '\(\d+.\d+\%\) covered') }
 
       it { is_expected.to eq(98.29) }
+    end
+
+    context 'using a regex capture' do
+      subject { build.extract_coverage('TOTAL      9926   3489    65%', 'TOTAL\s+\d+\s+\d+\s+(\d{1,3}\%)') }
+
+      it { is_expected.to eq(65) }
     end
   end
 
@@ -362,18 +343,72 @@ describe Ci::Build, models: true do
     end
   end
 
-  describe :download_url do
-    subject { build.download_url }
+  describe :artifacts_download_url do
+    subject { build.artifacts_download_url }
 
     it "should be nil if artifact doesn't exist" do
       build.update_attributes(artifacts_file: nil)
       is_expected.to be_nil
     end
 
-    it 'should be nil if artifact exist' do
+    it 'should not be nil if artifact exist' do
       gif = fixture_file_upload(Rails.root + 'spec/fixtures/banana_sample.gif', 'image/gif')
       build.update_attributes(artifacts_file: gif)
       is_expected.to_not be_nil
+    end
+  end
+
+  describe :artifacts_browse_url do
+    subject { build.artifacts_browse_url }
+
+    it "should be nil if artifacts browser is unsupported" do
+      allow(build).to receive(:artifacts_metadata?).and_return(false)
+      is_expected.to be_nil
+    end
+
+    it 'should not be nil if artifacts browser is supported' do
+      allow(build).to receive(:artifacts_metadata?).and_return(true)
+      is_expected.to_not be_nil
+    end
+  end
+
+  describe :artifacts? do
+    subject { build.artifacts? }
+
+    context 'artifacts archive does not exist' do
+      before { build.update_attributes(artifacts_file: nil) }
+      it { is_expected.to be_falsy }
+    end
+
+    context 'artifacts archive exists' do
+      before do
+        gif = fixture_file_upload(Rails.root + 'spec/fixtures/banana_sample.gif', 'image/gif')
+        build.update_attributes(artifacts_file: gif)
+      end
+
+      it { is_expected.to be_truthy }
+    end
+  end
+
+
+  describe :artifacts_metadata? do
+    subject { build.artifacts_metadata? }
+    context 'artifacts metadata does not exist' do
+      it { is_expected.to be_falsy }
+    end
+
+    context 'artifacts archive is a zip file and metadata exists' do
+      before do
+        fixture_dir = Rails.root + 'spec/fixtures/'
+        archive = fixture_file_upload(fixture_dir + 'ci_build_artifacts.zip',
+                                      'application/zip')
+        metadata = fixture_file_upload(fixture_dir + 'ci_build_artifacts_metadata.gz',
+                                       'application/x-gzip')
+        build.update_attributes(artifacts_file: archive)
+        build.update_attributes(artifacts_metadata: metadata)
+      end
+
+      it { is_expected.to be_truthy }
     end
   end
 
@@ -389,5 +424,93 @@ describe Ci::Build, models: true do
     it { is_expected.to include(build.token) }
     it { is_expected.to include('gitlab-ci-token') }
     it { is_expected.to include(project.web_url[7..-1]) }
+  end
+
+  describe :depends_on_builds do
+    let!(:build) { FactoryGirl.create :ci_build, commit: commit, name: 'build', stage_idx: 0, stage: 'build' }
+    let!(:rspec_test) { FactoryGirl.create :ci_build, commit: commit, name: 'rspec', stage_idx: 1, stage: 'test' }
+    let!(:rubocop_test) { FactoryGirl.create :ci_build, commit: commit, name: 'rubocop', stage_idx: 1, stage: 'test' }
+    let!(:staging) { FactoryGirl.create :ci_build, commit: commit, name: 'staging', stage_idx: 2, stage: 'deploy' }
+
+    it 'to have no dependents if this is first build' do
+      expect(build.depends_on_builds).to be_empty
+    end
+
+    it 'to have one dependent if this is test' do
+      expect(rspec_test.depends_on_builds.map(&:id)).to contain_exactly(build.id)
+    end
+
+    it 'to have all builds from build and test stage if this is last' do
+      expect(staging.depends_on_builds.map(&:id)).to contain_exactly(build.id, rspec_test.id, rubocop_test.id)
+    end
+
+    it 'to have retried builds instead the original ones' do
+      retried_rspec = Ci::Build.retry(rspec_test)
+      expect(staging.depends_on_builds.map(&:id)).to contain_exactly(build.id, retried_rspec.id, rubocop_test.id)
+    end
+  end
+
+  def create_mr(build, commit, factory: :merge_request, created_at: Time.now)
+    FactoryGirl.create(factory,
+                       source_project_id: commit.gl_project_id,
+                       target_project_id: commit.gl_project_id,
+                       source_branch: build.ref,
+                       created_at: created_at)
+  end
+
+  describe :merge_request do
+    context 'when a MR has a reference to the commit' do
+      before do
+        @merge_request = create_mr(build, commit, factory: :merge_request)
+
+        commits = [double(id: commit.sha)]
+        allow(@merge_request).to receive(:commits).and_return(commits)
+        allow(MergeRequest).to receive_message_chain(:includes, :where, :reorder).and_return([@merge_request])
+      end
+
+      it 'returns the single associated MR' do
+        expect(build.merge_request.id).to eq(@merge_request.id)
+      end
+    end
+
+    context 'when there is not a MR referencing the commit' do
+      it 'returns nil' do
+        expect(build.merge_request).to be_nil
+      end
+    end
+
+    context 'when more than one MR have a reference to the commit' do
+      before do
+        @merge_request = create_mr(build, commit, factory: :merge_request)
+        @merge_request.close!
+        @merge_request2 = create_mr(build, commit, factory: :merge_request)
+
+        commits = [double(id: commit.sha)]
+        allow(@merge_request).to receive(:commits).and_return(commits)
+        allow(@merge_request2).to receive(:commits).and_return(commits)
+        allow(MergeRequest).to receive_message_chain(:includes, :where, :reorder).and_return([@merge_request, @merge_request2])
+      end
+
+      it 'returns the first MR' do
+        expect(build.merge_request.id).to eq(@merge_request.id)
+      end
+    end
+
+    context 'when a Build is created after the MR' do
+      before do
+        @merge_request = create_mr(build, commit, factory: :merge_request_with_diffs)
+        commit2 = FactoryGirl.create :ci_commit, project: project
+        @build2 = FactoryGirl.create :ci_build, commit: commit2
+
+        commits = [double(id: commit.sha), double(id: commit2.sha)]
+        allow(@merge_request).to receive(:commits).and_return(commits)
+        allow(MergeRequest).to receive_message_chain(:includes, :where, :reorder).and_return([@merge_request])
+      end
+
+      it 'returns the current MR' do
+        expect(@build2.merge_request.id).to eq(@merge_request.id)
+      end
+    end
+
   end
 end

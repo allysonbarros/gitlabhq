@@ -69,6 +69,10 @@ module IssuesHelper
     end
   end
 
+  def issue_button_visibility(issue, closed)    
+    return 'hidden' if issue.closed? == closed
+  end
+
   def issue_to_atom(xml, issue)
     xml.entry do
       xml.id      namespace_project_issue_url(issue.project.namespace,
@@ -76,7 +80,7 @@ module IssuesHelper
       xml.link    href: namespace_project_issue_url(issue.project.namespace,
                                                     issue.project, issue)
       xml.title   truncate(issue.title, length: 80)
-      xml.updated issue.created_at.strftime("%Y-%m-%dT%H:%M:%SZ")
+      xml.updated issue.created_at.xmlschema
       xml.media   :thumbnail, width: "40", height: "40", url: image_url(avatar_icon(issue.author_email))
       xml.author do |author|
         xml.name issue.author_name
@@ -94,11 +98,17 @@ module IssuesHelper
     end.sort.to_sentence(last_word_connector: ', or ')
   end
 
-  def url_to_emoji(name)
-    emoji_path = ::AwardEmoji.path_to_emoji_image(name)
-    url_to_image(emoji_path)
-  rescue StandardError
-    ""
+  def emoji_icon(name, unicode = nil, aliases = [])
+    unicode ||= Emoji.emoji_filename(name) rescue ""
+
+    content_tag :div, "",
+      class: "icon emoji-icon emoji-#{unicode}",
+      title: name,
+      data: {
+        aliases: aliases.join(' '),
+        emoji: name,
+        unicode_name: unicode
+      }
   end
 
   def emoji_author_list(notes, current_user)
@@ -109,16 +119,24 @@ module IssuesHelper
     list.join(", ")
   end
 
-  def emoji_list
-    ::AwardEmoji::EMOJI_LIST
-  end
-
   def note_active_class(notes, current_user)
     if current_user && notes.pluck(:author_id).include?(current_user.id)
       "active"
     else
       ""
     end
+  end
+
+  def awards_sort(awards)
+    awards.sort_by do |award, notes|
+      if award == "thumbsup"
+        0
+      elsif award == "thumbsdown"
+        1
+      else
+        2
+      end
+    end.to_h
   end
 
   # Required for Banzai::Filter::IssueReferenceFilter

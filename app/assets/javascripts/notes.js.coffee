@@ -1,4 +1,5 @@
 #= require autosave
+#= require autosize
 #= require dropzone
 #= require dropzone_input
 #= require gfm_auto_complete
@@ -33,8 +34,6 @@ class @Notes
     $(document).on "click", ".note-edit-cancel", @cancelEdit
 
     # Reopen and close actions for Issue/MR combined with note form submit
-    $(document).on "click", ".js-note-target-reopen", @targetReopen
-    $(document).on "click", ".js-note-target-close", @targetClose
     $(document).on "click", ".js-comment-button", @updateCloseButton
     $(document).on "keyup", ".js-note-text", @updateTargetButtons
 
@@ -127,7 +126,7 @@ class @Notes
       @initTaskList()
 
     if note.award
-      awards_handler.addAwardToEmojiBar(note.note, note.emoji_path)
+      awards_handler.addAwardToEmojiBar(note.note)
       awards_handler.scrollToAwards()
 
   ###
@@ -248,6 +247,7 @@ class @Notes
       else
         previewButton.removeClass("turn-on").addClass "turn-off"
 
+    autosize(textarea)
     new Autosave textarea, [
       "Note"
       form.find("#note_commit_id").val()
@@ -355,7 +355,7 @@ class @Notes
     $('.note[id="' + note_id + '"]').each ->
       note = $(this)
       notes = note.closest(".notes")
-      count = notes.closest(".notes_holder").find(".discussion-notes-count")
+      count = notes.closest(".issuable-details").find(".notes-tab .badge")
 
       # check if this is the last note for this line
       if notes.find(".note").length is 1
@@ -365,9 +365,10 @@ class @Notes
 
         # for diff lines
         notes.closest("tr").remove()
-      else
-        # update notes count
-        count.get(0).lastChild.nodeValue = " #{notes.children().length - 1}"
+
+      # update notes count
+      oldNum = parseInt(count.text())
+      count.text(oldNum - 1)
 
       note.remove()
 
@@ -512,17 +513,6 @@ class @Notes
   visibilityChange: =>
     @refresh()
 
-  targetReopen: (e) =>
-    @submitNoteForm($(e.target).parents('form'))
-
-  targetClose: (e) =>
-    @submitNoteForm($(e.target).parents('form'))
-
-  submitNoteForm: (form) =>
-    noteText = form.find(".js-note-text").val()
-    if noteText.trim().length > 0
-      form.submit()
-
   updateCloseButton: (e) =>
     textarea = $(e.target)
     form = textarea.parents('form')
@@ -531,13 +521,16 @@ class @Notes
   updateTargetButtons: (e) =>
     textarea = $(e.target)
     form = textarea.parents('form')
-
     if textarea.val().trim().length > 0
       form.find('.js-note-target-reopen').text('Comment & reopen')
       form.find('.js-note-target-close').text('Comment & close')
+      form.find('.js-note-target-reopen').addClass('btn-comment-and-reopen')
+      form.find('.js-note-target-close').addClass('btn-comment-and-close')
     else
       form.find('.js-note-target-reopen').text('Reopen')
       form.find('.js-note-target-close').text('Close')
+      form.find('.js-note-target-reopen').removeClass('btn-comment-and-reopen')
+      form.find('.js-note-target-close').removeClass('btn-comment-and-close')
 
   initTaskList: ->
     @enableTaskList()
