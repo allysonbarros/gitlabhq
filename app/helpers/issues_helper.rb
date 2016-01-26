@@ -69,7 +69,7 @@ module IssuesHelper
     end
   end
 
-  def issue_button_visibility(issue, closed)    
+  def issue_button_visibility(issue, closed)
     return 'hidden' if issue.closed? == closed
   end
 
