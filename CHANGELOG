@@ -17,6 +17,15 @@ v 8.2.0 (unreleased)
 v 8.3.3 (unreleased)
   - Fix project transfer e-mail sending incorrect paths in e-mail notification (Stan Hu)
   - Enable "Add key" button when user fills in a proper key
+v 8.4.2 (unreleased)
+  - Bump required gitlab-workhorse version to bring in a fix for missing
+    artifacts in the build artifacts browser
+  - Get rid of those ugly borders on the file tree view
+  - Bump gitlab_git version to 7.2.24 in order to bring in a performance
+    improvement when checking if a repository was empty
+  - Add instrumentation for Gitlab::Git::Repository instance methods so we can
+    track them in Performance Monitoring.
+
 v 8.4.1
   - Apply security updates for Rails (4.2.5.1), rails-html-sanitizer (1.0.3),
     and Nokogiri (1.6.7.2)
