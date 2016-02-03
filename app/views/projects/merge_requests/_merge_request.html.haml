@@ -36,6 +36,18 @@
             = icon('comments')
             = note_count
 
+      -if not merge_request.notes.awards.grouped_awards["thumbsdown"].empty?
+        %li
+          %span.label.label-danger.has_tooltip{'data-title' => emoji_author_list(merge_request.notes.awards.grouped_awards["thumbsdown"], current_user)}
+            %i.fa.fa-thumbs-down
+            = "-#{merge_request.notes.awards.grouped_awards["thumbsdown"].count}"
+
+      -if not merge_request.notes.awards.grouped_awards["thumbsup"].empty?
+        %li
+          %span.label.label-success.has_tooltip{'data-title' => emoji_author_list(merge_request.notes.awards.grouped_awards["thumbsup"], current_user)}
+            %i.fa.fa-thumbs-up
+            = "+#{merge_request.notes.awards.grouped_awards["thumbsup"].count}"
+
       - if merge_request.open?
         / Declarando as variáveis
         - resultado_testes = merge_request.resultado_testes if not @project.nil?
