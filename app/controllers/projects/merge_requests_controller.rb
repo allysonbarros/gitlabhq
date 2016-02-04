@@ -94,15 +94,13 @@ class Projects::MergeRequestsController < Projects::ApplicationController
   def new
     params[:merge_request] ||= ActionController::Parameters.new(source_project: @project)
     @merge_request = MergeRequests::BuildService.new(project, current_user, merge_request_params).execute
-    @merge_request.description = '''
-    ### CHANGELOG
-    [NOME DA APP] Descrição das alterações
-    ### EMAIL
-    **[NOME DA APP] Grupos afetados pelas alterações**
-    Texto para o email
-    ### DESENVOLVEDOR
-    [NOME DA APP] Descrição das alterações
-    '''
+    @merge_request.description = '''### CHANGELOG
+[NOME DA APP] Descrição das alterações
+### EMAIL
+**[NOME DA APP] Grupos afetados pelas alterações**
+Texto para o email
+### DESENVOLVEDOR
+[NOME DA APP] Descrição das alterações'''
     @noteable = @merge_request
 
     @target_branches = if @merge_request.target_project
