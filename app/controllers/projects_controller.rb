@@ -93,6 +93,10 @@ class ProjectsController < ApplicationController
       return
     end
 
+    if @project.pending_delete?
+      flash[:alert] = "Project queued for delete."
+    end
+
     respond_to do |format|
       format.html do
         if @project.repository_exists?
@@ -120,8 +124,8 @@ class ProjectsController < ApplicationController
   def destroy
     return access_denied! unless can?(current_user, :remove_project, @project)
 
-    ::Projects::DestroyService.new(@project, current_user, {}).execute
-    flash[:alert] = "Project '#{@project.name}' was deleted."
+    ::Projects::DestroyService.new(@project, current_user, {}).pending_delete!
+    flash[:alert] = "Project '#{@project.name}' will be deleted."
 
     redirect_to dashboard_projects_path
   rescue Projects::DestroyService::DestroyError => ex
@@ -232,7 +236,7 @@ class ProjectsController < ApplicationController
       Emoji.emojis.map do |name, emoji|
         {
           name: name,
-          path: view_context.image_url("emoji/#{emoji["unicode"]}.png")
+          path: view_context.image_url("#{emoji["unicode"]}.png")
         }
       end
     end

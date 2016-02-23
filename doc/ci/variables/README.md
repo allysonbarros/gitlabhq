@@ -16,7 +16,7 @@ The API_TOKEN will take the Secure Variable value: `SECURE`.
 ### Predefined variables (Environment Variables)
 
 | Variable                | Runner | Description |
-|-------------------------|-------------|
+|-------------------------|-----|--------|
 | **CI**                  | 0.4 | Mark that build is executed in CI environment |
 | **GITLAB_CI**           | all | Mark that build is executed in GitLab CI environment |
 | **CI_SERVER**           | all | Mark that build is executed in CI environment |
@@ -56,7 +56,7 @@ export CI_SERVER_VERSION=""
 ```
 
 ### YAML-defined variables
-**This feature requires GitLab Runner 0.5.0 or higher**
+**This feature requires GitLab Runner 0.5.0 or higher and GitLab CI 7.14 or higher **
 
 GitLab CI allows you to add to `.gitlab-ci.yml` variables that are set in build environment.
 The variables are stored in repository and are meant to store non-sensitive project configuration, ie. RAILS_ENV or DATABASE_URL.

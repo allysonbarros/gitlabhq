@@ -85,16 +85,13 @@
 
       .tab-content
         #notes.notes.tab-pane.voting_notes
-          .gray-content-block.second-block.oneline-block
+          .content-block.oneline-block
             = render 'votes/votes_block', votable: @merge_request
 
           .row
-            %section.col-md-9
+            %section.col-md-12
               .issuable-discussion
                 = render "projects/merge_requests/discussion"
-            %aside.col-md-3
-              = render 'shared/issuable/sidebar', issuable: @merge_request
-            = render 'shared/show_aside'
 
         #commits.commits.tab-pane
           - # This tab is always loaded via AJAX
@@ -105,6 +102,10 @@
 
       .mr-loading-status
         = spinner
+
+= render 'shared/issuable/sidebar', issuable: @merge_request
+- if @merge_request.can_be_reverted?
+  = render "projects/commit/revert", commit: @merge_request.merge_commit, title: @merge_request.title
 
 :javascript
   var merge_request;

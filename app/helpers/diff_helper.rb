@@ -1,4 +1,13 @@
 module DiffHelper
+  def mark_inline_diffs(old_line, new_line)
+    old_diffs, new_diffs = Gitlab::Diff::InlineDiff.new(old_line, new_line).inline_diffs
+
+    marked_old_line = Gitlab::Diff::InlineDiffMarker.new(old_line).mark(old_diffs)
+    marked_new_line = Gitlab::Diff::InlineDiffMarker.new(new_line).mark(new_diffs)
+
+    [marked_old_line, marked_new_line]
+  end
+
   def diff_view
     params[:view] == 'parallel' ? 'parallel' : 'inline'
   end
@@ -60,7 +69,7 @@ module DiffHelper
   end
 
   def line_comments
-    @line_comments ||= @line_notes.select(&:active?).group_by(&:line_code)
+    @line_comments ||= @line_notes.select(&:active?).sort_by(&:created_at).group_by(&:line_code)
   end
 
   def organize_comments(type_left, type_right, line_code_left, line_code_right)
@@ -128,7 +137,7 @@ module DiffHelper
     # Always use HTML to handle case where JSON diff rendered this button
     params_copy.delete(:format)
 
-    link_to url_for(params_copy), id: "#{name}-diff-btn", class: (selected ? 'btn active' : 'btn') do
+    link_to url_for(params_copy), id: "#{name}-diff-btn", class: (selected ? 'btn active' : 'btn'), data: { view_type: name } do
       title
     end
   end

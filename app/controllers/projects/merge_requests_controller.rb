@@ -34,6 +34,8 @@ class Projects::MergeRequestsController < Projects::ApplicationController
     @merge_requests = @merge_requests.page(params[:page]).per(PER_PAGE)
     @merge_requests = @merge_requests.preload(:target_project)
 
+    @label = @project.labels.find_by(title: params[:label_name])
+
     respond_to do |format|
       format.html
       format.json do
@@ -57,6 +59,8 @@ class Projects::MergeRequestsController < Projects::ApplicationController
   end
 
   def diffs
+    apply_diff_view_cookie!
+
     @commit = @merge_request.last_commit
     @base_commit = @merge_request.diff_base_commit
 
@@ -94,13 +98,6 @@ class Projects::MergeRequestsController < Projects::ApplicationController
   def new
     params[:merge_request] ||= ActionController::Parameters.new(source_project: @project)
     @merge_request = MergeRequests::BuildService.new(project, current_user, merge_request_params).execute
-    @merge_request.description = '''### CHANGELOG
-[NOME DA APP] Descrição das alterações
-### EMAIL
-**[NOME DA APP] Grupos afetados pelas alterações**
-Texto para o email
-### DESENVOLVEDOR
-[NOME DA APP] Descrição das alterações'''
     @noteable = @merge_request
 
     @target_branches = if @merge_request.target_project
@@ -183,6 +180,8 @@ Texto para o email
       @status = :failed
       return
     end
+
+    TodoService.new.merge_merge_request(merge_request, current_user)
 
     @merge_request.update(merge_error: nil)
 

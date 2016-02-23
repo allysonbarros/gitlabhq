@@ -36,6 +36,7 @@
 #  build_coverage_regex   :string
 #  build_allow_git_fetch  :boolean          default(TRUE), not null
 #  build_timeout          :integer          default(3600), not null
+#  pending_delete         :boolean
 #
 
 require 'carrierwave/orm/activerecord'
@@ -272,6 +273,10 @@ class Project < ActiveRecord::Base
               query: "%#{query.try(:downcase)}%")
     end
 
+    def search_by_visibility(level)
+      where(visibility_level: Gitlab::VisibilityLevel.const_get(level.upcase))
+    end
+
     def search_by_title(query)
       where('projects.archived = ?', false).where('LOWER(projects.name) LIKE :query', query: "%#{query.downcase}%")
     end
@@ -337,7 +342,7 @@ class Project < ActiveRecord::Base
   end
 
   def repository
-    @repository ||= Repository.new(path_with_namespace, nil, self)
+    @repository ||= Repository.new(path_with_namespace, self)
   end
 
   def commit(id = 'HEAD')
@@ -375,6 +380,10 @@ class Project < ActiveRecord::Base
 
   def import?
     external_import? || forked?
+  end
+
+  def no_import?
+    import_status == 'none'
   end
 
   def external_import?
@@ -733,11 +742,20 @@ class Project < ActiveRecord::Base
   def hook_attrs
     {
       name: name,
-      ssh_url: ssh_url_to_repo,
-      http_url: http_url_to_repo,
+      description: description,
       web_url: web_url,
+      avatar_url: avatar_url,
+      git_ssh_url: ssh_url_to_repo,
+      git_http_url: http_url_to_repo,
       namespace: namespace.name,
-      visibility_level: visibility_level
+      visibility_level: visibility_level,
+      path_with_namespace: path_with_namespace,
+      default_branch: default_branch,
+      # Backward compatibility
+      homepage: web_url,
+      url: url_to_repo,
+      ssh_url: ssh_url_to_repo,
+      http_url: http_url_to_repo
     }
   end
 
@@ -785,6 +803,8 @@ class Project < ActiveRecord::Base
   def change_head(branch)
     # Cached divergent commit counts are based on repository head
     repository.expire_branch_cache
+    repository.expire_root_ref_cache
+
     gitlab_shell.update_repository_head(self.path_with_namespace, branch)
     reload_default_branch
   end
@@ -904,5 +924,9 @@ class Project < ActiveRecord::Base
 
   def runners_token
     ensure_runners_token!
+  end
+
+  def wiki
+    @wiki ||= ProjectWiki.new(self, self.owner)
   end
 end

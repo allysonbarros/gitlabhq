@@ -73,31 +73,26 @@
       font-weight: normal;
     }
 
+    .visibility-icon {
+      display: inline-block;
+      margin-left: 5px;
+      font-size: 18px;
+      color: $gray;
+    }
+
     p {
       padding: 0 $gl-padding;
       color: #5c5d5e;
     }
   }
 
-  .visibility-level-label {
-    @extend .btn;
-    @extend .btn-gray;
-
-    color: $gray;
-    cursor: default;
-
-    i {
-      color: inherit;
-    }
-  }
-
   .project-repo-buttons {
-    margin-top: 12px;
+    margin-top: 20px;
     margin-bottom: 0px;
 
     .count-buttons {
       display: block;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
     }
 
     .clone-row {
@@ -163,7 +158,7 @@
         line-height: 13px;
         padding: $gl-vert-padding $gl-padding;
         letter-spacing: .4px;
-        padding: 10px;
+        padding: 10px 14px;
         text-align: center;
         vertical-align: middle;
         touch-action: manipulation;
@@ -281,36 +276,6 @@
   margin-top: -1px;
 }
 
-.top-area {
-  border-bottom: 1px solid #EEE;
-
-  ul.nav-links {
-    display: inline-block;
-    width: 50%;
-    margin-bottom: 0px;
-    border-bottom: none;
-  }
-
-  .projects-search-form {
-    width: 50%;
-    display: inline-block;
-    float: right;
-    padding-top: 11px;
-    text-align: right;
-
-    .btn-green {
-      margin-left: 10px;
-      float: right;
-    }
-  }
-
-  @media (max-width: $screen-xs-max) {
-    .projects-search-form {
-      padding-top: 15px;
-    }
-  }
-}
-
 .fork-namespaces {
   .fork-thumbnail {
     text-align: center;
@@ -386,22 +351,6 @@ pre.light-well {
   border-color: #f1f1f1;
 }
 
-.projects-search-form {
-  padding: $gl-padding 0;
-  padding-bottom: 0;
-  margin-bottom: 0px;
-
-  input {
-    display: inline-block;
-    width: calc(100% - 151px);
-  }
-
-  .btn {
-    display: inline-block;
-    width: 135px;
-  }
-}
-
 .git-empty {
   margin: 0 7px 0 7px;
 
@@ -437,12 +386,11 @@ pre.light-well {
   @include basic-list;
 
   .project-row {
-    padding: $gl-padding 0;
     border-color: $table-border-color;
 
     &.no-description {
       .project {
-        line-height: 44px;
+        line-height: 40px;
       }
     }
 
@@ -455,11 +403,15 @@ pre.light-well {
     .project-controls {
       float: right;
       color: $gl-gray;
-      line-height: 45px;
+      line-height: 40px;
       color: #7f8fa4;
 
       a:hover {
         text-decoration: none;
+      }
+
+      > span {
+        margin-left: 10px;
       }
     }
 
@@ -556,5 +508,21 @@ pre.light-well {
     margin-left: -1px;
     cursor: auto;
     width: 101%;
+  }
+}
+
+.cannot-be-merged,
+.cannot-be-merged:hover {
+  color: #E62958;
+  margin-top: 2px;
+}
+
+.private-forks-notice .private-fork-icon {
+  i:nth-child(1) {
+    color: #2AA056;
+  }
+
+  i:nth-child(2) {
+    color: #FFFFFF;
   }
 }

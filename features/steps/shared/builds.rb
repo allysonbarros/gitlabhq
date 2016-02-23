@@ -6,11 +6,23 @@ module SharedBuilds
   end
 
   step 'project has a recent build' do
-    ci_commit = create :ci_commit, project: @project, sha: sample_commit.id
-    @build = create :ci_build, commit: ci_commit
+    @ci_commit = create(:ci_commit, project: @project, sha: @project.commit.sha)
+    @build = create(:ci_build, commit: @ci_commit)
   end
 
-  step 'I visit recent build summary page' do
+  step 'recent build is successful' do
+    @build.update_column(:status, 'success')
+  end
+
+  step 'recent build failed' do
+    @build.update_column(:status, 'failed')
+  end
+
+  step 'project has another build that is running' do
+    create(:ci_build, commit: @ci_commit, name: 'second build', status: 'running')
+  end
+
+  step 'I visit recent build details page' do
     visit namespace_project_build_path(@project.namespace, @project, @build)
   end
 
@@ -28,6 +40,10 @@ module SharedBuilds
     metadata = Rails.root + 'spec/fixtures/ci_build_artifacts_metadata.gz'
     gzip = fixture_file_upload(metadata, 'application/x-gzip')
     @build.update_attributes(artifacts_metadata: gzip)
+  end
+
+  step 'recent build has a build trace' do
+    @build.trace = 'build trace'
   end
 
   step 'download of build artifacts archive starts' do

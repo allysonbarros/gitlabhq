@@ -24,6 +24,17 @@
         %li
           = link_to_member(merge_request.source_project, merge_request.assignee, name: false, title: "Assigned to :name")
 
+      - upvotes, downvotes = merge_request.upvotes, merge_request.downvotes
+      - if upvotes > 0
+        %li
+          = icon('thumbs-up')
+          = upvotes
+
+      - if downvotes > 0
+        %li
+          = icon('thumbs-down')
+          = downvotes
+
       - note_count = merge_request.mr_and_commit_notes.user.count
       - if note_count > 0
         %li
@@ -96,7 +107,7 @@
     - if merge_request.labels.any?
       &nbsp;
       - merge_request.labels.each do |label|
-        = link_to_label(label, project: merge_request.project)
+        = link_to_label(label, project: merge_request.project, type: 'merge_request')
     - if merge_request.tasks?
       &nbsp;
       %span.task-status

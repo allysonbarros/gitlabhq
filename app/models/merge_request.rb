@@ -24,6 +24,7 @@
 #  merge_params              :text
 #  merge_when_build_succeeds :boolean          default(FALSE), not null
 #  merge_user_id             :integer
+#  merge_commit_sha          :string
 #
 
 require Rails.root.join("app/models/commit")
@@ -137,6 +138,7 @@ class MergeRequest < ActiveRecord::Base
   scope :by_milestone, ->(milestone) { where(milestone_id: milestone) }
   scope :in_projects, ->(project_ids) { where("source_project_id in (:project_ids) OR target_project_id in (:project_ids)", project_ids: project_ids) }
   scope :of_projects, ->(ids) { where(target_project_id: ids) }
+  scope :opened, -> { with_states(:opened, :reopened) }
   scope :merged, -> { with_state(:merged) }
   scope :closed, -> { with_state(:closed) }
   scope :closed_and_merged, -> { with_states(:closed, :merged) }
@@ -240,7 +242,7 @@ class MergeRequest < ActiveRecord::Base
     return unless unchecked?
 
     can_be_merged =
-      project.repository.can_be_merged?(source_sha, target_branch)
+      !broken? && project.repository.can_be_merged?(source_sha, target_branch)
 
     if can_be_merged
       mark_as_mergeable
@@ -258,7 +260,7 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def work_in_progress?
-    !!(title =~ /\A\[?WIP\]?:? /i)
+    !!(title =~ /\A\[?WIP(\]|:| )/i)
   end
 
   def mergeable?
@@ -284,7 +286,8 @@ class MergeRequest < ActiveRecord::Base
   def can_remove_source_branch?(current_user)
     !source_project.protected_branch?(source_branch) &&
       !source_project.root_ref?(source_branch) &&
-      Ability.abilities.allowed?(current_user, :push_code, source_project)
+      Ability.abilities.allowed?(current_user, :push_code, source_project) &&
+      last_commit == source_project.commit(source_branch)
   end
 
   def mr_and_commit_notes
@@ -346,10 +349,10 @@ class MergeRequest < ActiveRecord::Base
   # Return the set of issues that will be closed if this merge request is accepted.
   def closes_issues(current_user = self.author)
     if target_branch == project.default_branch
-      issues = commits.flat_map { |c| c.closes_issues(current_user) }
-      issues.push(*Gitlab::ClosingIssueExtractor.new(project, current_user).
-                  closed_by_message(description))
-      issues.uniq(&:id)
+      messages = commits.map(&:safe_message) << description
+
+      Gitlab::ClosingIssueExtractor.new(project, current_user).
+        closed_by_message(messages.join("\n"))
     else
       []
     end
@@ -531,6 +534,14 @@ class MergeRequest < ActiveRecord::Base
     [diff_base_commit, last_commit]
   end
 
+  def merge_commit
+    @merge_commit ||= project.commit(merge_commit_sha) if merge_commit_sha
+  end
+
+  def can_be_reverted?(current_user = nil)
+    merge_commit && !merge_commit.has_been_reverted?(current_user, self)
+  end
+
   def ultimo_commit
     project = self.project
 
@@ -565,7 +576,7 @@ class MergeRequest < ActiveRecord::Base
         ""
       end
     else
-      if (self.upvotes > self.downvotes) 
+      if (self.upvotes > self.downvotes)
         " today"
       elsif (self.upvotes < self.downvotes)
         " bgred"
