@@ -194,7 +194,8 @@ class Ability
         :update_build,
         :create_merge_request,
         :create_wiki,
-        :push_code
+        :push_code,
+        :admin_milestone
       ]
     end
 
