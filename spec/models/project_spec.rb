@@ -68,6 +68,7 @@ describe Project, models: true do
     it { is_expected.to have_many(:runners) }
     it { is_expected.to have_many(:variables) }
     it { is_expected.to have_many(:triggers) }
+    it { is_expected.to have_many(:todos).dependent(:destroy) }
   end
 
   describe 'modules' do
@@ -582,5 +583,68 @@ describe Project, models: true do
       it { expect(forked_project.visibility_level_allowed?(Gitlab::VisibilityLevel::PUBLIC)).to be_falsey }
     end
 
+  end
+
+  describe '#rename_repo' do
+    let(:project) { create(:project) }
+    let(:gitlab_shell) { Gitlab::Shell.new }
+
+    before do
+      # Project#gitlab_shell returns a new instance of Gitlab::Shell on every
+      # call. This makes testing a bit easier.
+      allow(project).to receive(:gitlab_shell).and_return(gitlab_shell)
+    end
+
+    it 'renames a repository' do
+      allow(project).to receive(:previous_changes).and_return('path' => ['foo'])
+
+      ns = project.namespace_dir
+
+      expect(gitlab_shell).to receive(:mv_repository).
+        ordered.
+        with("#{ns}/foo", "#{ns}/#{project.path}").
+        and_return(true)
+
+      expect(gitlab_shell).to receive(:mv_repository).
+        ordered.
+        with("#{ns}/foo.wiki", "#{ns}/#{project.path}.wiki").
+        and_return(true)
+
+      expect_any_instance_of(SystemHooksService).
+        to receive(:execute_hooks_for).
+        with(project, :rename)
+
+      expect_any_instance_of(Gitlab::UploadsTransfer).
+        to receive(:rename_project).
+        with('foo', project.path, ns)
+
+      expect(project).to receive(:expire_caches_before_rename)
+
+      project.rename_repo
+    end
+  end
+
+  describe '#expire_caches_before_rename' do
+    let(:project) { create(:project) }
+    let(:repo)    { double(:repo, exists?: true) }
+    let(:wiki)    { double(:wiki, exists?: true) }
+
+    it 'expires the caches of the repository and wiki' do
+      allow(Repository).to receive(:new).
+        with('foo', project).
+        and_return(repo)
+
+      allow(Repository).to receive(:new).
+        with('foo.wiki', project).
+        and_return(wiki)
+
+      expect(repo).to receive(:expire_cache)
+      expect(repo).to receive(:expire_emptiness_caches)
+
+      expect(wiki).to receive(:expire_cache)
+      expect(wiki).to receive(:expire_emptiness_caches)
+
+      project.expire_caches_before_rename('foo')
+    end
   end
 end

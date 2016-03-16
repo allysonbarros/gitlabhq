@@ -18,13 +18,75 @@ v 8.3.3 (unreleased)
   - Fix project transfer e-mail sending incorrect paths in e-mail notification (Stan Hu)
   - Enable "Add key" button when user fills in a proper key
 v 8.4.2 (unreleased)
+v 8.6.0 (unreleased)
+  - Contributions to forked projects are included in calendar
+  - Improve the formatting for the user page bio (Connor Shea)
+  - Fix issue when pushing to projects ending in .wiki
+  - Fix avatar stretching by providing a cropping feature (Johann Pardanaud)
+  - Don't load all of GitLab in mail_room
+  - Strip leading and trailing spaces in URL validator (evuez)
+  - Return empty array instead of 404 when commit has no statuses in commit status API
+  - Update documentation to reflect Guest role not being enforced on internal projects
+  - Allow search for logged out users
+  - Don't show Issues/MRs from archived projects in Groups view
+  - Increase the notes polling timeout over time (Roberto Dip)
+  - Add shortcut to toggle markdown preview (Florent Baldino)
+  - Show labels in dashboard and group milestone views
+  - Add main language of a project in the list of projects (Tiago Botelho)
+  - Add ability to show archived projects on dashboard, explore and group pages
+
+v 8.5.7
+  - Bump Git version requirement to 2.7.3
+
+v 8.5.6
+  - Obtain a lease before querying LDAP
+
+v 8.5.5
+  - Ensure removing a project removes associated Todo entries
+  - Prevent a 500 error in Todos when author was removed
+  - Fix pagination for filtered dashboard and explore pages
+  - Fix "Show all" link behavior
+
+v 8.5.4
+  - Do not cache requests for badges (including builds badge)
+
+v 8.5.3
+  - Flush repository caches before renaming projects
+
+v 8.5.2
+  - Fix sidebar overlapping content when screen width was below 1200px
+  - Don't repeat labels listed on Labels tab
+  - Bring the "branded appearance" feature from EE to CE
+  - Fix error 500 when commenting on a commit
+  - Show days remaining instead of elapsed time for Milestone
+  - Fix broken icons on installations with relative URL (Artem Sidorenko)
+  - Fix issue where tag list wasn't refreshed after deleting a tag
+  - Fix import from gitlab.com (KazSawada)
+  - Improve implementation to check read access to forks and add pagination
+  - Don't show any "2FA required" message if it's not actually required
+  - Fix help keyboard shortcut on relative URL setups (Artem Sidorenko)
+  - Update Rails to 4.2.5.2
+  - Fix permissions for deprecated CI build status badge
+  - Don't show "Welcome to GitLab" when the search didn't return any projects
+  - Add Todos documentation
+
 v 8.5.1
+  - Fix group projects styles
+  - Show Crowd login tab when sign in is disabled and Crowd is enabled (Peter Hudec)
+  - Fix a set of small UI glitches in project, profile, and wiki pages
+  - Restrict permissions on public/uploads
+  - Fix the merge request side-by-side view after loading diff results
+  - Fix the look of tooltip for the "Revert" button
   - Add when the Builds & Runners API changes got introduced
-  - Fix Side-by-side view after loading diff results
   - Fix error 500 on some merged merge requests
+  - Fix an issue causing the content of the issuable sidebar to disappear
+  - Fix error 500 when trying to mark an already done todo as "done"
+  - Fix an issue where MRs weren't sortable
   - Issues can now be dragged & dropped into empty milestone lists. This is also
     possible with MRs
-  - Fix an issue where MRs weren't sortable
+  - Changed padding & background color for highlighted notes
+  - Re-add the newrelic_rpm gem which was removed without any deprecation or warning (Stan Hu)
+  - Update sentry-raven gem to 0.15.6
 
 v 8.5.0
   - Fix duplicate "me" in tooltip of the "thumbsup" awards Emoji (Stan Hu)

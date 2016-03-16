@@ -76,7 +76,7 @@ Make sure you have the right version of Git installed
     # Install Git
     sudo apt-get install -y git-core
 
-    # Make sure Git is version 1.7.10 or higher, for example 1.7.12 or 2.0.0
+    # Make sure Git is version 2.7.3 or higher
     git --version
 
 Is the system packaged Git too old? Remove it and compile from source.
@@ -265,8 +265,9 @@ sudo usermod -aG redis git
     # Create the public/uploads/ directory
     sudo -u git -H mkdir public/uploads/
 
-    # Make sure GitLab can write to the public/uploads/ directory
-    sudo chmod -R u+rwX  public/uploads
+    # Make sure only the GitLab user has access to the public/uploads/ directory
+    # now that files in public/uploads are served by gitlab-workhorse
+    sudo chmod 0700 public/uploads
 
     # Change the permissions of the directory where CI build traces are stored
     sudo chmod -R u+rwX builds/

@@ -6,13 +6,13 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
     @projects = @projects.sort(@sort = params[:sort])
     @projects = @projects.includes(:namespace)
 
-    terms = params['filter_projects']
+    terms = params[:filter_projects]
 
     if terms.present?
       @projects = @projects.search(terms)
     end
 
-    @projects = @projects.page(params[:page]).per(PER_PAGE) if terms.blank?
+    @projects = @projects.page(params[:page]).per(PER_PAGE)
     @last_push = current_user.recent_push
 
     respond_to do |format|
@@ -35,13 +35,13 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
     @projects = @projects.includes(:namespace, :forked_from_project, :tags)
     @projects = @projects.sort(@sort = params[:sort])
 
-    terms = params['filter_projects']
+    terms = params[:filter_projects]
 
     if terms.present?
       @projects = @projects.search(terms)
     end
 
-    @projects = @projects.page(params[:page]).per(PER_PAGE) if terms.blank?
+    @projects = @projects.page(params[:page]).per(PER_PAGE)
     @last_push = current_user.recent_push
     @groups = []
 

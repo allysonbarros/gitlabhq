@@ -354,11 +354,12 @@ class User < ActiveRecord::Base
 
   def disable_two_factor!
     update_attributes(
-      two_factor_enabled:        false,
-      encrypted_otp_secret:      nil,
-      encrypted_otp_secret_iv:   nil,
-      encrypted_otp_secret_salt: nil,
-      otp_backup_codes:          nil
+      two_factor_enabled:          false,
+      encrypted_otp_secret:        nil,
+      encrypted_otp_secret_iv:     nil,
+      encrypted_otp_secret_salt:   nil,
+      otp_grace_period_started_at: nil,
+      otp_backup_codes:            nil
     )
   end
 
@@ -600,6 +601,13 @@ class User < ActiveRecord::Base
     else
       false
     end
+  end
+
+  def try_obtain_ldap_lease
+    # After obtaining this lease LDAP checks will be blocked for 600 seconds
+    # (10 minutes) for this user.
+    lease = Gitlab::ExclusiveLease.new("user_ldap_check:#{id}", timeout: 600)
+    lease.try_obtain
   end
 
   def solo_owned_groups

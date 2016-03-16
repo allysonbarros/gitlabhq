@@ -151,6 +151,7 @@ class Project < ActiveRecord::Base
   has_many :releases, dependent: :destroy
   has_many :lfs_objects_projects, dependent: :destroy
   has_many :lfs_objects, through: :lfs_objects_projects
+  has_many :todos, dependent: :destroy
 
   has_one :import_data, dependent: :destroy, class_name: "ProjectImportData"
 
@@ -711,6 +712,8 @@ class Project < ActiveRecord::Base
     old_path_with_namespace = File.join(namespace_dir, path_was)
     new_path_with_namespace = File.join(namespace_dir, path)
 
+    expire_caches_before_rename(old_path_with_namespace)
+
     if gitlab_shell.mv_repository(old_path_with_namespace, new_path_with_namespace)
       # If repository moved successfully we need to send update instructions to users.
       # However we cannot allow rollback since we moved repository
@@ -737,6 +740,22 @@ class Project < ActiveRecord::Base
     end
 
     Gitlab::UploadsTransfer.new.rename_project(path_was, path, namespace.path)
+  end
+
+  # Expires various caches before a project is renamed.
+  def expire_caches_before_rename(old_path)
+    repo = Repository.new(old_path, self)
+    wiki = Repository.new("#{old_path}.wiki", self)
+
+    if repo.exists?
+      repo.expire_cache
+      repo.expire_emptiness_caches
+    end
+
+    if wiki.exists?
+      wiki.expire_cache
+      wiki.expire_emptiness_caches
+    end
   end
 
   def hook_attrs
