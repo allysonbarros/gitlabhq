@@ -1,32 +1,37 @@
-class @ProjectsList
-  constructor: ->
-    $(".projects-list .js-expand").on 'click', (e) ->
-      e.preventDefault()
-      $projectsList = $(this).closest('.projects-list')
-      ProjectsList.showPagination($projectsList)
-      $projectsList.find('li.bottom').hide()
+@ProjectsList =
+  init: ->
+    $(".projects-list-filter").off('keyup')
+    this.initSearch()
+    this.initPagination()
 
-    $("#filter_projects").on 'keyup', ->
-      ProjectsList.filter_results($("#filter_projects"))
+  initSearch: ->
+    @timer = null
+    $(".projects-list-filter").on('keyup', ->
+      clearTimeout(@timer)
+      @timer = setTimeout(ProjectsList.filterResults, 500)
+    )
 
-  @showPagination: ($projectsList) ->
-    $projectsList.find('li').show()
-    $('.gl-pagination').show()
+  filterResults: =>
+    $('.projects-list-holder').fadeTo(250, 0.5)
 
-  @filter_results: ($element) ->
-    terms = $element.val()
-    filterSelector = $element.data('filter-selector') || 'span.filter-title'
-    $projectsList = $('.projects-list')
+    form = null
+    form = $("form#project-filter-form")
+    search = $(".projects-list-filter").val()
+    project_filter_url = form.attr('action') + '?' + form.serialize()
 
-    if not terms
-      ProjectsList.showPagination($projectsList)
-    else
-      $projectsList.find('li').each (index) ->
-        $this = $(this)
-        name = $this.find(filterSelector).text()
+    $.ajax
+      type: "GET"
+      url: form.attr('action')
+      data: form.serialize()
+      complete: ->
+        $('.projects-list-holder').fadeTo(250, 1)
+      success: (data) ->
+        $('.projects-list-holder').replaceWith(data.html)
+        # Change url so if user reload a page - search results are saved
+        history.replaceState {page: project_filter_url}, document.title, project_filter_url
+      dataType: "json"
 
-        if name.toLowerCase().indexOf(terms.toLowerCase()) == -1
-          $this.hide()
-        else
-          $this.show()
-      $('.gl-pagination').hide()
+  initPagination: ->
+    $('.projects-list-holder .pagination').on('ajax:success', (e, data) ->
+      $('.projects-list-holder').replaceWith(data.html)
+    )

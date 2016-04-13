@@ -1,3 +1,10 @@
+#logo {
+  z-index: 2;
+  position: absolute;
+  width: 58px;
+  cursor: pointer;
+}
+
 .page-with-sidebar {
   padding-top: $header-height;
   transition-duration: .3s;
@@ -16,23 +23,12 @@
   .gitlab-text-container-link {
     z-index: 1;
     position: absolute;
-    left: 0px;
-  }
-
-  #logo {
-    z-index: 2;
-    position: absolute;
-    width: 58px;
-    cursor: pointer;
-  }
-
-  &.right-sidebar-expanded {
-    padding-right: $gutter_width;
+    left: 0;
   }
 }
 
 .sidebar-wrapper {
-  z-index: 99;
+  z-index: 1000;
   background: $background-color;
 }
 
@@ -40,7 +36,7 @@
   width: 100%;
 
   .container-fluid {
-    background: #FFF;
+    background: #fff;
     padding: 0 $gl-padding;
 
     &.container-blank {
@@ -96,7 +92,7 @@
     }
 
     &:hover {
-      background-color: #EEE;
+      background-color: #eee;
     }
   }
 
@@ -136,7 +132,7 @@
   overflow: hidden;
 
   &.navbar-collapse {
-    padding: 0px !important;
+    padding: 0 !important;
   }
 
   li {
@@ -175,7 +171,7 @@
       .count {
         float: right;
         background: #eee;
-        padding: 0px 8px;
+        padding: 0 8px;
         @include border-radius(6px);
       }
 
@@ -187,46 +183,34 @@
 }
 
 .sidebar-subnav {
-  margin-left: 0px;
-  padding-left: 0px;
+  margin-left: 0;
+  padding-left: 0;
 
   li {
     list-style: none;
   }
 }
 
-@mixin expanded-sidebar {
-  padding-left: $sidebar_width;
+.collapse-nav a {
+  width: $sidebar_width;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  font-size: 13px;
+  background: transparent;
+  height: 40px;
+  text-align: center;
+  line-height: 40px;
+  transition-duration: .3s;
+  outline: none;
 
-  &.right-sidebar-collapsed {
-    padding-right: $sidebar_collapsed_width;
-  }
-
-  .sidebar-wrapper {
-    width: $sidebar_width;
-
-    .nav-sidebar {
-      width: $sidebar_width;
-    }
-
-    .nav-sidebar li a{
-      width: 230px;
-
-      &.back-link {
-        i {
-          opacity: 0;
-        }
-      }
-    }
+  &:hover {
+    text-decoration: none;
   }
 }
 
-@mixin collapsed-sidebar {
+.page-sidebar-collapsed {
   padding-left: $sidebar_collapsed_width;
-
-  &.right-sidebar-collapsed {
-    padding-right: $sidebar_collapsed_width;
-  }
 
   .sidebar-wrapper {
     width: $sidebar_collapsed_width;
@@ -272,29 +256,48 @@
   }
 }
 
-.collapse-nav a {
-  width: $sidebar_width;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  font-size: 13px;
-  background: transparent;
-  height: 40px;
-  text-align: center;
-  line-height: 40px;
-  transition-duration: .3s;
-  outline: none;
-}
-
-.collapse-nav a:hover {
-  text-decoration: none;
-  background: #f2f6f7;
-}
-
-.page-sidebar-collapsed {
-  @include collapsed-sidebar;
-}
-
 .page-sidebar-expanded {
-  @include expanded-sidebar;
+  padding-left: $sidebar_collapsed_width;
+
+  @media (min-width: $screen-md-min) {
+    padding-left: $sidebar_width;
+  }
+
+  .sidebar-wrapper {
+    width: $sidebar_width;
+
+    .nav-sidebar {
+      width: $sidebar_width;
+    }
+
+    .nav-sidebar li a {
+      width: 230px;
+
+      &.back-link {
+        i {
+          opacity: 0;
+        }
+      }
+    }
+  }
+}
+
+.right-sidebar-collapsed {
+  padding-right: 0;
+
+  @media (min-width: $screen-sm-min) {
+    padding-right: $sidebar_collapsed_width;
+  }
+}
+
+.right-sidebar-expanded {
+  padding-right: 0;
+
+  @media (min-width: $screen-sm-min) and (max-width: $screen-sm-max) {
+    padding-right: $sidebar_collapsed_width;
+  }
+
+  @media (min-width: $screen-md-min) {
+    padding-right: $gutter_width;
+  }
 }

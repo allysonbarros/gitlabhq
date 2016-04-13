@@ -55,10 +55,10 @@ class Admin::GroupsController < Admin::ApplicationController
   private
 
   def group
-    @group = Group.find_by(path: params[:id])
+    @group ||= Group.find_by(path: params[:id])
   end
 
   def group_params
-    params.require(:group).permit(:name, :description, :path, :avatar)
+    params.require(:group).permit(:name, :description, :path, :avatar, :visibility_level)
   end
 end

@@ -31,7 +31,7 @@ module Gitlab
 
     def redis
       # Maybe someday we want to use a connection pool...
-      @redis ||= Redis.new(url: Gitlab::REDIS_URL)
+      @redis ||= Redis.new(url: Gitlab::RedisConfig.url)
     end
 
     def redis_key
