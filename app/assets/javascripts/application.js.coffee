@@ -43,6 +43,7 @@
 #= require jquery.nicescroll
 #= require_tree .
 #= require fuzzaldrin-plus
+#= require cropper
 
 window.slugify = (text) ->
   text.replace(/[^-a-zA-Z0-9]+/g, '_').toLowerCase()
@@ -139,7 +140,7 @@ $ ->
 
   # Initialize tooltips
   $('body').tooltip(
-    selector: '.has_tooltip, [data-toggle="tooltip"]'
+    selector: '.has-tooltip, [data-toggle="tooltip"]'
     placement: (_, el) ->
       $el = $(el)
       $el.data('placement') || 'bottom'

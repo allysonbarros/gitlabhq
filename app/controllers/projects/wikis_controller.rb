@@ -7,7 +7,7 @@ class Projects::WikisController < Projects::ApplicationController
   before_action :load_project_wiki
 
   def pages
-    @wiki_pages = Kaminari.paginate_array(@project_wiki.pages).page(params[:page]).per(PER_PAGE)
+    @wiki_pages = Kaminari.paginate_array(@project_wiki.pages).page(params[:page])
   end
 
   def show
@@ -86,6 +86,20 @@ class Projects::WikisController < Projects::ApplicationController
       namespace_project_wiki_path(@project.namespace, @project, :home),
       notice: "Page was successfully deleted"
     )
+  end
+
+  def markdown_preview
+    text = params[:text]
+
+    ext = Gitlab::ReferenceExtractor.new(@project, current_user, current_user)
+    ext.analyze(text)
+
+    render json: {
+      body: view_context.markdown(text, pipeline: :wiki, project_wiki: @project_wiki),
+      references: {
+        users: ext.users.map(&:username)
+      }
+    }
   end
 
   def git_access

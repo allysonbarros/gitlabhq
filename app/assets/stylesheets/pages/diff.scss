@@ -1,7 +1,7 @@
 // Common
 .diff-file {
   border: 1px solid $border-color;
-  border-top: none;
+  margin-bottom: $gl-padding;
 
   .diff-header {
     position: relative;
@@ -59,9 +59,14 @@
       border-collapse: separate;
       margin: 0;
       padding: 0;
+
       .line_holder td {
         line-height: $code_line_height;
         font-size: $code_font_size;
+
+        span {
+          white-space: pre;
+        }
       }
     }
 
@@ -103,6 +108,10 @@
       &.parallel {
         display: table-cell;
       }
+    }
+
+    .text-file.diff-wrap-lines table .line_holder td span {
+      white-space: pre-wrap;
     }
   }
   .image {
@@ -359,5 +368,13 @@
 
   &.diff-line-num {
     border-color: $border;
+  }
+}
+
+.files {
+  margin-top: -1px;
+
+  .diff-file:last-child {
+    margin-bottom: 0;
   }
 }
