@@ -36,4 +36,11 @@
       }
     }
   }
+
+  .wiki {
+    code {
+      white-space: pre-wrap;
+      word-break: keep-all;
+    }
+  }
 }

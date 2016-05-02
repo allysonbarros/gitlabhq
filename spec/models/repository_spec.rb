@@ -132,25 +132,56 @@ describe Repository, models: true do
         it { expect(subject.basename).to eq('a/b/c') }
       end
     end
-
   end
 
-  describe "#license" do
+  describe '#license_blob' do
     before do
-      repository.send(:cache).expire(:license)
+      repository.send(:cache).expire(:license_blob)
+      repository.remove_file(user, 'LICENSE', 'Remove LICENSE', 'master')
     end
 
-    it 'test selection preference' do
-      files = [TestBlob.new('file'), TestBlob.new('license'), TestBlob.new('copying')]
-      expect(repository.tree).to receive(:blobs).and_return(files)
+    it 'looks in the root_ref only' do
+      repository.remove_file(user, 'LICENSE', 'Remove LICENSE', 'markdown')
+      repository.commit_file(user, 'LICENSE', Licensee::License.new('mit').content, 'Add LICENSE', 'markdown', false)
 
-      expect(repository.license.name).to eq('license')
+      expect(repository.license_blob).to be_nil
     end
 
-    it 'also accepts licence instead of license' do
-      expect(repository.tree).to receive(:blobs).and_return([TestBlob.new('licence')])
+    it 'detects license file with no recognizable open-source license content' do
+      repository.commit_file(user, 'LICENSE', 'Copyright!', 'Add LICENSE', 'master', false)
 
-      expect(repository.license.name).to eq('licence')
+      expect(repository.license_blob.name).to eq('LICENSE')
+    end
+
+    %w[LICENSE LICENCE LiCensE LICENSE.md LICENSE.foo COPYING COPYING.md].each do |filename|
+      it "detects '#{filename}'" do
+        repository.commit_file(user, filename, Licensee::License.new('mit').content, "Add #{filename}", 'master', false)
+
+        expect(repository.license_blob.name).to eq(filename)
+      end
+    end
+  end
+
+  describe '#license_key' do
+    before do
+      repository.send(:cache).expire(:license_key)
+      repository.remove_file(user, 'LICENSE', 'Remove LICENSE', 'master')
+    end
+
+    it 'returns nil when no license is detected' do
+      expect(repository.license_key).to be_nil
+    end
+
+    it 'detects license file with no recognizable open-source license content' do
+      repository.commit_file(user, 'LICENSE', 'Copyright!', 'Add LICENSE', 'master', false)
+
+      expect(repository.license_key).to be_nil
+    end
+
+    it 'returns the license key' do
+      repository.commit_file(user, 'LICENSE', Licensee::License.new('mit').content, 'Add LICENSE', 'master', false)
+
+      expect(repository.license_key).to eq('mit')
     end
   end
 
@@ -537,6 +568,41 @@ describe Repository, models: true do
 
         repository.revert(user, merge_commit, 'master')
         expect(repository.blob_at_branch('master', 'files/ruby/feature.rb')).not_to be_present
+      end
+    end
+  end
+
+  describe '#cherry_pick' do
+    let(:conflict_commit) { repository.commit('c642fe9b8b9f28f9225d7ea953fe14e74748d53b') }
+    let(:pickable_commit) { repository.commit('7d3b0f7cff5f37573aea97cebfd5692ea1689924') }
+    let(:pickable_merge) { repository.commit('e56497bb5f03a90a51293fc6d516788730953899') }
+
+    context 'when there is a conflict' do
+      it 'should abort the operation' do
+        expect(repository.cherry_pick(user, conflict_commit, 'master')).to eq(false)
+      end
+    end
+
+    context 'when commit was already cherry-picked' do
+      it 'should abort the operation' do
+        repository.cherry_pick(user, pickable_commit, 'master')
+
+        expect(repository.cherry_pick(user, pickable_commit, 'master')).to eq(false)
+      end
+    end
+
+    context 'when commit can be cherry-picked' do
+      it 'should cherry-pick the changes' do
+        expect(repository.cherry_pick(user, pickable_commit, 'master')).to be_truthy
+      end
+    end
+
+    context 'cherry-picking a merge commit' do
+      it 'should cherry-pick the changes' do
+        expect(repository.blob_at_branch('master', 'foo/bar/.gitkeep')).to be_nil
+
+        repository.cherry_pick(user, pickable_merge, 'master')
+        expect(repository.blob_at_branch('master', 'foo/bar/.gitkeep')).not_to be_nil
       end
     end
   end

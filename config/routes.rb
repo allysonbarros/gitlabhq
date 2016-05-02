@@ -418,6 +418,7 @@ Rails.application.routes.draw do
 
   devise_scope :user do
     get '/users/auth/:provider/omniauth_error' => 'omniauth_callbacks#omniauth_error', as: :omniauth_error
+    get '/users/almost_there' => 'confirmations#almost_there'
   end
 
   root to: "root#index"
@@ -549,6 +550,7 @@ Rails.application.routes.draw do
             post :cancel_builds
             post :retry_builds
             post :revert
+            post :cherry_pick
           end
         end
 
@@ -668,6 +670,7 @@ Rails.application.routes.draw do
             post :cancel
             post :retry
             post :erase
+            get :raw
           end
 
           resource :artifacts, only: [] do
@@ -705,6 +708,7 @@ Rails.application.routes.draw do
             post :toggle_subscription
             get :referenced_merge_requests
             get :related_branches
+            get :can_create_branch
           end
           collection do
             post  :bulk_update

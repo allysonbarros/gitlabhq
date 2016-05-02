@@ -3,7 +3,7 @@
 - page_card_attributes @merge_request.card_attributes
 - header_title project_title(@project, "Merge Requests", namespace_project_merge_requests_path(@project.namespace, @project))
 
-- if params[:view] == 'parallel'
+- if diff_view == 'parallel'
   - fluid_layout true
 
 .merge-request{'data-url' => merge_request_path(@merge_request)}
@@ -105,8 +105,10 @@
         = spinner
 
 = render 'shared/issuable/sidebar', issuable: @merge_request
-- if @merge_request.can_be_reverted?
-  = render "projects/commit/revert", commit: @merge_request.merge_commit, title: @merge_request.title
+- if @merge_request.can_be_reverted?(current_user)
+  = render "projects/commit/change", type: 'revert', commit: @merge_request.merge_commit, title: @merge_request.title
+- if @merge_request.can_be_cherry_picked?
+  = render "projects/commit/change", type: 'cherry-pick', commit: @merge_request.merge_commit, title: @merge_request.title
 
 :javascript
   var merge_request;
