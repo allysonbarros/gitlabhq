@@ -605,4 +605,52 @@ class MergeRequest < ActiveRecord::Base
   def can_be_cherry_picked?
     merge_commit
   end
+
+  def ultimo_commit
+    project = self.project
+
+    if not project.nil?
+      commit = project.repository.commit(self.source_branch)
+    else
+      return nil
+    end
+  end
+
+  def resultado_testes
+    project = self.project
+
+    if not project.nil?
+      resultado_testes = project.repository.resultado_testes(self.source_branch)
+    else
+      return nil
+    end
+  end
+
+  def classe_css
+    if not (self.resultado_testes.nil? or self.ultimo_commit.nil?)
+      if self.open? and (self.upvotes > self.downvotes and self.resultado_testes.resultado == 1) || (self.upvotes == 0 and self.downvotes == 0 and self.resultado_testes.resultado == 1) || (self.upvotes == self.downvotes and self.resultado_testes.resultado == 1)
+        " today"
+      elsif self.resultado_testes.resultado == 2 || self.resultado_testes.resultado == 3 || self.upvotes <= self.downvotes
+        " bgred"
+      elsif self.open? and self.closed?
+        " closed"
+      elsif self.open? and self.merged?
+        " merged"
+      else
+        ""
+      end
+    else
+      if self.open? and (self.upvotes > self.downvotes)
+        " today"
+      elsif self.open? and (self.upvotes <= self.downvotes)
+        " bgred"
+      elsif self.closed?
+        " closed"
+      elsif self.merged?
+        " merged"
+      else
+        ""
+      end
+    end
+  end
 end

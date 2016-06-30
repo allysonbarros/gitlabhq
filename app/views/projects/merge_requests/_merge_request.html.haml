@@ -27,13 +27,15 @@
       - upvotes, downvotes = merge_request.upvotes, merge_request.downvotes
       - if upvotes > 0
         %li
-          = icon('thumbs-up')
-          = upvotes
+          %span.label.label-success.has-tooltip{title: award_user_list(merge_request.award_emoji.upvotes, current_user), data: { container: 'body' }}
+            = icon('thumbs-up')
+            = "+#{upvotes}"
 
       - if downvotes > 0
         %li
-          = icon('thumbs-down')
-          = downvotes
+          %span.label.label-danger.has-tooltip{title: award_user_list(merge_request.award_emoji.downvotes, current_user), data: { container: 'body' }}
+            = icon('thumbs-down')
+            = "-#{downvotes}"
 
       - note_count = merge_request.mr_and_commit_notes.user.count
       %li

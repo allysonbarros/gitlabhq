@@ -67,6 +67,11 @@ form.edit-issue {
     border-color: #cec;
   }
 
+  &.bgred {
+    background: #f2dede;
+    border-color: #c7254e;
+  }
+
   &.closed {
     background: #f9f9f9;
     border-color: #e5e5e5;
