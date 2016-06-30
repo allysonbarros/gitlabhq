@@ -34,7 +34,7 @@
 
       - if downvotes > 0
         %li
-          = link_to '#', class: "has-tooltip", title: emoji_author_list(merge_request.notes.awards.grouped_awards["thumbsup"], current_user), data: { container: 'body' } do
+          = link_to '#', class: "has-tooltip", title: emoji_author_list(merge_request.notes.awards.grouped_awards["thumbsdown"], current_user), data: { container: 'body' } do
             %span.label.label-danger
               = icon('thumbs-down')
               = "-#{downvotes}"
