@@ -43,6 +43,37 @@
           = icon('comments')
           = note_count
 
+      - if merge_request.open?
+        / Declarando as variáveis
+        - resultado_testes = merge_request.resultado_testes if not @project.nil?
+        - commit = merge_request.ultimo_commit if not @project.nil?
+
+        - if not commit.nil? and not resultado_testes.nil?
+          - if resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 1
+            %span.label.label-success
+              %i.fa.fa-thumbs-up
+              Testes
+          - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 2
+            %span.label.label-danger
+              %i.fa.fa-thumbs-down
+              Testes
+          - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 3
+            %span.label.label-danger
+              %i.fa.fa-chain-broken
+              Em Conflito
+          - elsif resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 4
+            %span.label.label-warning
+              %i.fa.fa-refresh.fa-spin
+              Testes em Execução
+          - else
+            %span.label.label-inverse
+              %i.fa.fa-thumbs-down
+              Testes Pendentes
+        - else
+          %span.label.label-inverse
+            %i.fa.fa-hourglass
+            Testes Pendentes
+
   .merge-request-info
     #{merge_request.to_reference} &middot;
     opened #{time_ago_with_tooltip(merge_request.created_at, placement: 'bottom')}
