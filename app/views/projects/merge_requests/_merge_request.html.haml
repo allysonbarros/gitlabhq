@@ -45,8 +45,8 @@
 
       - if merge_request.open?
         / Declarando as variáveis
-        - resultado_testes = merge_request.resultado_testes if not @project.nil?
-        - commit = merge_request.ultimo_commit if not @project.nil?
+        - resultado_testes = merge_request.resultado_testes
+        - commit = merge_request.ultimo_commit
 
         - if not commit.nil? and not resultado_testes.nil?
           - if resultado_testes.ultimo_commit[0..7] == commit.short_id && resultado_testes.resultado == 1
