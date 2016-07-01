@@ -33,6 +33,24 @@
         - if @merge_request.open? && @merge_request.diverged_from_target_branch?
           %span (#{pluralize(@merge_request.diverged_commits_count, 'commit')} behind)
 
+    - if @merge_request.open?
+      / Declarando as varáveis
+      - resultado_testes = @merge_request.resultado_testes if not @project.nil?
+      - commit = @merge_request.ultimo_commit if not @project.nil?
+
+      - if not (commit.nil? or resultado_testes.nil?)
+        - if resultado_testes.erro?
+          .panel.panel-danger
+            .panel-heading
+              %i.fa.fa-exclamation-triangle
+              Erros na Execução dos Testes
+              
+              %div.pull-right
+                %span.label.label-danger Atenção!
+            .panel-body
+              %%pre.pre-scrollable
+                = resultado_testes.erro
+
     = render "projects/merge_requests/show/how_to_merge"
     = render "projects/merge_requests/widget/show.html.haml"
 
