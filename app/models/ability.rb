@@ -252,7 +252,8 @@ class Ability
         :create_container_image,
         :update_container_image,
         :create_environment,
-        :create_deployment
+        :create_deployment,
+        :admin_milestone
       ]
     end
 
