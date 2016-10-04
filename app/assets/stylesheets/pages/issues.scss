@@ -65,6 +65,11 @@ ul.related-merge-requests > li {
     border-color: #e1e8d5;
   }
 
+  &.bgred {
+    background: rgba(255, 0, 0, 0.15);
+    border-color: $red-dark;
+  }
+
   &.closed {
     background: $gray-light;
     border-color: #e5e5e5;

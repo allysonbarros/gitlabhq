@@ -49,6 +49,25 @@
         = succeed '.' do
           = link_to "command line", "#modal_merge_info", class: "how_to_merge_link vlink", title: "How To Merge", "data-toggle" => "modal"
 
+    - if @merge_request.open?
+      / Declarando as varáveis
+      - resultado_testes = @merge_request.resultado_testes if not @project.nil?
+      - commit = @merge_request.ultimo_commit if not @project.nil?
+
+      - if not (commit.nil? or resultado_testes.nil?)
+        - if resultado_testes.erro?
+          %br
+          .panel.panel-danger
+            .panel-heading
+              %i.fa.fa-exclamation-triangle
+              Erros na Execução dos Testes
+
+              %div.pull-right
+                %span.label.label-danger Atenção!
+            .panel-body
+              %%pre.pre-scrollable
+                = resultado_testes.erro
+
     - if @commits_count.nonzero?
       %ul.merge-request-tabs.nav-links.no-top.no-bottom
         %li.notes-tab

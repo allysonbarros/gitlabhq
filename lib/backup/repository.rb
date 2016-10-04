@@ -136,6 +136,11 @@ module Backup
       {err: '/dev/null', out: '/dev/null'}
     end
 
+    # Testes do IFRN
+    def resultado_testes(branch_name)
+      IfrnTestes.where(branch: branch_name).first
+    end
+
     private
 
     def repository_storage_paths_args
