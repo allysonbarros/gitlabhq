@@ -1059,6 +1059,10 @@ class Repository
     end
   end
 
+  def resultado_testes(branch_name)
+    IfrnTestes.where(branch: branch_name).first
+  end
+
   private
 
   def cache
