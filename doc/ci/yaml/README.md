@@ -159,7 +159,8 @@ Variables can be also defined on [job level](#job-variables).
 > Introduced in GitLab Runner v0.7.0.
 
 `cache` is used to specify a list of files and directories which should be
-cached between builds.
+cached between builds. You can only use paths that are within the project
+workspace.
 
 **By default the caching is enabled per-job and per-branch.**
 
@@ -594,6 +595,8 @@ create the `review-apps/branch-name` environment.
 
 This environment should be accessible under `https://branch-name.review.example.com/`.
 
+You can see a simple example at https://gitlab.com/gitlab-examples/review-apps-nginx/.
+
 ### artifacts
 
 >**Notes:**
@@ -604,8 +607,8 @@ This environment should be accessible under `https://branch-name.review.example.
 > - Build artifacts are only collected for successful builds by default.
 
 `artifacts` is used to specify a list of files and directories which should be
-attached to the build after success. To pass artifacts between different builds,
-see [dependencies](#dependencies).
+attached to the build after success. You can only use paths that are within the
+project workspace. To pass artifacts between different builds, see [dependencies](#dependencies).
 
 Below are some examples.
 
@@ -858,25 +861,43 @@ job:
 
 ## Git Strategy
 
-> Introduced in GitLab 8.9 as an experimental feature. May change in future
-  releases or be removed completely.
+> Introduced in GitLab 8.9 as an experimental feature.  May change or be removed
+  completely in future releases. `GIT_STRATEGY=none` requires GitLab Runner
+  v1.7+.
 
-You can set the `GIT_STRATEGY` used for getting recent application code. `clone`
-is slower, but makes sure you have a clean directory before every build. `fetch`
-is faster. `GIT_STRATEGY` can be specified in the global `variables` section or
-in the `variables` section for individual jobs. If it's not specified, then the
-default from project settings will be used.
+You can set the `GIT_STRATEGY` used for getting recent application code, either
+in the global [`variables`](#variables) section or the [`variables`](#job-variables)
+section for individual jobs. If left unspecified, the default from project
+settings will be used.
+
+There are three possible values: `clone`, `fetch`, and `none`.
+
+`clone` is the slowest option. It clones the repository from scratch for every
+job, ensuring that the project workspace is always pristine.
 
 ```
 variables:
   GIT_STRATEGY: clone
 ```
 
-or
+`fetch` is faster as it re-uses the project workspace (falling back to `clone`
+if it doesn't exist). `git clean` is used to undo any changes made by the last
+job, and `git fetch` is used to retrieve commits made since the last job ran.
 
 ```
 variables:
   GIT_STRATEGY: fetch
+```
+
+`none` also re-uses the project workspace, but skips all Git operations
+(including GitLab Runner's pre-clone script, if present). It is mostly useful
+for jobs that operate exclusively on artifacts (e.g., `deploy`). Git repository
+data may be present, but it is certain to be out of date, so you should only
+rely on files brought into the project workspace from cache or artifacts.
+
+```
+variables:
+  GIT_STRATEGY: none
 ```
 
 ## Shallow cloning

@@ -29,7 +29,7 @@ gem 'omniauth-github',        '~> 1.1.1'
 gem 'omniauth-gitlab',        '~> 1.0.0'
 gem 'omniauth-google-oauth2', '~> 0.4.1'
 gem 'omniauth-kerberos',      '~> 0.3.0', group: :kerberos
-gem 'omniauth-saml',          '~> 1.6.0'
+gem 'omniauth-saml',          '~> 1.7.0'
 gem 'omniauth-shibboleth',    '~> 1.2.0'
 gem 'omniauth-twitter',       '~> 1.2.0'
 gem 'omniauth_crowd',         '~> 2.2.0'
@@ -51,7 +51,7 @@ gem 'browser', '~> 2.2'
 
 # Extracting information from a git repository
 # Provide access to Gitlab::Git library
-gem 'gitlab_git', '~> 10.6.7'
+gem 'gitlab_git', '~> 10.6.8'
 
 # LDAP Auth
 # GitLab fork with several improvements to original library. For full list of changes
@@ -101,7 +101,7 @@ gem 'seed-fu', '~> 2.3.5'
 # Markdown and HTML processing
 gem 'html-pipeline',      '~> 1.11.0'
 gem 'deckar01-task_list', '1.0.5', require: 'task_list/railtie'
-gem 'github-markup',      '~> 1.4'
+gem 'gitlab-markup',      '~> 1.5.0'
 gem 'redcarpet',          '~> 3.3.3'
 gem 'RedCloth',           '~> 4.3.2'
 gem 'rdoc',               '~>3.6'
@@ -110,6 +110,7 @@ gem 'creole',             '~> 0.5.0'
 gem 'wikicloth',          '0.8.1'
 gem 'asciidoctor',        '~> 1.5.2'
 gem 'rouge',              '~> 2.0'
+gem 'truncato',           '~> 0.7.8'
 
 # See https://groups.google.com/forum/#!topic/ruby-security-ann/aSbgDiwb24s
 # and https://groups.google.com/forum/#!topic/ruby-security-ann/Dy7YiKb_pMM
@@ -224,14 +225,14 @@ gem 'gon',                '~> 6.1.0'
 gem 'jquery-atwho-rails', '~> 1.3.2'
 gem 'jquery-rails',       '~> 4.1.0'
 gem 'jquery-ui-rails',    '~> 5.0.0'
-gem 'request_store',      '~> 1.3.0'
+gem 'request_store',      '~> 1.3'
 gem 'select2-rails',      '~> 3.5.9'
 gem 'virtus',             '~> 1.0.1'
 gem 'net-ssh',            '~> 3.0.1'
 gem 'base32',             '~> 0.3.0'
 
 # Sentry integration
-gem 'sentry-raven', '~> 1.1.0'
+gem 'sentry-raven', '~> 2.0.0'
 
 gem 'premailer-rails', '~> 1.9.0'
 
@@ -295,7 +296,7 @@ group :development, :test do
   gem 'spring-commands-spinach',  '~> 1.1.0'
   gem 'spring-commands-teaspoon', '~> 0.0.2'
 
-  gem 'rubocop', '~> 0.42.0', require: false
+  gem 'rubocop', '~> 0.43.0', require: false
   gem 'rubocop-rspec', '~> 1.5.0', require: false
   gem 'scss_lint', '~> 0.47.0', require: false
   gem 'haml_lint', '~> 0.18.2', require: false
@@ -307,6 +308,8 @@ group :development, :test do
 
   gem 'license_finder', '~> 2.1.0', require: false
   gem 'knapsack', '~> 1.11.0'
+
+  gem 'activerecord_sane_schema_dumper', '0.2'
 end
 
 group :test do
@@ -323,7 +326,7 @@ gem 'newrelic_rpm', '~> 3.16'
 
 gem 'octokit', '~> 4.3.0'
 
-gem 'mail_room', '~> 0.8'
+gem 'mail_room', '~> 0.8.1'
 
 gem 'email_reply_parser', '~> 0.5.8'
 
@@ -340,7 +343,7 @@ gem 'oauth2', '~> 1.2.0'
 gem 'paranoia', '~> 2.0'
 
 # Health check
-gem 'health_check', '~> 2.1.0'
+gem 'health_check', '~> 2.2.0'
 
 # System information
 gem 'vmstat', '~> 2.2'

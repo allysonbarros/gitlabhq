@@ -86,6 +86,30 @@ describe MergeRequest, models: true do
     end
   end
 
+  describe '#cache_merge_request_closes_issues!' do
+    before do
+      subject.project.team << [subject.author, :developer]
+      subject.target_branch = subject.project.default_branch
+    end
+
+    it 'caches closed issues' do
+      issue  = create :issue, project: subject.project
+      commit = double('commit1', safe_message: "Fixes #{issue.to_reference}")
+      allow(subject).to receive(:commits).and_return([commit])
+
+      expect { subject.cache_merge_request_closes_issues! }.to change(subject.merge_requests_closing_issues, :count).by(1)
+    end
+
+    it 'does not cache issues from external trackers' do
+      subject.project.update_attribute(:has_external_issue_tracker, true)
+      issue  = ExternalIssue.new('JIRA-123', subject.project)
+      commit = double('commit1', safe_message: "Fixes #{issue.to_reference}")
+      allow(subject).to receive(:commits).and_return([commit])
+
+      expect { subject.cache_merge_request_closes_issues! }.not_to change(subject.merge_requests_closing_issues, :count)
+    end
+  end
+
   describe '#source_branch_sha' do
     let(:last_branch_commit) { subject.source_project.repository.commit(subject.source_branch) }
 
@@ -310,7 +334,7 @@ describe MergeRequest, models: true do
       wip_title = "WIP: #{subject.title}"
 
       expect(subject.wip_title).to eq wip_title
-    end 
+    end
 
     it "does not add the WIP: prefix multiple times" do
       wip_title = "WIP: #{subject.title}"
@@ -465,7 +489,7 @@ describe MergeRequest, models: true do
       subject(:merge_request_with_divergence) { create(:merge_request, :diverged, source_project: project, target_project: project) }
 
       it 'counts commits that are on target branch but not on source branch' do
-        expect(subject.diverged_commits_count).to eq(5)
+        expect(subject.diverged_commits_count).to eq(29)
       end
     end
 
@@ -473,7 +497,7 @@ describe MergeRequest, models: true do
       subject(:merge_request_fork_with_divergence) { create(:merge_request, :diverged, source_project: fork_project, target_project: project) }
 
       it 'counts commits that are on target branch but not on source branch' do
-        expect(subject.diverged_commits_count).to eq(5)
+        expect(subject.diverged_commits_count).to eq(29)
       end
     end
 
@@ -616,32 +640,56 @@ describe MergeRequest, models: true do
   end
 
   describe '#all_commits_sha' do
-    let(:all_commits_sha) do
-      subject.merge_request_diffs.flat_map(&:commits).map(&:sha).uniq
-    end
+    context 'when merge request is persisted' do
+      let(:all_commits_sha) do
+        subject.merge_request_diffs.flat_map(&:commits).map(&:sha).uniq
+      end
 
-    shared_examples 'returning all SHA' do
-      it 'returns all SHA from all merge_request_diffs' do
-        expect(subject.merge_request_diffs.size).to eq(2)
-        expect(subject.all_commits_sha).to eq(all_commits_sha)
+      shared_examples 'returning all SHA' do
+        it 'returns all SHA from all merge_request_diffs' do
+          expect(subject.merge_request_diffs.size).to eq(2)
+          expect(subject.all_commits_sha).to eq(all_commits_sha)
+        end
+      end
+
+      context 'with a completely different branch' do
+        before do
+          subject.update(target_branch: 'v1.0.0')
+        end
+
+        it_behaves_like 'returning all SHA'
+      end
+
+      context 'with a branch having no difference' do
+        before do
+          subject.update(target_branch: 'v1.1.0')
+          subject.reload # make sure commits were not cached
+        end
+
+        it_behaves_like 'returning all SHA'
       end
     end
 
-    context 'with a completely different branch' do
-      before do
-        subject.update(target_branch: 'v1.0.0')
+    context 'when merge request is not persisted' do
+      context 'when compare commits are set in the service' do
+        let(:commit) { spy('commit') }
+
+        subject do
+          build(:merge_request, compare_commits: [commit, commit])
+        end
+
+        it 'returns commits from compare commits temporary data' do
+          expect(subject.all_commits_sha).to eq [commit, commit]
+        end
       end
 
-      it_behaves_like 'returning all SHA'
-    end
+      context 'when compare commits are not set in the service' do
+        subject { build(:merge_request) }
 
-    context 'with a branch having no difference' do
-      before do
-        subject.update(target_branch: 'v1.1.0')
-        subject.reload # make sure commits were not cached
+        it 'returns array with diff head sha element only' do
+          expect(subject.all_commits_sha).to eq [subject.diff_head_sha]
+        end
       end
-
-      it_behaves_like 'returning all SHA'
     end
   end
 
@@ -1131,12 +1179,6 @@ describe MergeRequest, models: true do
       expect(merge_request.conflicts_can_be_resolved_in_ui?).to be_falsey
     end
 
-    it 'returns a falsey value when the conflicts contain a file with ambiguous conflict markers' do
-      merge_request = create_merge_request('conflict-contains-conflict-markers')
-
-      expect(merge_request.conflicts_can_be_resolved_in_ui?).to be_falsey
-    end
-
     it 'returns a falsey value when the conflicts contain a file edited in one branch and deleted in another' do
       merge_request = create_merge_request('conflict-missing-side')
 
@@ -1148,9 +1190,15 @@ describe MergeRequest, models: true do
 
       expect(merge_request.conflicts_can_be_resolved_in_ui?).to be_truthy
     end
+
+    it 'returns a truthy value when the conflicts have to be resolved in an editor' do
+      merge_request = create_merge_request('conflict-contains-conflict-markers')
+
+      expect(merge_request.conflicts_can_be_resolved_in_ui?).to be_truthy
+    end
   end
 
-  describe "#forked_source_project_missing?" do
+  describe "#source_project_missing?" do
     let(:project)      { create(:project) }
     let(:fork_project) { create(:project, forked_from_project: project) }
     let(:user)         { create(:user) }
@@ -1163,13 +1211,13 @@ describe MergeRequest, models: true do
           target_project: project)
       end
 
-      it { expect(merge_request.forked_source_project_missing?).to be_falsey }
+      it { expect(merge_request.source_project_missing?).to be_falsey }
     end
 
     context "when the source project is the same as the target project" do
       let(:merge_request) { create(:merge_request, source_project: project) }
 
-      it { expect(merge_request.forked_source_project_missing?).to be_falsey }
+      it { expect(merge_request.source_project_missing?).to be_falsey }
     end
 
     context "when the fork does not exist" do
@@ -1183,7 +1231,7 @@ describe MergeRequest, models: true do
         unlink_project.execute
         merge_request.reload
 
-        expect(merge_request.forked_source_project_missing?).to be_truthy
+        expect(merge_request.source_project_missing?).to be_truthy
       end
     end
   end
@@ -1222,38 +1270,6 @@ describe MergeRequest, models: true do
 
       it "returns false" do
         expect(open_merge_request.closed_without_fork?).to be_falsey
-      end
-    end
-  end
-
-  describe '#closed_without_source_project?' do
-    let(:project)      { create(:project) }
-    let(:user)         { create(:user) }
-    let(:fork_project) { create(:project, forked_from_project: project, namespace: user.namespace) }
-    let(:destroy_service) { Projects::DestroyService.new(fork_project, user) }
-
-    context 'when the merge request is closed' do
-      let(:closed_merge_request) do
-        create(:closed_merge_request,
-          source_project: fork_project,
-          target_project: project)
-      end
-
-      it 'returns false if the source project exists' do
-        expect(closed_merge_request.closed_without_source_project?).to be_falsey
-      end
-
-      it 'returns true if the source project does not exist' do
-        destroy_service.execute
-        closed_merge_request.reload
-
-        expect(closed_merge_request.closed_without_source_project?).to be_truthy
-      end
-    end
-
-    context 'when the merge request is open' do
-      it 'returns false' do
-        expect(subject.closed_without_source_project?).to be_falsey
       end
     end
   end

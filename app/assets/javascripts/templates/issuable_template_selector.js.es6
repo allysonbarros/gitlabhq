@@ -1,7 +1,7 @@
 /*= require ../blob/template_selector */
 
 ((global) => {
-  class IssuableTemplateSelector extends TemplateSelector {
+  class IssuableTemplateSelector extends gl.TemplateSelector {
     constructor(...args) {
       super(...args);
       this.projectPath = this.dropdown.data('project-path');
@@ -16,7 +16,13 @@
       if (initialQuery.name) this.requestFile(initialQuery);
 
       $('.reset-template', this.dropdown.parent()).on('click', () => {
-        if (this.currentTemplate) this.setInputValueToTemplateContent(false);
+        this.setInputValueToTemplateContent();
+      });
+
+      $('.no-template', this.dropdown.parent()).on('click', () => {
+        this.currentTemplate = '';
+        this.setInputValueToTemplateContent();
+        $('.dropdown-toggle-text', this.dropdown).text('Choose a template');
       });
     }
 
@@ -50,4 +56,4 @@
   }
 
   global.IssuableTemplateSelector = IssuableTemplateSelector;
-})(window);
+})(window.gl || (window.gl = {}));
