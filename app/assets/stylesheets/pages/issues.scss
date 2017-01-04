@@ -68,6 +68,11 @@ ul.related-merge-requests > li {
     background: $blue-normal;
   }
 
+  &.bgred {
+    background: rgba(255, 0, 0, 0.15);
+    border-color: $red-dark;
+  }
+
   &.closed {
     border-color: darken($red-normal, 10%);
     background: $red-normal;
